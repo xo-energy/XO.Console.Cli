@@ -1,0 +1,47 @@
+name: NuGet
+description: Packs and pushes a NuGet package to GitHub Packages
+inputs:
+  project:
+    description: Path to the project
+    required: true
+  package-id:
+    description: NuGet package ID of the package to push
+    required: true
+  package-source:
+    description: URL of the NuGet package source to push to
+    required: true
+    default: 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
+  dotnet-version:
+    description: Version of the dotnet SDK to install
+    required: true
+    default: '6.0.x'
+outputs:
+  package-id:
+    description: NuGet package ID of the pushed package
+    value: ${{ inputs.package-id }}
+  package-version:
+    description: NuGet package version of the pushed package
+    value: ${{ steps.nbgv.outputs.NuGetPackageVersion }}
+        
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '${{ inputs.dotnet-version }}'
+    
+    - run: dotnet tool restore
+      shell: bash
+    - run: dotnet nbgv cloud -p "${{ inputs.project }}"
+      shell: bash
+    
+    - run: mkdir -v packages
+      shell: bash
+      
+    - name: Pack
+      run: dotnet pack -c Release -o packages "${{ inputs.project }}"
+      shell: bash
+    - name: Push
+      run: dotnet nuget push -k "${{ github.token }}" -s "${{ inputs.package-source }}" "packages/${{ inputs.package-id }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg"
+      shell: bash
+      

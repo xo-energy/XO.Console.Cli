@@ -1,0 +1,22 @@
+name: XO.Console.Cli.Tests
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 0
+      DOTNET_MULTILEVEL_LOOKUP: 0
+      DOTNET_NOLOGO: 0
+    steps:
+      - uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # fetch full history for NBGV
+
+      - run: dotnet restore XO.Console.Cli.Tests
+      - run: dotnet build --no-restore -c Release XO.Console.Cli.Tests
+      - run: dotnet test --no-build --verbosity Normal -c Release XO.Console.Cli.Tests

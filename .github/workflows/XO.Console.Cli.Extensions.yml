@@ -1,0 +1,26 @@
+name: XO.Console.Cli.Extensions
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - 'main'
+      - 'release-*'
+
+jobs:
+  nuget:
+    name: NuGet
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 0
+      DOTNET_MULTILEVEL_LOOKUP: 0
+      DOTNET_NOLOGO: 0
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # fetch full history for NBGV
+
+      - uses: ./.github/actions/nuget
+        with:
+          project: XO.Console.Cli.Extensions
+          package-id: XO.Console.Cli.Extensions

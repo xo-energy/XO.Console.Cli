@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <Product>XO.Console.Cli</Product>
+    <Authors>William J. Rogers</Authors>
+    <Copyright>Copyright (c) 2022, XO Energy LLC</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/xo-energy/XO.Console.Cli</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+  </PropertyGroup>
+</Project>

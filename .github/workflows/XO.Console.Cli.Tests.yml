@@ -5,9 +5,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      DOTNET_CLI_TELEMETRY_OPTOUT: 0
-      DOTNET_MULTILEVEL_LOOKUP: 0
-      DOTNET_NOLOGO: 0
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_MULTILEVEL_LOOKUP: 1
+      DOTNET_NOLOGO: 1
     steps:
       - uses: actions/setup-dotnet@v2
         with:

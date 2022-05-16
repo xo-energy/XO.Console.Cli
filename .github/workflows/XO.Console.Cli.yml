@@ -12,15 +12,25 @@ jobs:
     name: NuGet
     runs-on: ubuntu-latest
     env:
-      DOTNET_CLI_TELEMETRY_OPTOUT: 0
-      DOTNET_MULTILEVEL_LOOKUP: 0
-      DOTNET_NOLOGO: 0
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_MULTILEVEL_LOOKUP: 1
+      DOTNET_NOLOGO: 1
+      NUGET_SOURCE: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      PROJECT: XO.Console.Cli
     steps:
+      - uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # fetch full history for NBGV
-
-      - uses: ./.github/actions/nuget
+      - uses: dotnet/nbgv@master
+        id: nbgv
         with:
-          project: XO.Console.Cli
-          package-id: XO.Console.Cli
+          path: ${{ env.PROJECT }}
+
+      - run: dotnet restore "$PROJECT"
+      - run: dotnet build --no-restore -c Release "$PROJECT"
+      - run: dotnet pack --no-build -o packages -c Release "$PROJECT"
+      - run: dotnet nuget push -k "${{ github.token }}" -s "$NUGET_SOURCE" "packages/$PROJECT.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg"

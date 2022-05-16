@@ -21,13 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 		.github\workflows\XO.Console.Cli.yml = .github\workflows\XO.Console.Cli.yml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actions", "Actions", "{1B3EDA97-E6B1-4546-9DA5-69750BADC386}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{02BBA434-ABE6-4D31-B159-26703D67831F}"
-	ProjectSection(SolutionItems) = preProject
-		.github\actions\nuget\action.yml = .github\actions\nuget\action.yml
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XO.Console.Cli", "XO.Console.Cli\XO.Console.Cli.csproj", "{03404293-C522-4EF1-ABD6-CFBC6E6B1F93}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XO.Console.Cli.Extensions", "XO.Console.Cli.Extensions\XO.Console.Cli.Extensions.csproj", "{9B47207E-A8C0-4CD7-9EA3-820F20B64B8D}"
@@ -55,9 +48,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{02BBA434-ABE6-4D31-B159-26703D67831F} = {1B3EDA97-E6B1-4546-9DA5-69750BADC386}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31B5C4FE-E5D8-483D-9978-0FB41FC7CE68}

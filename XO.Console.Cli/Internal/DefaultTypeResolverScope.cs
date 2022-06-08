@@ -9,11 +9,8 @@ internal sealed class DefaultTypeResolverScope : ITypeResolverScope
         _resolver = resolver;
     }
 
-    public object? Get(Type type)
-        => _resolver.Get(type);
-
-    public T? Get<T>()
-        => _resolver.Get<T>();
+    public ITypeResolver TypeResolver
+        => _resolver;
 
     void IDisposable.Dispose()
     {

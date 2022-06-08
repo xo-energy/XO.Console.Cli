@@ -29,7 +29,7 @@ public sealed class CommandContext : IAsyncDisposable, ICommandContext, IDisposa
         CommandParameters parameters)
     {
         _scope = scope;
-        this.CommandServices = scope;
+        this.CommandServices = scope.TypeResolver;
         this.Command = command;
         this.Parameters = parameters;
     }

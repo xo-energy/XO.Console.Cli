@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using XO.Console.Cli.Commands;
 using XO.Console.Cli.Features;
@@ -19,9 +18,9 @@ public class CommandContextTest
     private CommandContext EmptyContext { get; }
 
     [Fact]
-    public void CommandServicesReturnsScope()
+    public void CommandServicesReturnsScopeTypeResolver()
     {
-        Assert.Same(_scope, EmptyContext.CommandServices);
+        Assert.Same(_scope.TypeResolver, EmptyContext.CommandServices);
     }
 
     [Fact]
@@ -67,6 +66,9 @@ public class CommandContextTest
         public bool IsDisposed { get; private set; }
         public bool IsDisposedAsync { get; private set; }
 
+        public ITypeResolver TypeResolver
+            => DefaultTypeResolver.Instance;
+
         public void Dispose()
         {
             IsDisposed = true;
@@ -76,16 +78,6 @@ public class CommandContextTest
         {
             IsDisposedAsync = true;
             return default;
-        }
-
-        public object? Get(Type type)
-        {
-            throw new NotImplementedException();
-        }
-
-        public T? Get<T>()
-        {
-            throw new NotImplementedException();
         }
     }
 }

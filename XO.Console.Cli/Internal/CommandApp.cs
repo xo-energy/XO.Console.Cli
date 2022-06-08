@@ -223,11 +223,11 @@ internal sealed class CommandApp : ICommandApp
         try
         {
             // create an instance of the command type
-            if (commandFactory(_resolver) is not ICommand commandInstance)
+            if (commandFactory(scope.TypeResolver) is not ICommand commandInstance)
                 throw new CommandTypeException(typeof(CommandFactory), $"Failed to instantiate command!");
 
             // create parameters instance
-            if (_resolver.Get(parametersType) is not CommandParameters parameters)
+            if (scope.TypeResolver.Get(parametersType) is not CommandParameters parameters)
                 throw new CommandTypeException(parametersType, "Failed to instantiate parameters");
 
             // create context

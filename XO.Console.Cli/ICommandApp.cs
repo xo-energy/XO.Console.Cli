@@ -18,6 +18,7 @@ public interface ICommandApp
     /// <param name="parse">The result of parsing the command-line arguments.</param>
     /// <returns>
     /// A new instance of <see cref="CommandContext"/> containing the bound command implementation and parameters.
+    /// Callers should dispose the context to release any scoped dependencies of the command.
     /// </returns>
     /// <exception cref="CommandParameterBindingException">An error occurred while binding parameter values.</exception>
     /// <exception cref="CommandParameterValidationException"><see cref="CommandParameters.Validate"/> did not succeed.</exception>

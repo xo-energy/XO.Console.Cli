@@ -79,7 +79,6 @@ public static class CommandAppHostExtensions
 
             var app = builder.Build();
             var parse = app.Parse(args);
-            var commandContext = app.Bind(parse);
 
             await host.StartAsync(token).ConfigureAwait(false);
 
@@ -88,7 +87,7 @@ public static class CommandAppHostExtensions
                 logger?.LogDebug("Executing command {Command} ... ", from x in parse.GetVerbs() select x.Value);
                 logger?.LogTrace("Command args: {Args}", args);
 
-                result = await app.ExecuteAsync(commandContext, lifetime.ApplicationStopping)
+                result = await app.ExecuteAsync(parse, lifetime.ApplicationStopping)
                     .ConfigureAwait(false);
             }
             catch (Exception ex)

@@ -30,9 +30,33 @@ public static class CommandAppExtensions
         CancellationToken cancellationToken = default)
     {
         var parse = app.Parse(args);
-        var binding = app.Bind(parse);
 
-        return await app.ExecuteAsync(binding, cancellationToken)
+        return await ExecuteAsync(app, parse, cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Binds and executes a command.
+    /// </summary>
+    /// <param name="app">The <see cref="ICommandApp"/>.</param>
+    /// <param name="parse">The result of parsing the command-line arguments.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> that may request that command execution be canceled.</param>
+    /// <returns>A <see cref="Task{TResult}"/> whose result is the exit code of the command.</returns>
+    public static async Task<int> ExecuteAsync(
+        this ICommandApp app,
+        CommandParseResult parse,
+        CancellationToken cancellationToken = default)
+    {
+        var binding = app.Bind(parse);
+        try
+        {
+            return await app.ExecuteAsync(binding, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            await binding.DisposeAsync()
+                .ConfigureAwait(false);
+        }
     }
 }

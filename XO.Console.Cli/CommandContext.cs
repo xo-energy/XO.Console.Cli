@@ -9,8 +9,10 @@ namespace XO.Console.Cli;
 /// Middleware can modify the <see cref="CommandContext"/> before (or after) it gets passed to the command
 /// implementation.
 /// </remarks>
-public sealed class CommandContext : ICommandContext
+public sealed class CommandContext : IAsyncDisposable, ICommandContext, IDisposable
 {
+    private readonly ITypeResolverScope _scope;
+
     private IConsole? _console;
     private Dictionary<string, object?>? _globalOptions;
     private List<string>? _remainingArguments;
@@ -18,15 +20,24 @@ public sealed class CommandContext : ICommandContext
     /// <summary>
     /// Creates a new instance of <see cref="CommandContext"/>.
     /// </summary>
+    /// <param name="scope">The service scope for this command execution.</param>
     /// <param name="command">The command implementation.</param>
     /// <param name="parameters">The command parameters.</param>
     public CommandContext(
+        ITypeResolverScope scope,
         ICommand command,
         CommandParameters parameters)
     {
+        _scope = scope;
+        this.CommandServices = scope;
         this.Command = command;
         this.Parameters = parameters;
     }
+
+    /// <summary>
+    /// Gets or sets the <see cref="ITypeResolver"/> that resolves dependencies for this command execution.
+    /// </summary>
+    public ITypeResolver CommandServices { get; set; }
 
     /// <summary>
     /// Gets or sets the command implementation.
@@ -44,6 +55,18 @@ public sealed class CommandContext : ICommandContext
     {
         get => LazyInitializer.EnsureInitialized(ref _console, () => new SystemConsole());
         set => _console = value;
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        _scope.Dispose();
+    }
+
+    /// <inheritdoc/>
+    public ValueTask DisposeAsync()
+    {
+        return _scope.DisposeAsync();
     }
 
     /// <inheritdoc/>

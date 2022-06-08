@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using XO.Console.Cli.Commands;
 using XO.Console.Cli.Features;
 using Xunit;
@@ -6,13 +8,40 @@ namespace XO.Console.Cli.Tests;
 
 public class CommandContextTest
 {
+    private readonly TestTypeResolverScope _scope;
+
+    public CommandContextTest()
+    {
+        _scope = new TestTypeResolverScope();
+        EmptyContext = new CommandContext(_scope, new MissingCommand(), new CommandParameters());
+    }
+
     private CommandContext EmptyContext { get; }
-        = new CommandContext(new MissingCommand(), new CommandParameters());
+
+    [Fact]
+    public void CommandServicesReturnsScope()
+    {
+        Assert.Same(_scope, EmptyContext.CommandServices);
+    }
 
     [Fact]
     public void ConsoleReturnsSystemConsole()
     {
         Assert.IsType<SystemConsole>(EmptyContext.Console);
+    }
+
+    [Fact]
+    public void DisposeDisposesScopeSynchronously()
+    {
+        EmptyContext.Dispose();
+        Assert.True(_scope.IsDisposed);
+    }
+
+    [Fact]
+    public async Task DisposeAsyncDisposesScopeAsynchronously()
+    {
+        await EmptyContext.DisposeAsync();
+        Assert.True(_scope.IsDisposedAsync);
     }
 
     [Fact]
@@ -31,5 +60,32 @@ public class CommandContextTest
     public void SystemConsoleErrorIsSystemConsoleError()
     {
         Assert.Same(System.Console.Error, EmptyContext.Console.Error);
+    }
+
+    public sealed class TestTypeResolverScope : ITypeResolverScope
+    {
+        public bool IsDisposed { get; private set; }
+        public bool IsDisposedAsync { get; private set; }
+
+        public void Dispose()
+        {
+            IsDisposed = true;
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            IsDisposedAsync = true;
+            return default;
+        }
+
+        public object? Get(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T? Get<T>()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -5,7 +5,7 @@ namespace XO.Console.Cli;
 /// <summary>
 /// Implements type resolution using <see cref="IServiceProvider"/>.
 /// </summary>
-public class ServiceProviderTypeResolver : ITypeResolver
+public class ServiceProviderTypeResolver : ITypeResolver, ITypeResolverScopeFactory
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -16,6 +16,21 @@ public class ServiceProviderTypeResolver : ITypeResolver
     public ServiceProviderTypeResolver(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+    }
+
+    /// <inheritdoc/>
+    public ITypeResolverScope CreateScope()
+    {
+        var scope = _serviceProvider.CreateAsyncScope();
+        try
+        {
+            return new ServiceProviderTypeResolverScope(scope);
+        }
+        catch
+        {
+            scope.Dispose();
+            throw;
+        }
     }
 
     /// <inheritdoc/>

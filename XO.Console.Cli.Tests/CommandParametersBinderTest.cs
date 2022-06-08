@@ -154,6 +154,7 @@ public class CommandParametersBinderTest
 
     private sealed class TestParameterContext<TValue> : TestParameterContext
     {
+        private static readonly ITypeResolverScope Scope = new DefaultTypeResolverScope(DefaultTypeResolver.Instance);
         private static readonly MissingCommand Command = new MissingCommand();
         private static readonly CommandParameters Parameters = new CommandParameters();
 
@@ -169,7 +170,7 @@ public class CommandParametersBinderTest
                 typeof(TestParameterContext<>).DeclaringType!,
                 typeof(TValue),
                 (_, value) => this.Value = (TValue?)value);
-            this.Context = new CommandContext(Command, Parameters);
+            this.Context = new CommandContext(Scope, Command, Parameters);
         }
 
         public CommandArgument Argument { get; }

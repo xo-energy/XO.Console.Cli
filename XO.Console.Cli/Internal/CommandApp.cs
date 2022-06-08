@@ -208,27 +208,47 @@ internal sealed class CommandApp : ICommandApp
         Type parametersType,
         ImmutableDictionary<CommandParameter, object?> bindings)
     {
-        // create an instance of the command type
-        if (commandFactory(_resolver) is not ICommand commandInstance)
-            throw new CommandTypeException(typeof(CommandFactory), $"Failed to instantiate command!");
+        ITypeResolverScope scope;
 
-        // create parameters instance
-        if (_resolver.Get(parametersType) is not CommandParameters parameters)
-            throw new CommandTypeException(parametersType, "Failed to instantiate parameters");
+        // create a service scope, if our resolver supports it
+        if (_resolver is ITypeResolverScopeFactory scopeFactory)
+        {
+            scope = scopeFactory.CreateScope();
+        }
+        else
+        {
+            scope = new DefaultTypeResolverScope(_resolver);
+        }
 
-        // create context
-        var context = new CommandContext(commandInstance, parameters);
+        try
+        {
+            // create an instance of the command type
+            if (commandFactory(_resolver) is not ICommand commandInstance)
+                throw new CommandTypeException(typeof(CommandFactory), $"Failed to instantiate command!");
 
-        // bind parameters
-        foreach (var (parameter, value) in bindings)
-            parameter.Setter(context, value);
+            // create parameters instance
+            if (_resolver.Get(parametersType) is not CommandParameters parameters)
+                throw new CommandTypeException(parametersType, "Failed to instantiate parameters");
 
-        // validate parameters
-        var validationResult = parameters.Validate();
-        if (validationResult != ValidationResult.Success)
-            throw new CommandParameterValidationException(validationResult);
+            // create context
+            var context = new CommandContext(scope, commandInstance, parameters);
 
-        return context;
+            // bind parameters
+            foreach (var (parameter, value) in bindings)
+                parameter.Setter(context, value);
+
+            // validate parameters
+            var validationResult = parameters.Validate();
+            if (validationResult != ValidationResult.Success)
+                throw new CommandParameterValidationException(validationResult);
+
+            return context;
+        }
+        catch
+        {
+            scope.Dispose();
+            throw;
+        }
     }
 
     /// <inheritdoc/>

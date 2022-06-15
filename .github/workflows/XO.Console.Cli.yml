@@ -34,3 +34,7 @@ jobs:
       - run: dotnet build --no-restore -c Release "$PROJECT"
       - run: dotnet pack --no-build -o packages -c Release "$PROJECT"
       - run: dotnet nuget push -k "${{ github.token }}" -s "$NUGET_SOURCE" "packages/$PROJECT.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg"
+
+      # publish release builds to nuget.org!
+      - run: dotnet nuget push -k "${{ secrets.NUGET_API_KEY }}" -s "https://api.nuget.org/v3/index.json" "packages/$PROJECT.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg"
+        if: startsWith(github.ref, "refs/heads/release-")

@@ -5,6 +5,7 @@
     <DebugType>embedded</DebugType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Description>Integrates XO.Console.Cli with Microsoft.Extensions.DependencyInjection and Microsoft.Extensions.Hosting</Description>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>XO.Console.Cli</RootNamespace>

@@ -6,6 +6,7 @@
     <Copyright>Copyright (c) 2022, XO Energy LLC</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/xo-energy/XO.Console.Cli</PackageProjectUrl>
+    <PackageTags>cli;command-line</PackageTags>
     <RepositoryUrl>https://github.com/xo-energy/XO.Console.Cli.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>

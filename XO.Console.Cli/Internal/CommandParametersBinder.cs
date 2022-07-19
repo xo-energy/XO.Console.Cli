@@ -99,6 +99,10 @@ internal sealed class CommandParametersBinder
         {
             converter = (value) => typeConverter.ConvertFrom(value);
         }
+        else if (type.IsEnum)
+        {
+            converter = (value) => Enum.Parse(type, value);
+        }
         else if (TryGetParseDelegate(type, out var parse))
         {
             converter = parse;

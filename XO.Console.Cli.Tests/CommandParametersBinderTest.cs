@@ -91,6 +91,20 @@ public class CommandParametersBinderTest
     }
 
     [Fact]
+    public void CanBindToEnum()
+    {
+        CanBindTo(TestEnum.Two, "Two");
+    }
+
+    [Theory]
+    [InlineData(null, new string[] { })]
+    [InlineData(TestEnum.Three, new string[] { "Three" })]
+    public void CanBindToEnumNullable(TestEnum? expected, string[] arguments)
+    {
+        CanBindTo(expected, arguments);
+    }
+
+    [Fact]
     public void CanBindToInt32()
     {
         CanBindTo(57, "57");
@@ -179,4 +193,11 @@ public class CommandParametersBinderTest
     }
 
     private sealed record TestRecord(string Value);
+
+    public enum TestEnum
+    {
+        One,
+        Two,
+        Three,
+    }
 }

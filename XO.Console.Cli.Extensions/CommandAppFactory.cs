@@ -16,7 +16,6 @@ internal static class CommandAppFactory
         var options = optionsAccessor?.Value ?? new();
 
         var builder = options.CommandAppBuilderFactory()
-            .AddHostingGlobalOptions()
             .SetApplicationName(context.HostingEnvironment.ApplicationName)
             .UseTypeResolver(resolver);
 

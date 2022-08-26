@@ -108,19 +108,20 @@ public static class CommandAppHostBuilderExtensions
         return result;
     }
 
-    private static async Task DisposeAndFlush(IHost host, ILoggerFactory? loggerFactory)
+    private static ValueTask DisposeAndFlush(IHost host, ILoggerFactory? loggerFactory)
     {
         try
         {
             if (host is IAsyncDisposable asyncDisposable)
-                await asyncDisposable.DisposeAsync()
-                    .ConfigureAwait(false);
-            else
-                host.Dispose();
+                return asyncDisposable.DisposeAsync();
+
+            host.Dispose();
+            return ValueTask.CompletedTask;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex.ToString());
+            return ValueTask.CompletedTask;
         }
         finally
         {

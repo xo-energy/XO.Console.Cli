@@ -11,7 +11,7 @@ namespace XO.Console.Cli;
 public static class CommandAppHostExtensions
 {
     /// <summary>
-    /// Runs a command-line application.
+    /// Runs the configured command-line application.
     /// </summary>
     /// <remarks>
     /// To configure the command-line application, call <see
@@ -49,7 +49,7 @@ public static class CommandAppHostExtensions
             }
             catch (Exception ex)
             {
-                logger?.LogCritical(ex, "Command crashed! {Message}", ex.Message);
+                logger?.LogCritical(ex, "Unhandled exception: {ExceptionMessage}", ex.Message);
 
                 System.Console.Error.WriteLine(ex.Message);
                 result = 1;

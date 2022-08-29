@@ -2,7 +2,6 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace XO.Console.Cli;
 
@@ -12,46 +11,17 @@ namespace XO.Console.Cli;
 public static class CommandAppHostExtensions
 {
     /// <summary>
-    /// Builds and runs a hosted command-line application with a default command.
+    /// Runs the configured command-line application.
     /// </summary>
+    /// <remarks>
+    /// To configure the command-line application, call <see
+    /// cref="o:CommandAppServiceCollectionExtensions.AddCommandApp()"/> before building the host.
+    /// </remarks>
     /// <param name="host">The <see cref="IHost"/>.</param>
     /// <param name="args">The command-line arguments.</param>
-    /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
-    /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
-    public static Task<int> RunCommandAppAsync<TDefaultCommand>(
-        this IHost host,
-        IReadOnlyList<string> args,
-        Action<ICommandAppBuilder>? configure = null)
-        where TDefaultCommand : class, ICommand
-        => RunCommandAppAsync(host, args, CommandAppBuilder.WithDefaultCommand<TDefaultCommand>, configure);
-
-    /// <summary>
-    /// Builds and runs a hosted command-line application.
-    /// </summary>
-    /// <param name="host">The <see cref="IHost"/>.</param>
-    /// <param name="args">The command-line arguments.</param>
-    /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
-    /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
-    public static Task<int> RunCommandAppAsync(
-        this IHost host,
-        IReadOnlyList<string> args,
-        Action<ICommandAppBuilder>? configure = null)
-        => RunCommandAppAsync(host, args, CommandAppBuilder.Create, configure);
-
-    /// <summary>
-    /// Builds and runs a hosted command-line application.
-    /// </summary>
-    /// <param name="host">The <see cref="IHost"/>.</param>
-    /// <param name="args">The command-line arguments.</param>
-    /// <param name="builderFactory">A delegate that constructs the <see cref="ICommandAppBuilder"/>.</param>
-    /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
     /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
     [DebuggerNonUserCode]
-    internal static async Task<int> RunCommandAppAsync(
-        this IHost host,
-        IReadOnlyList<string> args,
-        Func<ICommandAppBuilder> builderFactory,
-        Action<ICommandAppBuilder>? configure = null)
+    public static async Task<int> RunCommandAppAsync(this IHost host, IReadOnlyList<string> args)
     {
         using var cancellationSource = new CancellationTokenSource();
         var logger = host.Services.GetService<ILogger<ICommandApp>>();
@@ -59,25 +29,12 @@ public static class CommandAppHostExtensions
         int result;
         try
         {
-            var context = host.Services.GetRequiredService<HostBuilderContext>();
             var lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
-            var resolver = new ServiceProviderTypeResolver(host.Services);
+            var app = host.Services.GetService<ICommandApp>();
 
-            var builder = builderFactory()
-                .AddHostingGlobalOptions()
-                .SetApplicationName(context.HostingEnvironment.ApplicationName)
-                .UseTypeResolver(resolver);
+            // if the caller did not configure an application, do nothing as a default
+            app ??= CommandAppFactory.BuildCommandApp(host.Services);
 
-            var optionsAccessor = host.Services.GetService<IOptions<CommandAppBuilderOptions>>();
-            if (optionsAccessor?.Value is CommandAppBuilderOptions options)
-            {
-                foreach (var action in options.ConfigureActions)
-                    action(context, builder);
-            }
-
-            configure?.Invoke(builder);
-
-            var app = builder.Build();
             var parse = app.Parse(args);
 
             await host.StartAsync(token).ConfigureAwait(false);
@@ -92,7 +49,7 @@ public static class CommandAppHostExtensions
             }
             catch (Exception ex)
             {
-                logger?.LogCritical(ex, "Command crashed! {Message}", ex.Message);
+                logger?.LogCritical(ex, "Unhandled exception: {ExceptionMessage}", ex.Message);
 
                 System.Console.Error.WriteLine(ex.Message);
                 result = 1;

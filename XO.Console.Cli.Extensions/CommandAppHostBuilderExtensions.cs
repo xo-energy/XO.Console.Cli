@@ -11,40 +11,6 @@ namespace XO.Console.Cli;
 public static class CommandAppHostBuilderExtensions
 {
     /// <summary>
-    /// Configures <see cref="CommandAppBuilderOptions"/> and adds a delegate to its list of configuration actions.
-    /// </summary>
-    /// <param name="builder">The <see cref="IHostBuilder"/> to configure.</param>
-    /// <param name="configure">A delegate that configures <see cref="ICommandAppBuilder"/>.</param>
-    /// <returns>The <see cref="IHostBuilder"/>.</returns>
-    public static IHostBuilder ConfigureCommandApp(
-        this IHostBuilder builder,
-        Action<HostBuilderContext, ICommandAppBuilder> configure)
-    {
-        return builder
-            .ConfigureServices((_, services) =>
-            {
-                services.AddOptions<CommandAppBuilderOptions>()
-                    .Configure(options => options.ConfigureActions.Add(configure))
-                    ;
-            })
-            ;
-    }
-
-    /// <summary>
-    /// Builds the host, then builds and runs a hosted command-line application with a default command.
-    /// </summary>
-    /// <param name="hostBuilder">The <see cref="IHostBuilder"/> to configure.</param>
-    /// <param name="args">The command-line arguments.</param>
-    /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
-    /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
-    public static Task<int> RunCommandAppAsync<TDefaultCommand>(
-        this IHostBuilder hostBuilder,
-        IReadOnlyList<string> args,
-        Action<ICommandAppBuilder>? configure = null)
-        where TDefaultCommand : class, ICommand
-        => RunCommandAppAsync(hostBuilder, args, CommandAppBuilder.WithDefaultCommand<TDefaultCommand>, configure);
-
-    /// <summary>
     /// Builds the host, then builds and runs a hosted command-line application.
     /// </summary>
     /// <param name="hostBuilder">The <see cref="IHostBuilder"/> to configure.</param>
@@ -54,8 +20,40 @@ public static class CommandAppHostBuilderExtensions
     public static Task<int> RunCommandAppAsync(
         this IHostBuilder hostBuilder,
         IReadOnlyList<string> args,
-        Action<ICommandAppBuilder>? configure = null)
-        => RunCommandAppAsync(hostBuilder, args, CommandAppBuilder.Create, configure);
+        Action<HostBuilderContext, ICommandAppBuilder>? configure = null)
+        => RunCommandAppAsync(hostBuilder, args, default, configure);
+
+    /// <summary>
+    /// Builds the host, then builds and runs a hosted command-line application with a default command.
+    /// </summary>
+    /// <param name="hostBuilder">The <see cref="IHostBuilder"/> to configure.</param>
+    /// <param name="args">The command-line arguments.</param>
+    /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
+    /// <typeparam name="TDefaultCommand">The command implementation type.</typeparam>
+    /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
+    public static Task<int> RunCommandAppAsync<TDefaultCommand>(
+        this IHostBuilder hostBuilder,
+        IReadOnlyList<string> args,
+        Action<HostBuilderContext, ICommandAppBuilder>? configure = null)
+        where TDefaultCommand : class, ICommand
+        => RunCommandAppAsync(hostBuilder, args, CommandAppBuilder.WithDefaultCommand<TDefaultCommand>, configure);
+
+    /// <summary>
+    /// Builds the host, then builds and runs a hosted command-line application with a default command.
+    /// </summary>
+    /// <param name="hostBuilder">The <see cref="IHostBuilder"/> to configure.</param>
+    /// <param name="args">The command-line arguments.</param>
+    /// <param name="executeAsync">The command implementation delegate.</param>
+    /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
+    /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
+    /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
+    public static Task<int> RunCommandAppAsync<TParameters>(
+        this IHostBuilder hostBuilder,
+        IReadOnlyList<string> args,
+        Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync,
+        Action<HostBuilderContext, ICommandAppBuilder>? configure = null)
+        where TParameters : CommandParameters
+        => RunCommandAppAsync(hostBuilder, args, () => CommandAppBuilder.WithDefaultCommand(executeAsync), configure);
 
     /// <summary>
     /// Builds the host, then builds and runs a hosted command-line application.
@@ -69,9 +67,12 @@ public static class CommandAppHostBuilderExtensions
     internal static async Task<int> RunCommandAppAsync(
         this IHostBuilder hostBuilder,
         IReadOnlyList<string> args,
-        Func<ICommandAppBuilder> builderFactory,
-        Action<ICommandAppBuilder>? configure)
+        Func<ICommandAppBuilder>? builderFactory,
+        Action<HostBuilderContext, ICommandAppBuilder>? configure)
     {
+        hostBuilder.ConfigureServices(
+            (_, services) => services.AddCommandApp(builderFactory, configure));
+
         IHost host;
         try
         {
@@ -90,7 +91,7 @@ public static class CommandAppHostBuilderExtensions
         int result;
         try
         {
-            result = await host.RunCommandAppAsync(args, builderFactory, configure)
+            result = await host.RunCommandAppAsync(args)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -107,19 +108,20 @@ public static class CommandAppHostBuilderExtensions
         return result;
     }
 
-    private static async Task DisposeAndFlush(IHost host, ILoggerFactory? loggerFactory)
+    private static ValueTask DisposeAndFlush(IHost host, ILoggerFactory? loggerFactory)
     {
         try
         {
             if (host is IAsyncDisposable asyncDisposable)
-                await asyncDisposable.DisposeAsync()
-                    .ConfigureAwait(false);
-            else
-                host.Dispose();
+                return asyncDisposable.DisposeAsync();
+
+            host.Dispose();
+            return ValueTask.CompletedTask;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex.ToString());
+            return ValueTask.CompletedTask;
         }
         finally
         {

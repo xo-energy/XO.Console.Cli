@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>XO.Console.Cli</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\XO.Console.Cli\Internal\DefaultTypeResolver.cs" Link="Internal\DefaultTypeResolver.cs" />
+    <Compile Include="..\XO.Console.Cli\Internal\DefaultTypeResolverScope.cs" Link="Internal\DefaultTypeResolverScope.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XO.Console.Cli.Extensions\XO.Console.Cli.Extensions.csproj" />
+    <ProjectReference Include="..\XO.Console.Cli\XO.Console.Cli.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Internal\" />
+  </ItemGroup>
+
+</Project>

@@ -4,18 +4,11 @@ namespace XO.Console.Cli.Commands;
 
 internal sealed class CliExplainCommand : Command
 {
-    private readonly CommandParseResult _parse;
-
-    public CliExplainCommand(CommandParseResult parse)
-    {
-        _parse = parse;
-    }
-
     public override int Execute(ICommandContext context, CancellationToken cancellationToken)
     {
         var indent = "";
 
-        foreach (var token in _parse.Tokens)
+        foreach (var token in context.ParseResult.Tokens)
         {
             string? description = token.Context switch
             {
@@ -36,11 +29,11 @@ internal sealed class CliExplainCommand : Command
                 indent += "   ";
         }
 
-        if (_parse.Errors.Any())
+        if (context.ParseResult.Errors.Any())
         {
             context.Console.Output.WriteLine();
 
-            foreach (var error in _parse.Errors)
+            foreach (var error in context.ParseResult.Errors)
                 context.Console.Output.WriteLine($"Error: {error}");
         }
 

@@ -8,7 +8,6 @@ internal static class Builtins
 
     public static class Arguments
     {
-
         public static CommandArgument Remaining { get; }
             = new CommandArgument(
                 new CommandArgumentAttribute(int.MaxValue, RemainingArgumentName)

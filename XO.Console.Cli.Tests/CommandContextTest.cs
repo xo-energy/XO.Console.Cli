@@ -12,7 +12,7 @@ public class CommandContextTest
     public CommandContextTest()
     {
         _scope = new TestTypeResolverScope();
-        EmptyContext = new CommandContext(_scope, new MissingCommand(), new CommandParameters());
+        EmptyContext = new CommandContext(_scope, new MissingCommand(), new CommandParameters(), CommandParseResult.Empty);
     }
 
     private CommandContext EmptyContext { get; }

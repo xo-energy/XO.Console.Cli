@@ -6,13 +6,11 @@ internal sealed class HelpCommand : AsyncCommand
 {
     private readonly CommandApp _app;
     private readonly CommandParametersInspector _inspector;
-    private readonly CommandParseResult _parse;
 
-    public HelpCommand(CommandApp app, CommandParametersInspector inspector, CommandParseResult parse)
+    public HelpCommand(CommandApp app, CommandParametersInspector inspector)
     {
         _app = app;
         _inspector = inspector;
-        _parse = parse;
     }
 
     public override async Task<int> ExecuteAsync(ICommandContext context, CancellationToken cancellationToken)
@@ -24,7 +22,7 @@ internal sealed class HelpCommand : AsyncCommand
         var argumentsSeen = new HashSet<CommandArgument>();
         var usageParts = new List<string>() { _app.Settings.ApplicationName };
 
-        foreach (var token in _parse.Tokens)
+        foreach (var token in context.ParseResult.Tokens)
         {
             if (token.TokenType != CommandTokenType.Command)
                 continue;

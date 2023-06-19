@@ -23,15 +23,18 @@ public sealed class CommandContext : IAsyncDisposable, ICommandContext, IDisposa
     /// <param name="scope">The service scope for this command execution.</param>
     /// <param name="command">The command implementation.</param>
     /// <param name="parameters">The command parameters.</param>
+    /// <param name="parseResult">The <see cref="CommandParseResult"/> to which this context is bound.</param>
     public CommandContext(
         ITypeResolverScope scope,
         ICommand command,
-        CommandParameters parameters)
+        CommandParameters parameters,
+        CommandParseResult parseResult)
     {
         _scope = scope;
         this.CommandServices = scope.TypeResolver;
         this.Command = command;
         this.Parameters = parameters;
+        ParseResult = parseResult;
     }
 
     /// <summary>
@@ -48,6 +51,11 @@ public sealed class CommandContext : IAsyncDisposable, ICommandContext, IDisposa
     /// Gets or sets the command parameters.
     /// </summary>
     public CommandParameters Parameters { get; set; }
+
+    /// <summary>
+    /// Gets or sets the <see cref="CommandParseResult"/> to which this context is bound.
+    /// </summary>
+    public CommandParseResult ParseResult { get; set; }
 
     /// <inheritdoc/>
     /// <summary>Gets or sets the console abstraction.</summary>

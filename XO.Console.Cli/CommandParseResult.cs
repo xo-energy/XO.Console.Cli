@@ -78,4 +78,9 @@ public sealed class CommandParseResult
 
         return message.ToString();
     }
+
+    /// <summary>
+    /// An instance of <see cref="CommandParseResult"/> containing zero tokens and zero errors.
+    /// </summary>
+    public static readonly CommandParseResult Empty = new(ImmutableArray<CommandToken>.Empty, ImmutableList<string>.Empty);
 }

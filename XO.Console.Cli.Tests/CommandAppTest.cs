@@ -137,6 +137,26 @@ public class CommandAppTest : CommandAppTestBase
         Assert.IsType<TestCommands.NoOp>(context.Command);
     }
 
+    [Fact]
+    public void BindReturnsCommandParseResult()
+    {
+        var app = CommandAppBuilder
+            .WithDefaultCommand<TestParameters.Argument>(Builtins.Delegates.NoOp)
+            .DisableStrictParsing()
+            .Build();
+
+        using var context = app.Bind(new[] { "--arg?" });
+
+        Assert.Collection(
+            context.ParseResult.Tokens,
+            token => Assert.Equal(CommandTokenType.Unknown, token.TokenType))
+            ;
+        Assert.Collection(
+            context.ParseResult.Errors,
+            error => Assert.Equal($"Missing required argument 'arg'", error))
+            ;
+    }
+
     [Theory]
     [InlineData(CommandOptionStyle.Dos, "/arg")]
     [InlineData(CommandOptionStyle.Posix, "-a")]

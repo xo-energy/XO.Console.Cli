@@ -184,7 +184,7 @@ public class CommandParametersBinderTest
                 typeof(TestParameterContext<>).DeclaringType!,
                 typeof(TValue),
                 (_, value) => this.Value = (TValue?)value);
-            this.Context = new CommandContext(Scope, Command, Parameters);
+            this.Context = new CommandContext(Scope, Command, Parameters, CommandParseResult.Empty);
         }
 
         public CommandArgument Argument { get; }

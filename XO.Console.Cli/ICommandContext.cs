@@ -23,6 +23,11 @@ public interface ICommandContext
     List<string> RemainingArguments { get; }
 
     /// <summary>
+    /// Gets the <see cref="CommandParseResult"/> to which this context is bound.
+    /// </summary>
+    CommandParseResult ParseResult { get; }
+
+    /// <summary>
     /// Gets the value of a global option.
     /// </summary>
     /// <param name="name">The option name, including the option leader (prefix).</param>

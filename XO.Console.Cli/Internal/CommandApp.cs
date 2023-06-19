@@ -152,15 +152,15 @@ internal sealed class CommandApp : ICommandApp
     }
 
     /// <inheritdoc/>
-    public CommandContext Bind(CommandParseResult parse)
+    public CommandContext Bind(CommandParseResult parseResult)
     {
-        ArgumentNullException.ThrowIfNull(parse);
+        ArgumentNullException.ThrowIfNull(parseResult);
 
         var command = _rootCommand;
-        var hasErrors = parse.Errors.Count > 0;
+        var hasErrors = parseResult.Errors.Count > 0;
 
         // scan tokens
-        foreach (var token in parse.Tokens)
+        foreach (var token in parseResult.Tokens)
         {
             switch (token.TokenType)
             {
@@ -170,18 +170,21 @@ internal sealed class CommandApp : ICommandApp
 
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.CliExplain):
                     return BindInternal(
-                        _ => new CliExplainCommand(parse),
+                        parseResult,
+                        _ => new CliExplainCommand(),
                         typeof(CommandParameters),
                         ImmutableDictionary<CommandParameter, object?>.Empty);
 
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.Help):
                     return BindInternal(
-                        _ => new HelpCommand(this, _inspector, parse),
+                        parseResult,
+                        _ => new HelpCommand(this, _inspector),
                         typeof(CommandParameters),
                         ImmutableDictionary<CommandParameter, object?>.Empty);
 
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.Version):
                     return BindInternal(
+                        parseResult,
                         _ => new VersionCommand(_settings.ApplicationVersion),
                         typeof(CommandParameters),
                         ImmutableDictionary<CommandParameter, object?>.Empty);
@@ -194,16 +197,17 @@ internal sealed class CommandApp : ICommandApp
 
         // surface errors from parsing
         if (_settings.Strict && hasErrors)
-            throw new CommandParsingException(parse);
+            throw new CommandParsingException(parseResult);
 
         // bind parameter values
-        var bindings = _binder.BindParameters(parse.Tokens);
+        var bindings = _binder.BindParameters(parseResult.Tokens);
 
         // create command and bind parameters instance
-        return BindInternal(command.CommandFactory, command.ParametersType, bindings);
+        return BindInternal(parseResult, command.CommandFactory, command.ParametersType, bindings);
     }
 
     private CommandContext BindInternal(
+        CommandParseResult parseResult,
         CommandFactory commandFactory,
         Type parametersType,
         ImmutableDictionary<CommandParameter, object?> bindings)
@@ -231,7 +235,7 @@ internal sealed class CommandApp : ICommandApp
                 throw new CommandTypeException(parametersType, "Failed to instantiate parameters");
 
             // create context
-            var context = new CommandContext(scope, commandInstance, parameters);
+            var context = new CommandContext(scope, commandInstance, parameters, parseResult);
 
             // bind parameters
             foreach (var (parameter, value) in bindings)

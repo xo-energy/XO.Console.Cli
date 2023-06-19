@@ -1,0 +1,67 @@
+name: CI
+on:
+  push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_MULTILEVEL_LOOKUP: 1
+      DOTNET_NOLOGO: 1
+      NUGET_SOURCE: "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # fetch full history for NBGV
+      - name: Set up dotnet
+        uses: actions/setup-dotnet@v3
+      
+      - name: Run dotnet restore
+        run: >
+          dotnet restore --locked-mode
+          -bl:"reports/dotnet-restore.binlog"
+      - name: Run dotnet build
+        run: >
+          dotnet build --no-restore
+          -bl:"reports/dotnet-build.binlog"
+          -c Release
+      - name: Run dotnet test
+        run: >
+          dotnet test --no-build
+          -bl:"reports/dotnet-test.binlog"
+          -c Release
+          --results-directory "reports"
+          --collect "XPlat Code Coverage"
+          --logger "GitHubActions"
+          --logger "trx;LogFilePrefix=${{ github.job }}"
+
+      - name: Run dotnet pack
+        run: >
+          dotnet pack --no-build
+          -bl:"reports/dotnet-pack.binlog"
+          -c Release
+          -o ${{ runner.temp }}
+
+      - name: Push packages to GitHub Packages
+        run: >
+          dotnet nuget push ${{ runner.temp }}/*.nupkg
+          -k "${{ github.token }}"
+          -s "$NUGET_SOURCE"
+          --skip-duplicate
+
+      # publish release builds to nuget.org!
+      - name: Push packages to NuGet.org
+        if: startsWith(github.ref, 'refs/heads/release-')
+        run: >
+          dotnet nuget push ${{ runner.temp }}/*.nupkg
+          -k "${{ secrets.NUGET_API_KEY }}"
+          -s "https://api.nuget.org/v3/index.json"
+          --skip-duplicate
+
+      - name: Upload workflow artifact 'reports'
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: reports
+          path: reports/*

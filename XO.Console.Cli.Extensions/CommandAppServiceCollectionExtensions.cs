@@ -62,6 +62,24 @@ public static class CommandAppServiceCollectionExtensions
             configure);
     }
 
+    /// <summary>
+    /// Adds the command execution middleware <typeparamref name="TMiddleware"/> to the service collection as a singleton service.
+    /// </summary>
+    /// <remarks>
+    /// At startup, the application will create an instance of each unique implementation of <see
+    /// cref="ICommandAppMiddleware"/> added to the service collection and add it to the command execution pipeline
+    /// using <see cref="ICommandAppBuilder.UseMiddleware(ICommandAppMiddleware)"/>.
+    /// </remarks>
+    /// <typeparam name="TMiddleware">The middleware implementation type.</typeparam>
+    /// <param name="services">The <see cref="IServiceCollection"/> to configure.</param>
+    /// <returns>The <see cref="IServiceCollection"/>.</returns>
+    public static IServiceCollection AddCommandAppMiddleware<TMiddleware>(this IServiceCollection services)
+        where TMiddleware : class, ICommandAppMiddleware
+    {
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ICommandAppMiddleware, TMiddleware>());
+        return services;
+    }
+
     internal static IServiceCollection AddCommandApp(
         this IServiceCollection services,
         Func<ICommandAppBuilder>? builderFactory,

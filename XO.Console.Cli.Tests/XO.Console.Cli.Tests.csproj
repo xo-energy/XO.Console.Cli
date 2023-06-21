@@ -12,6 +12,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.5.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XO.Console.Cli.Extensions\XO.Console.Cli.Extensions.csproj" />
+    <ProjectReference Include="..\XO.Console.Cli.Instrumentation\XO.Console.Cli.Instrumentation.csproj" />
     <ProjectReference Include="..\XO.Console.Cli\XO.Console.Cli.csproj" />
   </ItemGroup>
 

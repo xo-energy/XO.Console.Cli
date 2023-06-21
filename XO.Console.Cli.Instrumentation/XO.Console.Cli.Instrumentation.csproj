@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Description>OpenTelemetry instrumentation for XO.Console.Cli</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry" Version="1.5.0" />
+    <PackageReference Include="OpenTelemetry.SemanticConventions" Version="1.0.0-rc9.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XO.Console.Cli.Extensions\XO.Console.Cli.Extensions.csproj" />
+    <ProjectReference Include="..\XO.Console.Cli\XO.Console.Cli.csproj" />
+  </ItemGroup>
+
+</Project>

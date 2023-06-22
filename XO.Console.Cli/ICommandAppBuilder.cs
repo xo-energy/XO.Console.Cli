@@ -110,25 +110,15 @@ public interface ICommandAppBuilder : ICommandBuilderProvider<ICommandAppBuilder
     /// <summary>
     /// Adds a middleware to the application pipeline.
     /// </summary>
-    /// <remarks>
-    /// <para>
-    /// <typeparamref name="TMiddleware"/> must have a single public constructor with a first parameter of type
-    /// <see cref="ExecutorDelegate"/>.
-    /// </para>
-    /// <para>
-    /// <typeparamref name="TMiddleware"/> must have a single method named <c>Execute</c> or <c>ExecuteAsync</c> that
-    /// takes a first parameter of type <see cref="CommandContext"/> and a last parameter of type
-    /// <see cref="CancellationToken"/>. Its return type must be <c>Task&lt;int&gt;</c>.
-    /// </para>
-    /// <para>
-    /// Additional constructor parameters and arguments to the execution method are populated from the
-    /// <see cref="ITypeResolver"/>, if possible. Constructor arguments are populated once, when the application is
-    /// built. Method arguments are populated at execution time.
-    /// </para>
-    /// </remarks>
-    /// <param name="args">Arguments to <typeparamref name="TMiddleware"/>'s constructor.</param>
+    /// <param name="middleware">The middleware implementation.</param>
+    ICommandAppBuilder UseMiddleware(ICommandAppMiddleware middleware);
+
+    /// <summary>
+    /// Adds a middleware to the application pipeline.
+    /// </summary>
     /// <typeparam name="TMiddleware">The middleware implementation type.</typeparam>
-    ICommandAppBuilder UseMiddleware<TMiddleware>(params object[] args);
+    ICommandAppBuilder UseMiddleware<TMiddleware>()
+        where TMiddleware : ICommandAppMiddleware;
 
     /// <summary>
     /// Sets the <see cref="ITypeResolver"/> used to create instances of command and middleware implementations.

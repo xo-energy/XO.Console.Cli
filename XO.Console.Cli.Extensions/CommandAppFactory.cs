@@ -19,6 +19,9 @@ internal static class CommandAppFactory
             .SetApplicationName(context.HostingEnvironment.ApplicationName)
             .UseTypeResolver(resolver);
 
+        foreach (var middleware in services.GetServices<ICommandAppMiddleware>())
+            builder.UseMiddleware(middleware);
+
         foreach (var action in options.ConfigureActions)
             action(context, builder);
 

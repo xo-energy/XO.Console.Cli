@@ -205,80 +205,29 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     }
 
     /// <inheritdoc/>
-    public ICommandAppBuilder UseMiddleware<TMiddleware>(params object[] args)
+    public ICommandAppBuilder UseMiddleware(ICommandAppMiddleware middleware)
     {
-        // find a suitable constructor
-        ConstructorInfo constructor;
-        try
+        _middleware.Add((next) =>
         {
-            constructor = typeof(TMiddleware)
-                .GetConstructors(BindingFlags.Instance | BindingFlags.Public)
-                .Single();
-        }
-        catch (Exception ex)
-        {
-            throw new CommandTypeException(
-                typeof(TMiddleware),
-                $"Middleware class must have exactly one public constructor",
-                ex);
-        }
+            var adapter = new MiddlewareAdapter(middleware, next);
 
-        // find a suitable execute method
-        MethodInfo executeMethod;
-        try
-        {
-            executeMethod = typeof(TMiddleware)
-                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .Single(method => method.Name is ExecuteMethodName or ExecuteAsyncMethodName);
-        }
-        catch (Exception ex)
-        {
-            throw new CommandTypeException(
-                typeof(TMiddleware),
-                $"Middleware class must have exactly one public method named {ExecuteMethodName} or {ExecuteAsyncMethodName}",
-                ex);
-        }
+            return adapter.ExecuteAsync;
+        });
+        return this;
+    }
 
-        // validate the constructor parameters
-        var constructorParameters = constructor.GetParameters();
-        if (constructorParameters.Length < 1 ||
-            constructorParameters[0].ParameterType != typeof(ExecutorDelegate))
+    /// <inheritdoc/>
+    public ICommandAppBuilder UseMiddleware<TMiddleware>()
+        where TMiddleware : ICommandAppMiddleware
+    {
+        _middleware.Add((next) =>
         {
-            throw new CommandTypeException(
-                typeof(TMiddleware),
-                $"Constructor must have a first parameter of type '{typeof(ExecutorDelegate)}'");
-        }
+            var middleware = _resolver.Get<TMiddleware>()
+                ?? throw new InvalidOperationException($"Could not create instance of middleware type {typeof(TMiddleware)}");
+            var adapter = new MiddlewareAdapter(middleware, next);
 
-        // validate the method parameters
-        var executeMethodParameters = executeMethod.GetParameters();
-        if (executeMethodParameters.Length < 1 ||
-            executeMethodParameters[0].ParameterType != typeof(CommandContext))
-        {
-            throw new CommandTypeException(
-                typeof(TMiddleware),
-                $"{executeMethod} must have a first parameter of type '{typeof(CommandContext)}'");
-        }
-        if (executeMethodParameters.Length < 2 ||
-            executeMethodParameters[^1].ParameterType != typeof(CancellationToken))
-        {
-            throw new CommandTypeException(
-                typeof(TMiddleware),
-                $"{executeMethod} must have a last parameter of type '{typeof(CancellationToken)}'");
-        }
-        if (executeMethod.ReturnType != typeof(Task<int>))
-        {
-            throw new CommandTypeException(
-                typeof(TMiddleware),
-                $"{executeMethod} must have a return type of '{typeof(Task<int>)}'");
-        }
-
-        var factory = CreateMiddlewareFactory(
-            constructor,
-            executeMethod,
-            executeMethodParameters,
-            args);
-
-        _middleware.Add(factory);
+            return adapter.ExecuteAsync;
+        });
         return this;
     }
 
@@ -306,53 +255,6 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
             pipeline = new ExceptionHandlerMiddleware(pipeline).ExecuteAsync;
 
         return pipeline;
-    }
-
-    private Func<ExecutorDelegate, ExecutorDelegate> CreateMiddlewareFactory(
-        ConstructorInfo constructor,
-        MethodInfo executeMethod,
-        ParameterInfo[] executeMethodParameters,
-        object[] args)
-    {
-        return next =>
-        {
-            var parameters = constructor.GetParameters();
-            var parameterValues = new object?[parameters.Length];
-            var argsIndex = 0;
-
-            // first parameter must be of type ExecutorDelegate
-            parameterValues[0] = next;
-
-            // assign values from args in order by parameter type, populating the rest from the resolver
-            for (int i = 1; i < parameters.Length; ++i)
-            {
-                if (argsIndex < args.Length && parameters[i].ParameterType == args[argsIndex].GetType())
-                    parameterValues[i] = args[argsIndex++];
-                else
-                    parameterValues[i] = _resolver.Get(parameters[i].ParameterType);
-            }
-
-            // construct the middleware
-            var middleware = constructor.Invoke(parameterValues);
-
-            // if the execute method's signature matches, just return it as a bound delegate
-            if (executeMethodParameters.Length == 2)
-                return executeMethod.CreateDelegate<ExecutorDelegate>(middleware);
-
-            // otherwise, construct a delegate the hard way
-            return (context, cancellationToken) =>
-            {
-                var executeArgs = new object?[executeMethodParameters.Length];
-
-                executeArgs[0] = context;
-                executeArgs[^1] = cancellationToken;
-
-                for (int i = 1; i < executeMethodParameters.Length - 1; ++i)
-                    executeArgs[i] = _resolver.Get(executeMethodParameters[i].ParameterType);
-
-                return (Task<int>)executeMethod.Invoke(middleware, executeArgs)!;
-            };
-        };
     }
 
     private string GetDefaultApplicationName()

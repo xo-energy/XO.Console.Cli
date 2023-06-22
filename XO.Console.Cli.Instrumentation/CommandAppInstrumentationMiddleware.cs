@@ -36,7 +36,7 @@ public sealed class CommandAppInstrumentationMiddleware : ICommandAppMiddleware
     public async Task<int> ExecuteAsync(ExecutorDelegate next, CommandContext context, CancellationToken cancellationToken)
     {
         int? result = null;
-        var name = String.Join(' ', context.ParseResult.GetVerbs());
+        var name = String.Join(' ', from token in context.ParseResult.GetVerbs() select token.Value);
         if (String.IsNullOrEmpty(name))
             name = _defaultName;
 

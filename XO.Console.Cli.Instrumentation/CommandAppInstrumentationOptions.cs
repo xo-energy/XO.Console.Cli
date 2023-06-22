@@ -19,5 +19,5 @@ public sealed class CommandAppInstrumentationOptions
     /// <summary>
     /// A delegate that enriches the <see cref="Activity"/> with information from the execution context.
     /// </summary>
-    public Action<Activity, ICommandContext>? EnrichWithICommandContext { get; set; }
+    public Action<Activity, CommandContext>? EnrichWithCommandContext { get; set; }
 }

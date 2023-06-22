@@ -47,7 +47,7 @@ public sealed class CommandAppInstrumentationMiddleware : ICommandAppMiddleware
             {
                 activity.AddTag(TraceSemanticConventions.AttributeCodeFunction, nameof(AsyncCommand.ExecuteAsync));
                 activity.AddTag(TraceSemanticConventions.AttributeCodeNamespace, context.Command.GetType().FullName);
-                _options.EnrichWithICommandContext?.Invoke(activity, context);
+                _options.EnrichWithCommandContext?.Invoke(activity, context);
             }
 
             result = await next(context, cancellationToken)

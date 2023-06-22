@@ -17,7 +17,7 @@ public class CommandAppInstrumentationTest
                     {
                         builder.AddCommandAppInstrumentation(options =>
                         {
-                            options.EnrichWithICommandContext = static (activity, context) =>
+                            options.EnrichWithCommandContext = static (activity, context) =>
                             {
                                 activity.SetTag("foo", "bar");
                             };

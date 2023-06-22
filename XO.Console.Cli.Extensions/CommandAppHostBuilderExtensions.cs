@@ -73,18 +73,10 @@ public static class CommandAppHostBuilderExtensions
         hostBuilder.ConfigureServices(
             (_, services) => services.AddCommandApp(builderFactory, configure));
 
-        IHost host;
-        try
-        {
-            host = hostBuilder.Build();
-        }
-        catch (Exception ex)
-        {
-            System.Console.Error.WriteLine(ex.Message);
-            return -1;
-        }
+        // build the host
+        using var host = hostBuilder.Build();
 
-        // get a reference to the logger factory
+        // get a reference to the logger factory so we can dispose it last
         var loggerFactory = host.Services.GetService<ILoggerFactory>();
 
         // run the host
@@ -93,11 +85,6 @@ public static class CommandAppHostBuilderExtensions
         {
             result = await host.RunCommandAppAsync(args)
                 .ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            System.Console.Error.WriteLine(ex.Message);
-            result = -1;
         }
         finally
         {
@@ -116,11 +103,6 @@ public static class CommandAppHostBuilderExtensions
                 return asyncDisposable.DisposeAsync();
 
             host.Dispose();
-            return ValueTask.CompletedTask;
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(ex.ToString());
             return ValueTask.CompletedTask;
         }
         finally

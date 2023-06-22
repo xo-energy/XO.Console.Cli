@@ -42,17 +42,14 @@ public static class CommandAppHostExtensions
             try
             {
                 logger?.LogDebug("Executing command {Command} ... ", from x in parse.GetVerbs() select x.Value);
-                logger?.LogTrace("Command args: {Args}", args);
 
                 result = await app.ExecuteAsync(parse, lifetime.ApplicationStopping)
                     .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                logger?.LogCritical(ex, "Unhandled exception: {ExceptionMessage}", ex.Message);
-
-                System.Console.Error.WriteLine(ex.Message);
-                result = 1;
+                logger?.LogCritical(ex, "An unhandled exception occurred while executing the command.");
+                throw;
             }
             finally
             {

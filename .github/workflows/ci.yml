@@ -41,6 +41,10 @@ jobs:
           --logger "GitHubActions"
           --logger "trx;LogFilePrefix=${{ github.job }}"
 
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Run dotnet pack
         run: >
           dotnet pack --no-build

@@ -1,0 +1,14 @@
+component_management:
+  individual_components:
+    - component_id: "XO.Console.Cli"
+      paths:
+        - "XO.Console.Cli/"
+    - component_id: "XO.Console.Cli.Extensions"
+      paths:
+        - "XO.Console.Cli.Extensions/"
+    - component_id: "XO.Console.Cli.Instrumentation"
+      paths:
+        - "XO.Console.Cli.Instrumentation/"
+
+comment:
+  layout: "header, diff, flags, components"  # show component info in the PR comment

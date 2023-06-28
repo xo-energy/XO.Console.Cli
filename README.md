@@ -1,5 +1,8 @@
 # XO.Console.Cli
 
+[![GitHub Actions Status](https://img.shields.io/github/actions/workflow/status/xo-energy/XO.Console.Cli/ci.yml?branch=main&logo=github)](https://github.com/xo-energy/XO.Console.Cli/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/xo-energy/XO.Console.Cli/branch/main/graph/badge.svg?token=07Z4JPQ27M)](https://codecov.io/gh/xo-energy/XO.Console.Cli)
+
 **XO.Console.Cli** is a command line parser and application framework.
 
 ## Features

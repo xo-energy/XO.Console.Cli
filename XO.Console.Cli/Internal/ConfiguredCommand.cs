@@ -1,9 +1,12 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace XO.Console.Cli;
 
 internal sealed record ConfiguredCommand(
     CommandFactory CommandFactory,
+    [param: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+    [property: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
     Type ParametersType,
     string Verb)
 {

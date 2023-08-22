@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace XO.Console.Cli;
@@ -36,7 +37,7 @@ internal sealed class CommandParametersInspector
         return parametersInfo;
     }
 
-    private CommandParametersInfo InspectInternal(Type parametersType)
+    private CommandParametersInfo InspectInternal([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type parametersType)
     {
         var properties = parametersType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
         var arguments = ImmutableList.CreateBuilder<CommandArgument>();

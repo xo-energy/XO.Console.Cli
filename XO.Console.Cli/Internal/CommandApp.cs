@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using XO.Console.Cli.Commands;
 
@@ -209,7 +210,7 @@ internal sealed class CommandApp : ICommandApp
     private CommandContext BindInternal(
         CommandParseResult parseResult,
         CommandFactory commandFactory,
-        Type parametersType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type parametersType,
         ImmutableDictionary<CommandParameter, object?> bindings)
     {
         ITypeResolverScope scope;

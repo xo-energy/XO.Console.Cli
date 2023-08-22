@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace XO.Console.Cli;
 
 /// <summary>
@@ -8,6 +10,7 @@ public interface ICommandBuilder : ICommandBuilderProvider<ICommandBuilder>
     /// <summary>
     /// Gets the type that describes the command's parameters.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
     Type ParametersType { get; }
 
     /// <summary>
@@ -35,7 +38,7 @@ public interface ICommandBuilder : ICommandBuilderProvider<ICommandBuilder>
     /// <returns>The <see cref="ICommandBuilder"/>.</returns>
     ICommandBuilder AddCommand(
         string verb,
-        Type parametersType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type parametersType,
         CommandFactory? commandFactory = null,
         Action<ICommandBuilder>? configure = null);
 

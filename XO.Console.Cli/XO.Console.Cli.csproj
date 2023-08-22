@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Description>A command line parser and application framework</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
   
   <ItemGroup>

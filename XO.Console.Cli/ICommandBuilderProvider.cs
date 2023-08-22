@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace XO.Console.Cli;
@@ -40,7 +41,7 @@ public interface ICommandBuilderProvider<TProvider>
     /// </para>
     /// </remarks>
     /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
-    public TProvider AddBranch<TParameters>(
+    public TProvider AddBranch<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
         string name,
         Action<ICommandBuilder> configure)
         where TParameters : CommandParameters
@@ -65,7 +66,7 @@ public interface ICommandBuilderProvider<TProvider>
     /// </remarks>
     /// <param name="configure">A delegate that configures the command.</param>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>
-    public TProvider AddCommand<TCommand>(
+    public TProvider AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>(
         Action<ICommandBuilder>? configure = null)
         where TCommand : class, ICommand
     {
@@ -94,7 +95,7 @@ public interface ICommandBuilderProvider<TProvider>
     /// <param name="verb">The verb that invokes the command.</param>
     /// <param name="configure">A delegate that configures the command.</param>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>
-    public TProvider AddCommand<TCommand>(
+    public TProvider AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>(
         string verb,
         Action<ICommandBuilder>? configure = null)
         where TCommand : class, ICommand
@@ -153,7 +154,7 @@ public interface ICommandBuilderProvider<TProvider>
     /// <param name="executeAsync">The command implementation delegate.</param>
     /// <param name="configure">A delegate that configures the command.</param>
     /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
-    public TProvider AddDelegate<TParameters>(
+    public TProvider AddDelegate<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
         string verb,
         Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync,
         Action<ICommandBuilder>? configure = null)

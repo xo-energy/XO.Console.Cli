@@ -1,6 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace XO.Console.Cli.Commands;
 
-internal sealed class DelegateCommand<TParameters> : AsyncCommand<TParameters>
+internal sealed class DelegateCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters> : AsyncCommand<TParameters>
     where TParameters : CommandParameters
 {
     private readonly Func<ICommandContext, TParameters, CancellationToken, Task<int>> _executeAsync;

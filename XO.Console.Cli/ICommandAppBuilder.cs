@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace XO.Console.Cli;
@@ -117,7 +118,7 @@ public interface ICommandAppBuilder : ICommandBuilderProvider<ICommandAppBuilder
     /// Adds a middleware to the application pipeline.
     /// </summary>
     /// <typeparam name="TMiddleware">The middleware implementation type.</typeparam>
-    ICommandAppBuilder UseMiddleware<TMiddleware>()
+    ICommandAppBuilder UseMiddleware<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TMiddleware>()
         where TMiddleware : ICommandAppMiddleware;
 
     /// <summary>

@@ -1,7 +1,4 @@
 using System.Collections.Immutable;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 
 namespace XO.Console.Cli;
 
@@ -9,7 +6,7 @@ internal sealed class CommandParametersBinder
 {
     private readonly Dictionary<Type, Func<string, object?>> _converters;
 
-    public CommandParametersBinder(IReadOnlyDictionary<Type, Func<string, object?>> converters)
+    public CommandParametersBinder(IEnumerable<KeyValuePair<Type, Func<string, object?>>> converters)
     {
         _converters = new(converters);
     }
@@ -88,28 +85,15 @@ internal sealed class CommandParametersBinder
     private Func<string, object?> GetConverter(Type type)
     {
         if (Nullable.GetUnderlyingType(type) is Type underlyingType)
-            type = underlyingType;
+            return GetConverter(underlyingType);
 
         if (_converters.TryGetValue(type, out var converter))
             return converter;
 
-        if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter &&
-            typeConverter.CanConvertFrom(typeof(string)) &&
-            typeConverter.CanConvertTo(type))
-        {
-            converter = (value) => typeConverter.ConvertFrom(value);
-        }
-        else if (type.IsEnum)
+        // TODO: support IParsable
+        if (type.IsEnum)
         {
             converter = (value) => Enum.Parse(type, value);
-        }
-        else if (TryGetParseDelegate(type, out var parse))
-        {
-            converter = parse;
-        }
-        else if (TryGetConstructorDelegate(type, out var constructor))
-        {
-            converter = constructor;
         }
         else
         {
@@ -147,46 +131,6 @@ internal sealed class CommandParametersBinder
                     yield return (Builtins.Arguments.Remaining, token.Value);
                     break;
             }
-        }
-    }
-
-    private static readonly Type[] StringTypes
-        = new[] { typeof(string) };
-
-    private static bool TryGetConstructorDelegate(
-        Type type,
-        [NotNullWhen(true)] out Func<string, object?>? constructor)
-    {
-        var constructorInfo = type.GetConstructor(StringTypes);
-        if (constructorInfo != null)
-        {
-            constructor = (value) => Activator.CreateInstance(type, value);
-            return true;
-        }
-        else
-        {
-            constructor = null;
-            return false;
-        }
-    }
-
-    private static bool TryGetParseDelegate(
-        Type type,
-        [NotNullWhen(true)] out Func<string, object?>? parse)
-    {
-        var parseMethod = type.GetMethod(
-            "Parse",
-            BindingFlags.Public | BindingFlags.Static,
-            StringTypes);
-        if (parseMethod != null && type.IsAssignableFrom(parseMethod.ReturnType))
-        {
-            parse = (value) => parseMethod.Invoke(null, new object[] { value });
-            return true;
-        }
-        else
-        {
-            parse = null;
-            return false;
         }
     }
 }

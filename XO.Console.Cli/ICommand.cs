@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace XO.Console.Cli;
 
 /// <summary>
@@ -43,6 +45,6 @@ public interface ICommand
 /// </list>
 /// </remarks>
 /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
-public interface ICommand<TParameters> : ICommand
+public interface ICommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters> : ICommand
     where TParameters : CommandParameters
 { }

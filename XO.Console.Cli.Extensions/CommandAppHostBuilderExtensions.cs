@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -31,7 +32,7 @@ public static class CommandAppHostBuilderExtensions
     /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
     /// <typeparam name="TDefaultCommand">The command implementation type.</typeparam>
     /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
-    public static Task<int> RunCommandAppAsync<TDefaultCommand>(
+    public static Task<int> RunCommandAppAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TDefaultCommand>(
         this IHostBuilder hostBuilder,
         IReadOnlyList<string> args,
         Action<HostBuilderContext, ICommandAppBuilder>? configure = null)

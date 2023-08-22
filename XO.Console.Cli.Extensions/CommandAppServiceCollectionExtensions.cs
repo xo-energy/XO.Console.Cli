@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -31,7 +32,7 @@ public static class CommandAppServiceCollectionExtensions
     /// <param name="configure">A delegate that configures <see cref="ICommandAppBuilder"/>.</param>
     /// <typeparam name="TDefaultCommand">The command implementation type.</typeparam>
     /// <returns>The <see cref="IServiceCollection"/>.</returns>
-    public static IServiceCollection AddCommandApp<TDefaultCommand>(
+    public static IServiceCollection AddCommandApp<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TDefaultCommand>(
         this IServiceCollection services,
         Action<HostBuilderContext, ICommandAppBuilder>? configure = null)
         where TDefaultCommand : class, ICommand
@@ -73,7 +74,7 @@ public static class CommandAppServiceCollectionExtensions
     /// <typeparam name="TMiddleware">The middleware implementation type.</typeparam>
     /// <param name="services">The <see cref="IServiceCollection"/> to configure.</param>
     /// <returns>The <see cref="IServiceCollection"/>.</returns>
-    public static IServiceCollection AddCommandAppMiddleware<TMiddleware>(this IServiceCollection services)
+    public static IServiceCollection AddCommandAppMiddleware<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TMiddleware>(this IServiceCollection services)
         where TMiddleware : class, ICommandAppMiddleware
     {
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICommandAppMiddleware, TMiddleware>());

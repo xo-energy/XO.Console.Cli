@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace XO.Console.Cli;
 
 /// <summary>
@@ -27,7 +29,7 @@ public abstract class Command : ICommand<CommandParameters>
 /// <summary>
 /// Base class for synchronous commands.
 /// </summary>
-public abstract class Command<TParameters> : ICommand<TParameters>
+public abstract class Command<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters> : ICommand<TParameters>
     where TParameters : CommandParameters
 {
     /// <summary>

@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using XO.Console.Cli.Commands;
 
 namespace XO.Console.Cli;
@@ -8,6 +9,7 @@ internal class CommandBuilder : ICommandBuilder
     private static readonly CommandFactory MissingCommandFactory
         = _ => new MissingCommand();
 
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
     private readonly Type _parametersType;
     private readonly string _verb;
     private readonly ImmutableHashSet<string>.Builder _aliases;
@@ -17,7 +19,10 @@ internal class CommandBuilder : ICommandBuilder
     private string? _description;
     private bool _hidden;
 
-    public CommandBuilder(string verb, Type parametersType, CommandFactory? factory = null)
+    public CommandBuilder(
+        string verb,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type parametersType,
+        CommandFactory? factory = null)
     {
         _commandFactory = factory ?? MissingCommandFactory;
         _parametersType = parametersType;
@@ -55,6 +60,7 @@ internal class CommandBuilder : ICommandBuilder
     ICommandBuilder ICommandBuilderProvider<ICommandBuilder>.Self
         => this;
 
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
     public Type ParametersType
         => _parametersType;
 
@@ -66,7 +72,7 @@ internal class CommandBuilder : ICommandBuilder
 
     public ICommandBuilder AddCommand(
         string verb,
-        Type parametersType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type parametersType,
         CommandFactory? commandFactory = null,
         Action<ICommandBuilder>? configure = null)
     {
@@ -98,20 +104,25 @@ internal class CommandBuilder : ICommandBuilder
 
     #endregion
 
-    public static CommandFactory CreateCommandFactory<TCommand>()
+    public static CommandFactory CreateCommandFactory<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>()
         where TCommand : class, ICommand
     {
         return (resolver) => resolver.Get<TCommand>();
     }
 
-    public static CommandFactory CreateCommandFactory<TParameters>(
+    public static CommandFactory CreateCommandFactory<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
         Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync)
         where TParameters : CommandParameters
     {
         return _ => new DelegateCommand<TParameters>(executeAsync);
     }
 
-    public static Type GetParametersType<TCommand>()
+    [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+    [SuppressMessage(
+        "Trimming",
+        "IL2063:The return value of method has a DynamicallyAccessedMembersAttribute, but the value returned from the method can not be statically analyzed.",
+        Justification = "The generic type argument TParameters in ICommand<TParameters> has a matching DynamicallyAccessedMembersAttribute")]
+    public static Type GetParametersType<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] TCommand>()
         where TCommand : class, ICommand
     {
         // look for an implementation of ICommand<TParameters> (all commands must have one)

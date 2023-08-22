@@ -13,14 +13,6 @@ public class CommandParametersBinderTest
         = new(CommandAppDefaults.Converters);
 
     [Fact]
-    public void CanBindToConstructor()
-    {
-        var argument = "value";
-        var expected = new TestRecord(argument);
-        CanBindTo(expected, argument);
-    }
-
-    [Fact]
     public void CanBindToDirectoryInfo()
     {
         var path = Path.GetTempPath();
@@ -191,8 +183,6 @@ public class CommandParametersBinderTest
         public CommandContext Context { get; }
         public TValue? Value { get; set; }
     }
-
-    private sealed record TestRecord(string Value);
 
     public enum TestEnum
     {

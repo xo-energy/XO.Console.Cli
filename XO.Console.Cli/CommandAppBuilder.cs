@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using XO.Console.Cli.Middleware;
 
@@ -12,8 +13,6 @@ namespace XO.Console.Cli;
 /// </remarks>
 public sealed class CommandAppBuilder : ICommandAppBuilder
 {
-    private const string ExecuteMethodName = "Execute";
-    private const string ExecuteAsyncMethodName = "ExecuteAsync";
     private const string RootVerb = "__ROOT__";
 
     private readonly CommandBuilder _commandBuilder;
@@ -32,7 +31,9 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     private ITypeResolver _resolver;
     private bool _useExceptionHandler;
 
-    private CommandAppBuilder(Type parametersType, CommandFactory? commandFactory = null)
+    private CommandAppBuilder(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type parametersType,
+        CommandFactory? commandFactory = null)
     {
         _commandBuilder = new CommandBuilder(RootVerb, parametersType, commandFactory);
         _converters = ImmutableDictionary.CreateBuilder<Type, Func<string, object?>>();
@@ -63,7 +64,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     /// </summary>
     /// <remarks>The default command is invoked when the command-line arguments do not specify a sub-command.</remarks>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>
-    public static ICommandAppBuilder WithDefaultCommand<TCommand>()
+    public static ICommandAppBuilder WithDefaultCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>()
         where TCommand : class, ICommand
     {
         return new CommandAppBuilder(
@@ -77,7 +78,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     /// <remarks>The default command is invoked when the command-line arguments do not specify a sub-command.</remarks>
     /// <param name="executeAsync">The command implementation delegate.</param>
     /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
-    public static ICommandAppBuilder WithDefaultCommand<TParameters>(
+    public static ICommandAppBuilder WithDefaultCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
         Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync)
         where TParameters : CommandParameters
     {
@@ -217,7 +218,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     }
 
     /// <inheritdoc/>
-    public ICommandAppBuilder UseMiddleware<TMiddleware>()
+    public ICommandAppBuilder UseMiddleware<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TMiddleware>()
         where TMiddleware : ICommandAppMiddleware
     {
         _middleware.Add((next) =>

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using XO.Console.Cli.Implementation;
 
 namespace XO.Console.Cli;
 

@@ -1,3 +1,4 @@
+using XO.Console.Cli.Implementation;
 using Xunit;
 
 namespace XO.Console.Cli.Tests;

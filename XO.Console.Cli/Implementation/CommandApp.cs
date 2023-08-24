@@ -3,9 +3,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using XO.Console.Cli.Commands;
+using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Model;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Implementation;
 
 internal sealed class CommandApp : ICommandApp
 {

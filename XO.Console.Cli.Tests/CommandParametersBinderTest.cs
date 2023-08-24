@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using XO.Console.Cli.Commands;
+using XO.Console.Cli.Implementation;
+using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Model;
 using Xunit;
 

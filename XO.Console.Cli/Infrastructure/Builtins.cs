@@ -1,7 +1,7 @@
 using System.Collections;
 using XO.Console.Cli.Model;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Infrastructure;
 
 internal static class Builtins
 {

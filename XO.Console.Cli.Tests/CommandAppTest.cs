@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using XO.Console.Cli.Commands;
+using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Model;
 using XO.Console.Cli.Tests.Fixtures;
 using Xunit;

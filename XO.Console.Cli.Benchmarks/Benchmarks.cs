@@ -8,6 +8,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.Hosting;
 using XO.Console.Cli.Commands;
+using XO.Console.Cli.Implementation;
 using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli;

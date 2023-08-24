@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using XO.Console.Cli.Implementation;
+using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli.Commands;

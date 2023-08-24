@@ -1,6 +1,6 @@
 using XO.Console.Cli.Model;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Infrastructure;
 
 internal sealed class MiddlewareAdapter
 {

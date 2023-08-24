@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Implementation;
 
 internal sealed class DefaultTypeResolver : ITypeResolver
 {

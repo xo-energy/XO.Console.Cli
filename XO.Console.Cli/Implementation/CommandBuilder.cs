@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using XO.Console.Cli.Commands;
 using XO.Console.Cli.Model;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Implementation;
 
 internal class CommandBuilder : ICommandBuilder
 {

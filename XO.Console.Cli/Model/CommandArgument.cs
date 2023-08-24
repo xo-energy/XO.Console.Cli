@@ -1,6 +1,6 @@
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Model;
 
-internal sealed class CommandArgument : CommandParameter
+public sealed class CommandArgument : CommandParameter
 {
     public CommandArgument(
         CommandArgumentAttribute attribute,

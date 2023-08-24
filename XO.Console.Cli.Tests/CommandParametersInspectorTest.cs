@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using XO.Console.Cli.Model;
 using Xunit;
 
 namespace XO.Console.Cli.Tests;

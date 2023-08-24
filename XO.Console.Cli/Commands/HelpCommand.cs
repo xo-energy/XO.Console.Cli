@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli.Commands;
 

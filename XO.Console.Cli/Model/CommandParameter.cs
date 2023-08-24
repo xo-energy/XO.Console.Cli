@@ -1,4 +1,4 @@
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Model;
 
 /// <summary>
 /// Represents an argument or option to a command-line command.

@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Model;
 
 /// <summary>
 /// Represents the result of parsing a sequence of command-line arguments.

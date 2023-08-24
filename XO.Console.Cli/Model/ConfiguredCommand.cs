@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Model;
 
 internal sealed record ConfiguredCommand(
     CommandFactory CommandFactory,

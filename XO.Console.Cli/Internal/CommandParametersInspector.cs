@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli;
 

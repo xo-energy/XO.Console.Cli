@@ -1,6 +1,6 @@
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Model;
 
-internal sealed class CommandOption : CommandParameter
+public sealed class CommandOption : CommandParameter
 {
     public CommandOption(
         CommandOptionAttribute attribute,

@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Model;
 
 internal sealed class CommandParserState
 {

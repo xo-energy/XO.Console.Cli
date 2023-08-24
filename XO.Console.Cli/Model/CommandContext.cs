@@ -1,6 +1,6 @@
 using XO.Console.Cli.Features;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Model;
 
 /// <summary>
 /// Represents the context of a command execution.
@@ -34,7 +34,7 @@ public sealed class CommandContext : IAsyncDisposable, ICommandContext, IDisposa
         this.CommandServices = scope.TypeResolver;
         this.Command = command;
         this.Parameters = parameters;
-        ParseResult = parseResult;
+        this.ParseResult = parseResult;
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace XO.Console.Cli;
@@ -23,27 +23,8 @@ public interface ICommandBuilderAddCommand<TSelf>
     /// </para>
     /// </remarks>
     /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
-    TSelf AddBranch<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(string name, Action<ICommandBuilder> configure)
+    TSelf AddBranch<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TParameters>(string name, Action<ICommandBuilder> configure)
         where TParameters : CommandParameters;
-
-    /// <summary>
-    /// Adds a command.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The command implementation <typeparamref name="TCommand"/> must be decorated with
-    /// <see cref="CommandAttribute"/> to specify the verb that invokes the command, and it must accept parameters of a
-    /// type derived from this command's parameters type.
-    /// </para>
-    /// <para>
-    /// The command's description is initialized from any instance of <see cref="DescriptionAttribute"/> decorating
-    /// <typeparamref name="TCommand"/>.
-    /// </para>
-    /// </remarks>
-    /// <param name="configure">A delegate that configures the command.</param>
-    /// <typeparam name="TCommand">The command implementation type.</typeparam>
-    TSelf AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>(Action<ICommandBuilder>? configure = null)
-        where TCommand : class, ICommand;
 
     /// <summary>
     /// Adds a command.
@@ -61,7 +42,7 @@ public interface ICommandBuilderAddCommand<TSelf>
     /// <param name="verb">The verb that invokes the command.</param>
     /// <param name="configure">A delegate that configures the command.</param>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>
-    TSelf AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>(string verb, Action<ICommandBuilder>? configure = null)
+    TSelf AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(string verb, Action<ICommandBuilder>? configure = null)
         where TCommand : class, ICommand;
 
     /// <summary>
@@ -84,7 +65,7 @@ public interface ICommandBuilderAddCommand<TSelf>
     /// <param name="executeAsync">The command implementation delegate.</param>
     /// <param name="configure">A delegate that configures the command.</param>
     /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
-    TSelf AddDelegate<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
+    TSelf AddDelegate<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TParameters>(
         string verb,
         Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync,
         Action<ICommandBuilder>? configure = null)

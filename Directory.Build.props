@@ -16,6 +16,8 @@
   <PropertyGroup>
     <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <LangVersion>11.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <Nullable>enable</Nullable>

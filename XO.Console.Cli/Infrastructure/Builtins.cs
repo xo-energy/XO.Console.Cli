@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Immutable;
 using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli.Infrastructure;
@@ -11,16 +12,14 @@ internal static class Builtins
     {
         public static CommandArgument Remaining { get; }
             = new CommandArgument(
-                new CommandArgumentAttribute(int.MaxValue, RemainingArgumentName)
-                { IsGreedy = true, IsOptional = true },
-                typeof(Builtins),
-                typeof(string[]),
-                static (context, value) =>
-                {
-                    if (value != null)
-                        context.RemainingArguments.AddRange((string[])value);
-                },
-                description: "Captures remaining, unbound arguments");
+                RemainingArgumentName,
+                (context, values, _) => context.RemainingArguments.AddRange(values),
+                typeof(string),
+                description: "Captures remaining, unbound arguments")
+            {
+                IsGreedy = true,
+                IsOptional = true,
+            };
     }
 
     public static class Delegates
@@ -43,23 +42,33 @@ internal static class Builtins
             };
 
             CliExplain = new CommandOption(
-                new CommandOptionAttribute(optionStyle.GetNameWithLeader("cli-explain")) { IsHidden = true },
-                typeof(Builtins),
-                typeof(bool),
+                optionStyle.GetNameWithLeader("cli-explain"),
                 DiscardValue,
-                description: "Explains the parser's interpretation of this command");
+                typeof(bool),
+                description: "Explains the parser's interpretation of this command")
+            {
+                Aliases = ImmutableArray<string>.Empty,
+                IsFlag = true,
+                IsHidden = true,
+            };
             Help = new CommandOption(
-                new CommandOptionAttribute(optionStyle.GetNameWithLeader("help"), helpAlias),
-                typeof(Builtins),
-                typeof(bool),
+                optionStyle.GetNameWithLeader("help"),
                 DiscardValue,
-                description: "Shows this help");
+                typeof(bool),
+                description: "Shows this help")
+            {
+                Aliases = ImmutableArray.Create(helpAlias),
+                IsFlag = true,
+            };
             Version = new CommandOption(
-                new CommandOptionAttribute(optionStyle.GetNameWithLeader("version")),
-                typeof(Builtins),
-                typeof(bool),
+                optionStyle.GetNameWithLeader("version"),
                 DiscardValue,
-                description: "Shows the application version");
+                typeof(bool),
+                description: "Shows the application version")
+            {
+                Aliases = ImmutableArray<string>.Empty,
+                IsFlag = true,
+            };
         }
 
         public CommandOption CliExplain { get; }
@@ -76,9 +85,7 @@ internal static class Builtins
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 
-        public static void DiscardValue(CommandContext parameters, object? value)
-        {
-            // pass
-        }
+        public static readonly CommandParameterSetter DiscardValue
+            = static (_, _, _) => { /* pass */ };
     }
 }

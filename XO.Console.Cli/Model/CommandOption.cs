@@ -1,35 +1,48 @@
+using System.Collections.Immutable;
+
 namespace XO.Console.Cli.Model;
 
-public sealed class CommandOption : CommandParameter
+/// <summary>
+/// Represents an option of a command-line command.
+/// </summary>
+public sealed class CommandOption : CommandParameter, ICommandOptionAttributeData
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="CommandOption"/>.
+    /// </summary>
+    /// <param name="name">The option name, including the option leader (prefix).</param>
+    /// <param name="setter">A delegate that parses and assigns the value of the argument.</param>
+    /// <param name="valueType">The type of value the option accepts. (If the option accepts multiple values, this is the type of each individually.)</param>
+    /// <param name="description">A description of this parameter, which is used in generated help.</param>
     public CommandOption(
-        CommandOptionAttribute attribute,
-        Type declaringType,
+        string name,
+        CommandParameterSetter setter,
         Type valueType,
-        Action<CommandContext, object?> setter,
-        string? description = null,
-        bool? isFlag = default)
-        : base(declaringType, valueType, setter, description)
+        string? description)
+        : base(name, setter, valueType, description)
     {
-        this.Attribute = attribute;
-        this.IsFlag = isFlag ??
-            this.ValueType == typeof(bool) ||
-            this.ValueType == typeof(bool?) ||
-            this.ValueType == typeof(bool[]) ||
-            this.ValueType == typeof(bool?[]);
+        this.Aliases = ImmutableArray<string>.Empty;
     }
 
-    public CommandOptionAttribute Attribute { get; }
-    public bool IsFlag { get; }
+    /// <inheritdoc/>
+    public ImmutableArray<string> Aliases { get; init; }
 
-    public override string Name
-        => this.Attribute.Name;
+    /// <summary>
+    /// Indicates whether this option is a flag with an implicit value of <see langword="true"/> or <see langword="false"/>.
+    /// </summary>
+    public bool IsFlag { get; init; }
 
+    /// <inheritdoc/>
+    public bool IsHidden { get; init; }
+
+    /// <summary>
+    /// Enumerates the names of this option, including the primary name and any aliases.
+    /// </summary>
     public IEnumerable<string> GetNames()
     {
-        yield return this.Attribute.Name;
+        yield return this.Name;
 
-        foreach (var alias in this.Attribute.Aliases)
+        foreach (var alias in this.Aliases)
             yield return alias;
     }
 }

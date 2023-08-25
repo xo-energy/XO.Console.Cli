@@ -26,7 +26,7 @@ public abstract class AsyncCommand : ICommand<CommandParameters>
 /// <summary>
 /// Base class for commands with parameters.
 /// </summary>
-public abstract class AsyncCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters> : ICommand<TParameters>
+public abstract class AsyncCommand<TParameters> : ICommand<TParameters>
     where TParameters : CommandParameters
 {
     /// <summary>

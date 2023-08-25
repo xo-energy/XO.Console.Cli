@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
-namespace XO.Console.Cli.Tests;
+namespace XO.Console.Cli;
 
 public class ServiceProviderTypeResolverTest
 {
@@ -94,7 +94,8 @@ public class ServiceProviderTypeResolverTest
         Assert.NotNull(command.ServiceProvider);
     }
 
-    private sealed class TestCommand : AsyncCommand
+    [Command]
+    internal sealed class TestCommand : AsyncCommand
     {
         public TestCommand(IServiceProvider serviceProvider)
         {
@@ -109,7 +110,8 @@ public class ServiceProviderTypeResolverTest
         }
     }
 
-    private sealed class TestScopedServiceCommand : AsyncCommand
+    [Command]
+    internal sealed class TestScopedServiceCommand : AsyncCommand
     {
         public TestScopedServiceCommand(TestScopedService service)
         {
@@ -124,7 +126,8 @@ public class ServiceProviderTypeResolverTest
         }
     }
 
-    private sealed class TestScopedServiceAsyncCommand : AsyncCommand
+    [Command]
+    internal sealed class TestScopedServiceAsyncCommand : AsyncCommand
     {
         public TestScopedServiceAsyncCommand(TestScopedServiceAsync service)
         {
@@ -139,7 +142,7 @@ public class ServiceProviderTypeResolverTest
         }
     }
 
-    private sealed class TestScopedService : IDisposable
+    internal sealed class TestScopedService : IDisposable
     {
         public bool IsDisposed { get; private set; }
 
@@ -149,7 +152,7 @@ public class ServiceProviderTypeResolverTest
         }
     }
 
-    private sealed class TestScopedServiceAsync : IAsyncDisposable
+    internal sealed class TestScopedServiceAsync : IAsyncDisposable
     {
         public bool IsDisposed { get; private set; }
 

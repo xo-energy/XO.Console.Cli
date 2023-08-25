@@ -45,6 +45,6 @@ public interface ICommand
 /// </list>
 /// </remarks>
 /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
-public interface ICommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters> : ICommand
+public interface ICommand<TParameters> : ICommand
     where TParameters : CommandParameters
 { }

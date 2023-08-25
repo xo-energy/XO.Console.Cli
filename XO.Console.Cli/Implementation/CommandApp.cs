@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using XO.Console.Cli.Commands;
 using XO.Console.Cli.Infrastructure;
@@ -18,8 +17,6 @@ internal sealed class CommandApp : ICommandApp
     private readonly CommandAppSettings _settings;
 
     private readonly Builtins.Options _builtinOptions;
-    private readonly CommandParametersBinder _binder;
-    private readonly CommandParametersInspector _inspector;
 
     public CommandApp(
         ITypeResolver resolver,
@@ -33,8 +30,6 @@ internal sealed class CommandApp : ICommandApp
         _settings = settings;
 
         _builtinOptions = new Builtins.Options(settings.OptionStyle);
-        _binder = new CommandParametersBinder(settings.Converters);
-        _inspector = new CommandParametersInspector(settings.OptionStyle, settings.OptionNameComparer);
     }
 
     public ConfiguredCommand RootCommand
@@ -55,7 +50,7 @@ internal sealed class CommandApp : ICommandApp
 
         state.AddOptions(_builtinOptions);
         state.AddOptions(_settings.GlobalOptions);
-        state.AddParameters(_inspector.InspectParameters(_rootCommand));
+        state.AddParameters(TypeRegistry.DescribeParameters(_rootCommand.ParametersType));
 
         // parse args
         for (int i = 0; i < args.Count; ++i)
@@ -113,7 +108,7 @@ internal sealed class CommandApp : ICommandApp
             {
                 state.Tokens[i] = new CommandToken(CommandTokenType.Argument, args[i], argument);
 
-                if (!argument.Attribute.IsGreedy)
+                if (!argument.IsGreedy)
                     _ = state.Arguments.Dequeue();
             }
             else if (!state.ExplicitArguments
@@ -127,7 +122,7 @@ internal sealed class CommandApp : ICommandApp
                 foreach (var name in _builtinOptions.Version.GetNames())
                     state.Options.Remove(name);
 
-                state.AddParameters(_inspector.InspectParameters(next));
+                state.AddParameters(TypeRegistry.DescribeParameters(next.ParametersType));
             }
             else
             {
@@ -141,12 +136,12 @@ internal sealed class CommandApp : ICommandApp
         // check for missing arguments
         foreach (var argument in state.Arguments)
         {
-            if (argument.Attribute.IsOptional)
+            if (argument.IsOptional)
                 continue;
-            if (argument.Attribute.IsGreedy && state.Tokens.Any(x => argument.Equals(x.Context)))
+            if (argument.IsGreedy && state.Tokens.Any(x => argument.Equals(x.Context)))
                 continue;
 
-            state.Errors.Add($"Missing required argument '{argument.Attribute.Name}'");
+            state.Errors.Add($"Missing required argument '{argument.Name}'");
         }
 
         return new CommandParseResult(
@@ -174,23 +169,23 @@ internal sealed class CommandApp : ICommandApp
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.CliExplain):
                     return BindInternal(
                         parseResult,
-                        _ => new CliExplainCommand(),
-                        typeof(CommandParameters),
-                        ImmutableDictionary<CommandParameter, object?>.Empty);
+                        new ConfiguredCommand<CliExplainCommand, CommandParameters>(
+                            _builtinOptions.CliExplain.Name,
+                            static _ => new CliExplainCommand()));
 
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.Help):
                     return BindInternal(
                         parseResult,
-                        _ => new HelpCommand(this, _inspector),
-                        typeof(CommandParameters),
-                        ImmutableDictionary<CommandParameter, object?>.Empty);
+                        new ConfiguredCommand<HelpCommand, CommandParameters>(
+                            _builtinOptions.Help.Name,
+                            _ => new HelpCommand(this)));
 
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.Version):
                     return BindInternal(
                         parseResult,
-                        _ => new VersionCommand(_settings.ApplicationVersion),
-                        typeof(CommandParameters),
-                        ImmutableDictionary<CommandParameter, object?>.Empty);
+                        new ConfiguredCommand<VersionCommand, CommandParameters>(
+                            _builtinOptions.Version.Name,
+                            _ => new VersionCommand(_settings.ApplicationVersion)));
 
                 case CommandTokenType.Unknown:
                     hasErrors = true;
@@ -202,18 +197,11 @@ internal sealed class CommandApp : ICommandApp
         if (_settings.Strict && hasErrors)
             throw new CommandParsingException(parseResult);
 
-        // bind parameter values
-        var bindings = _binder.BindParameters(parseResult.Tokens);
-
         // create command and bind parameters instance
-        return BindInternal(parseResult, command.CommandFactory, command.ParametersType, bindings);
+        return BindInternal(parseResult, command);
     }
 
-    private CommandContext BindInternal(
-        CommandParseResult parseResult,
-        CommandFactory commandFactory,
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type parametersType,
-        ImmutableDictionary<CommandParameter, object?> bindings)
+    private CommandContext BindInternal(CommandParseResult parseResult, ConfiguredCommand command)
     {
         ITypeResolverScope scope;
 
@@ -230,24 +218,16 @@ internal sealed class CommandApp : ICommandApp
         try
         {
             // create an instance of the command type
-            if (commandFactory(scope.TypeResolver) is not ICommand commandInstance)
-                throw new CommandTypeException(typeof(CommandFactory), $"Failed to instantiate command!");
+            var commandInstance = command.CreateCommand(scope.TypeResolver);
 
             // create parameters instance
-            if (scope.TypeResolver.Get(parametersType) is not CommandParameters parameters)
-                throw new CommandTypeException(parametersType, "Failed to instantiate parameters");
+            var parameters = command.CreateParameters(scope.TypeResolver);
 
             // create context
             var context = new CommandContext(scope, commandInstance, parameters, parseResult);
 
             // bind parameters
-            foreach (var (parameter, value) in bindings)
-                parameter.Setter(context, value);
-
-            // validate parameters
-            var validationResult = parameters.Validate();
-            if (validationResult != ValidationResult.Success)
-                throw new CommandParameterValidationException(validationResult);
+            BindParameters(context, parseResult.Tokens);
 
             return context;
         }
@@ -258,11 +238,57 @@ internal sealed class CommandApp : ICommandApp
         }
     }
 
+    public void BindParameters(CommandContext context, IEnumerable<CommandToken> tokens)
+    {
+        // group tokens by their parameter (some may have multiple values)
+        var parameterTokens = GetTokensByParameter(tokens)
+            .GroupBy(x => x.Parameter, x => x.Value);
+
+        // assign values by calling each parameter's setter
+        foreach (var group in parameterTokens)
+            group.Key.Setter(context, group, _settings.Converters);
+
+        // validate
+        var validationResult = context.Parameters.Validate();
+        if (validationResult != ValidationResult.Success)
+            throw new CommandParameterValidationException(validationResult);
+    }
+
     /// <inheritdoc/>
     public async Task<int> ExecuteAsync(CommandContext context, CancellationToken cancellationToken = default)
     {
         // go!
         return await _pipeline(context, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static IEnumerable<(CommandParameter Parameter, string Value)> GetTokensByParameter(IEnumerable<CommandToken> tokens)
+    {
+        foreach (var token in tokens)
+        {
+            switch (token.TokenType)
+            {
+                case CommandTokenType.Argument when token.Context is CommandArgument argument:
+                    yield return (argument, token.Value);
+                    break;
+
+                case CommandTokenType.Option when token.Context is CommandOption option && option.IsFlag:
+                    yield return (option, Boolean.TrueString);
+                    break;
+
+                case CommandTokenType.OptionGroup when token.Context is IEnumerable<CommandOption> optionGroup:
+                    foreach (var option in optionGroup)
+                        yield return (option, Boolean.TrueString);
+                    break;
+
+                case CommandTokenType.OptionValue when token.Context is CommandOption option:
+                    yield return (option, token.Value);
+                    break;
+
+                case CommandTokenType.Unknown:
+                    yield return (Builtins.Arguments.Remaining, token.Value);
+                    break;
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

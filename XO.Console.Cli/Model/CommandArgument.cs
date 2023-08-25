@@ -1,20 +1,30 @@
 namespace XO.Console.Cli.Model;
 
-public sealed class CommandArgument : CommandParameter
+/// <summary>
+/// Represents an argument to a command-line command.
+/// </summary>
+public sealed class CommandArgument : CommandParameter, ICommandArgumentAttributeData
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="CommandArgument"/>.
+    /// </summary>
+    /// <param name="name">The argument name.</param>
+    /// <param name="setter">A delegate that parses and assigns the value of the argument.</param>
+    /// <param name="valueType">The type of value the argument accepts. (If the argument accepts multiple values, this is the type of each individually.)</param>
+    /// <param name="description">A description of the argument, which is used in generated help.</param>
     public CommandArgument(
-        CommandArgumentAttribute attribute,
-        Type declaringType,
+        string name,
+        CommandParameterSetter setter,
         Type valueType,
-        Action<CommandContext, object?> setter,
-        string? description = null)
-        : base(declaringType, valueType, setter, description)
-    {
-        this.Attribute = attribute;
-    }
+        string? description)
+        : base(name, setter, valueType, description) { }
 
-    public override string Name
-        => Attribute.Name;
+    /// <inheritdoc/>
+    public int Order { get; init; }
 
-    public CommandArgumentAttribute Attribute { get; }
+    /// <inheritdoc/>
+    public bool IsGreedy { get; init; }
+
+    /// <inheritdoc/>
+    public bool IsOptional { get; init; }
 }

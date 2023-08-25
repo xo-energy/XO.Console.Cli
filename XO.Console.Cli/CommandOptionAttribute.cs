@@ -1,10 +1,13 @@
+using System.Collections.Immutable;
+using XO.Console.Cli.Model;
+
 namespace XO.Console.Cli;
 
 /// <summary>
 /// Configures a property as a command-line option.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-public sealed class CommandOptionAttribute : Attribute
+public sealed class CommandOptionAttribute : Attribute, ICommandOptionAttributeData
 {
     /// <summary>
     /// Creates a new instance of <see cref="CommandOptionAttribute"/>.
@@ -14,22 +17,15 @@ public sealed class CommandOptionAttribute : Attribute
     public CommandOptionAttribute(string name, params string[] aliases)
     {
         this.Name = name;
-        this.Aliases = aliases;
+        this.Aliases = ImmutableArray.Create(aliases);
     }
 
-    /// <summary>
-    /// The option name, including the option leader (prefix).
-    /// </summary>
-    /// <example>--option</example>
+    /// <inheritdoc/>
     public string Name { get; }
 
-    /// <summary>
-    /// A collection of option aliases, including the option leader (prefix).
-    /// </summary>
-    public IReadOnlyCollection<string> Aliases { get; }
+    /// <inheritdoc/>
+    public ImmutableArray<string> Aliases { get; }
 
-    /// <summary>
-    /// Gets or sets whether this option should be hidden from generated help.
-    /// </summary>
+    /// <inheritdoc/>
     public bool IsHidden { get; set; }
 }

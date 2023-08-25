@@ -1,0 +1,39 @@
+### 4.0
+
+|                     Method |           Job |       Runtime |          Mean |        Error |       StdDev |
+|--------------------------- |-------------- |-------------- |--------------:|-------------:|-------------:|
+|              InitializeApp |      .NET 6.0 |      .NET 6.0 |  17,717.61 ns |    76.843 ns |    64.168 ns |
+|              InitializeApp |      .NET 7.0 |      .NET 7.0 |  15,442.97 ns |    58.255 ns |    51.642 ns |
+|              InitializeApp | NativeAOT 7.0 | NativeAOT 7.0 |  23,010.51 ns |    87.796 ns |    77.829 ns |
+|                     RunApp |      .NET 6.0 |      .NET 6.0 |  35,274.87 ns |   228.966 ns |   214.174 ns |
+|                     RunApp |      .NET 7.0 |      .NET 7.0 |  28,068.31 ns |   178.515 ns |   166.983 ns |
+|                     RunApp | NativeAOT 7.0 | NativeAOT 7.0 |  43,701.43 ns |   136.602 ns |   121.094 ns |
+|       RunCommandExplicitly |      .NET 6.0 |      .NET 6.0 |     111.40 ns |     0.525 ns |     0.491 ns |
+|       RunCommandExplicitly |      .NET 7.0 |      .NET 7.0 |      92.73 ns |     0.526 ns |     0.492 ns |
+|       RunCommandExplicitly | NativeAOT 7.0 | NativeAOT 7.0 |     139.50 ns |     0.909 ns |     0.850 ns |
+|               RunHostedApp |      .NET 6.0 |      .NET 6.0 | 262,519.47 ns | 3,068.951 ns | 2,870.699 ns |
+|               RunHostedApp |      .NET 7.0 |      .NET 7.0 | 246,728.51 ns | 3,021.075 ns | 2,678.105 ns |
+|               RunHostedApp | NativeAOT 7.0 | NativeAOT 7.0 | 497,763.57 ns | 7,872.768 ns | 7,364.192 ns |
+| RunHostedCommandExplicitly |      .NET 6.0 |      .NET 6.0 | 160,636.60 ns | 1,431.850 ns | 1,269.298 ns |
+| RunHostedCommandExplicitly |      .NET 7.0 |      .NET 7.0 | 149,629.32 ns | 2,444.670 ns | 2,167.136 ns |
+| RunHostedCommandExplicitly | NativeAOT 7.0 | NativeAOT 7.0 | 304,544.65 ns | 3,263.691 ns | 2,893.177 ns |
+
+### 5.0-alpha.1
+
+|                     Method |           Job |       Runtime |          Mean |         Error |        StdDev |
+|--------------------------- |-------------- |-------------- |--------------:|--------------:|--------------:|
+|              InitializeApp |      .NET 6.0 |      .NET 6.0 |   8,655.52 ns |     28.102 ns |     23.466 ns |
+|              InitializeApp |      .NET 7.0 |      .NET 7.0 |   7,551.53 ns |     45.641 ns |     42.693 ns |
+|              InitializeApp | NativeAOT 7.0 | NativeAOT 7.0 |  11,253.14 ns |     74.373 ns |     65.930 ns |
+|                     RunApp |      .NET 6.0 |      .NET 6.0 |  13,449.05 ns |    103.622 ns |     91.858 ns |
+|                     RunApp |      .NET 7.0 |      .NET 7.0 |  11,579.85 ns |     97.449 ns |     86.386 ns |
+|                     RunApp | NativeAOT 7.0 | NativeAOT 7.0 |  15,632.94 ns |    144.648 ns |    128.226 ns |
+|       RunCommandExplicitly |      .NET 6.0 |      .NET 6.0 |     105.89 ns |      0.536 ns |      0.475 ns |
+|       RunCommandExplicitly |      .NET 7.0 |      .NET 7.0 |      97.53 ns |      1.317 ns |      1.167 ns |
+|       RunCommandExplicitly | NativeAOT 7.0 | NativeAOT 7.0 |     115.67 ns |      0.824 ns |      0.771 ns |
+|               RunHostedApp |      .NET 6.0 |      .NET 6.0 | 231,287.50 ns |  2,777.157 ns |  2,319.052 ns |
+|               RunHostedApp |      .NET 7.0 |      .NET 7.0 | 218,173.77 ns |  3,403.334 ns |  3,183.481 ns |
+|               RunHostedApp | NativeAOT 7.0 | NativeAOT 7.0 | 520,966.28 ns | 10,403.021 ns | 15,886.511 ns |
+| RunHostedCommandExplicitly |      .NET 6.0 |      .NET 6.0 | 161,004.88 ns |  1,652.741 ns |  1,465.112 ns |
+| RunHostedCommandExplicitly |      .NET 7.0 |      .NET 7.0 | 150,697.40 ns |  2,013.082 ns |  1,883.038 ns |
+| RunHostedCommandExplicitly | NativeAOT 7.0 | NativeAOT 7.0 | 322,574.34 ns |  6,350.747 ns |  7,058.839 ns |

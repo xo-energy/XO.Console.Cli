@@ -1,10 +1,12 @@
+using XO.Console.Cli.Model;
+
 namespace XO.Console.Cli;
 
 /// <summary>
 /// Configures a property as a command-line argument.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-public class CommandArgumentAttribute : Attribute
+public class CommandArgumentAttribute : Attribute, ICommandArgumentAttributeData
 {
     /// <summary>
     /// Creates a new instance of <see cref="CommandArgumentAttribute"/>.
@@ -17,26 +19,15 @@ public class CommandArgumentAttribute : Attribute
         this.Name = name;
     }
 
-    /// <summary>
-    /// Gets the order of this argument relative to the command's other arguments.
-    /// </summary>
+    /// <inheritdoc/>
     public int Order { get; }
 
-    /// <summary>
-    /// Gets the argument name.
-    /// </summary>
+    /// <inheritdoc/>
     public string Name { get; }
 
-    /// <summary>
-    /// Gets or sets whether the argument consumes all remaining argument values.
-    /// </summary>
-    /// <remarks>
-    /// A greedy argument must be the last argument to its command.
-    /// </remarks>
+    /// <inheritdoc/>
     public bool IsGreedy { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the argument is optional.
-    /// </summary>
+    /// <inheritdoc/>
     public bool IsOptional { get; set; }
 }

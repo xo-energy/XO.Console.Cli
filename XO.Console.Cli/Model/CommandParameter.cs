@@ -1,24 +1,37 @@
+using XO.Console.Cli.Infrastructure;
+
 namespace XO.Console.Cli.Model;
+
+/// <summary>
+/// Represents a delegate that parses and assigns the value of a command parameter.
+/// </summary>
+/// <param name="context">The command execution context. This delegate is expected to set a value on <see cref="CommandContext.Parameters"/> or the context itself.</param>
+/// <param name="values">The sequence of string values to convert.</param>
+/// <param name="converters">A collection of runtime-configured converters.</param>
+public delegate void CommandParameterSetter(
+    CommandContext context,
+    IEnumerable<string> values,
+    IReadOnlyDictionary<Type, ParameterValueConverter> converters);
 
 /// <summary>
 /// Represents an argument or option to a command-line command.
 /// </summary>
-public abstract class CommandParameter : IEquatable<CommandParameter>
+public abstract class CommandParameter
 {
     /// <summary>
     /// Initializes a new instance of <see cref="CommandParameter"/>.
     /// </summary>
-    /// <param name="declaringType">The type that declares this parameter.</param>
-    /// <param name="valueType">The type of the parameter's value.</param>
-    /// <param name="setter">A delegate that sets the value of this parameter.</param>
+    /// <param name="name">The parameter name.</param>
+    /// <param name="setter">A delegate that parses and assigns the value of the argument.</param>
+    /// <param name="valueType">The type of value the parameter accepts. (If the argument accepts multiple values, this is the type of each individually.)</param>
     /// <param name="description">A description of this parameter, which is used in generated help.</param>
     protected CommandParameter(
-        Type declaringType,
+        string name,
+        CommandParameterSetter setter,
         Type valueType,
-        Action<CommandContext, object?> setter,
-        string? description = null)
+        string? description)
     {
-        this.DeclaringType = declaringType;
+        this.Name = name;
         this.Setter = setter;
         this.ValueType = valueType;
         this.Description = description;
@@ -27,25 +40,17 @@ public abstract class CommandParameter : IEquatable<CommandParameter>
     /// <summary>
     /// Gets the parameter name.
     /// </summary>
-    public abstract string Name { get; }
-
-    /// <summary>
-    /// Gets the type that declares this parameter (usually a subclass of <see cref="CommandParameters"/>).
-    /// </summary>
-    public Type DeclaringType { get; }
-
-    /// <summary>
-    /// Gets the type of this parameter's value.
-    /// </summary>
-    public Type ValueType { get; }
+    public string Name { get; }
 
     /// <summary>
     /// Gets a delegate that sets the value of this parameter.
     /// </summary>
-    /// <remarks>
-    /// Usually, this is a reference to a property setter on <see cref="DeclaringType"/>.
-    /// </remarks>
-    public Action<CommandContext, object?> Setter { get; }
+    public CommandParameterSetter Setter { get; }
+
+    /// <summary>
+    /// Get the type of value this parameter accepts.
+    /// </summary>
+    public Type ValueType { get; }
 
     /// <summary>
     /// Gets a description of this parameter, used in generated help.
@@ -53,34 +58,6 @@ public abstract class CommandParameter : IEquatable<CommandParameter>
     public string? Description { get; }
 
     /// <inheritdoc/>
-    public bool Equals(CommandParameter? other)
-    {
-        return other != null
-            && this.DeclaringType == other.DeclaringType
-            && this.Name == other.Name;
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object? obj)
-        => Equals(obj as CommandParameter);
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-        => HashCode.Combine(this.DeclaringType, this.Name);
-
-    /// <inheritdoc/>
     public override string ToString()
-        => $"{this.ValueType} '{this.Name}' ({this.DeclaringType})";
-
-    /// <summary>
-    /// Indicates whether <see cref="CommandParameter"/> instances are equal.
-    /// </summary>
-    public static bool operator ==(CommandParameter? x, CommandParameter? y)
-        => Object.Equals(x, y);
-
-    /// <summary>
-    /// Indicates whether <see cref="CommandParameter"/> instances are not equal.
-    /// </summary>
-    public static bool operator !=(CommandParameter? x, CommandParameter? y)
-        => !Object.Equals(x, y);
+        => this.Name;
 }

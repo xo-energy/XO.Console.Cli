@@ -5,3 +5,4 @@ BenchmarkDotNet.Artifacts/
 .vs/
 *.suo
 *.user
+*.received.*

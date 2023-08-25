@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using XO.Console.Cli.Features;
 
 namespace XO.Console.Cli.Model;
@@ -14,7 +15,7 @@ public sealed class CommandContext : IAsyncDisposable, ICommandContext, IDisposa
     private readonly ITypeResolverScope _scope;
 
     private IConsole? _console;
-    private Dictionary<string, object?>? _globalOptions;
+    private Dictionary<string, ImmutableArray<string>>? _globalOptions;
     private List<string>? _remainingArguments;
 
     /// <summary>
@@ -82,32 +83,31 @@ public sealed class CommandContext : IAsyncDisposable, ICommandContext, IDisposa
         => LazyInitializer.EnsureInitialized(ref _remainingArguments);
 
     /// <inheritdoc/>
-    public TValue? GetGlobalOption<TValue>(string name)
-        => TryGetGlobalOption(name, out TValue? value) ? value : default;
+    public ImmutableArray<string> GetGlobalOption(string name)
+        => TryGetGlobalOption(name, out var values) ? values : throw new KeyNotFoundException($"Global option '{name}' is not set");
 
     /// <summary>
     /// Sets the value of a global option.
     /// </summary>
     /// <param name="name">The option name, including the option leader (prefix).</param>
-    /// <param name="value">The option value.</param>
-    /// <typeparam name="TValue">The type of the option's value.</typeparam>
-    public void SetGlobalOption<TValue>(string name, TValue value)
+    /// <param name="values">The option values.</param>
+    public void SetGlobalOption(string name, ImmutableArray<string> values)
     {
         LazyInitializer.EnsureInitialized(ref _globalOptions);
-        _globalOptions[name] = value;
+        _globalOptions[name] = values;
     }
 
     /// <inheritdoc/>
-    public bool TryGetGlobalOption<TValue>(string name, out TValue? value)
+    public bool TryGetGlobalOption(string name, out ImmutableArray<string> values)
     {
-        if (_globalOptions?.TryGetValue(name, out var objectValue) == true)
+        if (_globalOptions?.TryGetValue(name, out var valuesNonNull) == true)
         {
-            value = (TValue?)objectValue;
+            values = valuesNonNull;
             return true;
         }
         else
         {
-            value = default;
+            values = default;
             return false;
         }
     }

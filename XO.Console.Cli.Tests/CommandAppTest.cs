@@ -1,10 +1,10 @@
 using XO.Console.Cli.Commands;
+using XO.Console.Cli.Fixtures;
 using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Model;
-using XO.Console.Cli.Tests.Fixtures;
 using Xunit;
 
-namespace XO.Console.Cli.Tests;
+namespace XO.Console.Cli;
 
 public class CommandAppTest : CommandAppTestBase
 {
@@ -515,7 +515,7 @@ public class CommandAppTest : CommandAppTestBase
         var parse = app.Parse(Array.Empty<string>());
         var context = app.Bind(parse);
 
-        Assert.IsType<MissingCommand>(context.Command);
+        Assert.IsType<MissingCommand<CommandParameters>>(context.Command);
     }
 
     [Fact]

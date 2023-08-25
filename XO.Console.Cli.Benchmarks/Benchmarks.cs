@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.Hosting;
 using XO.Console.Cli.Commands;
@@ -8,10 +9,11 @@ using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli;
 
+[MinColumn, MaxColumn, MeanColumn, MedianColumn]
 [Orderer(BenchmarkDotNet.Order.SummaryOrderPolicy.Method)]
-[SimpleJob(RuntimeMoniker.Net60)]
-[SimpleJob(RuntimeMoniker.Net70)]
-[SimpleJob(RuntimeMoniker.NativeAot70)]
+[SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net60, launchCount: 50)]
+[SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net70, launchCount: 50)]
+[SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.NativeAot70, launchCount: 50)]
 public class Benchmarks
 {
     private sealed class NullConsole : IConsole
@@ -52,8 +54,8 @@ public class Benchmarks
         return new CommandAppBuilder()
             .AddBranch("do", builder =>
             {
-                builder.AddCommand<HelloCommand>();
-                builder.AddCommand<GoodbyeCommand>();
+                builder.AddCommand<HelloCommand>("hello");
+                builder.AddCommand<GoodbyeCommand>("goodbye");
             })
             .UseMiddleware(NullConsoleMiddleware)
             .Build();
@@ -65,8 +67,8 @@ public class Benchmarks
         return await new CommandAppBuilder()
             .AddBranch("do", builder =>
             {
-                builder.AddCommand<HelloCommand>();
-                builder.AddCommand<GoodbyeCommand>();
+                builder.AddCommand<HelloCommand>("hello");
+                builder.AddCommand<GoodbyeCommand>("goodbye");
             })
             .UseMiddleware(NullConsoleMiddleware)
             .ExecuteAsync(Args)
@@ -95,8 +97,8 @@ public class Benchmarks
             {
                 builder.AddBranch("do", builder =>
                     {
-                        builder.AddCommand<HelloCommand>();
-                        builder.AddCommand<GoodbyeCommand>();
+                        builder.AddCommand<HelloCommand>("hello");
+                        builder.AddCommand<GoodbyeCommand>("goodbye");
                     })
                     ;
                 builder.UseMiddleware(NullConsoleMiddleware);

@@ -32,7 +32,7 @@ public static class CommandAppHostBuilderExtensions
     /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
     /// <typeparam name="TDefaultCommand">The command implementation type.</typeparam>
     /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
-    public static Task<int> RunCommandAppAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TDefaultCommand>(
+    public static Task<int> RunCommandAppAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TDefaultCommand>(
         this IHostBuilder hostBuilder,
         IReadOnlyList<string> args,
         Action<HostBuilderContext, ICommandAppBuilder>? configure = null)
@@ -48,13 +48,13 @@ public static class CommandAppHostBuilderExtensions
     /// <param name="configure">A delegate that configures the <see cref="ICommandAppBuilder"/>.</param>
     /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
     /// <returns>A <see cref="Task{TResult}"/> whose result is the command exit code.</returns>
-    public static Task<int> RunCommandAppAsync<TParameters>(
+    public static Task<int> RunCommandAppAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TParameters>(
         this IHostBuilder hostBuilder,
         IReadOnlyList<string> args,
         Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync,
         Action<HostBuilderContext, ICommandAppBuilder>? configure = null)
         where TParameters : CommandParameters
-        => RunCommandAppAsync(hostBuilder, args, () => CommandAppBuilder.WithDefaultCommand(executeAsync), configure);
+        => RunCommandAppAsync(hostBuilder, args, () => CommandAppBuilder.WithDefaultCommand<TParameters>(executeAsync), configure);
 
     /// <summary>
     /// Builds the host, then builds and runs a hosted command-line application.

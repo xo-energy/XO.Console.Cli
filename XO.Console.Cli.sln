@@ -27,6 +27,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XO.Console.Cli.Instrumentat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XO.Console.Cli.Benchmarks", "XO.Console.Cli.Benchmarks\XO.Console.Cli.Benchmarks.csproj", "{D8951733-3311-4EA4-B882-C31460CD4017}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XO.Console.Cli.Analyzers", "XO.Console.Cli.Analyzers\XO.Console.Cli.Analyzers.csproj", "{DA277CE2-CA43-4CDA-8FB4-BFBE08A9AF6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XO.Console.Cli.Analyzers.Tests", "XO.Console.Cli.Analyzers.Tests\XO.Console.Cli.Analyzers.Tests.csproj", "{D13120E9-E5B3-4DBD-A195-AE52F7E97E4F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +57,14 @@ Global
 		{D8951733-3311-4EA4-B882-C31460CD4017}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8951733-3311-4EA4-B882-C31460CD4017}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8951733-3311-4EA4-B882-C31460CD4017}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA277CE2-CA43-4CDA-8FB4-BFBE08A9AF6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA277CE2-CA43-4CDA-8FB4-BFBE08A9AF6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA277CE2-CA43-4CDA-8FB4-BFBE08A9AF6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA277CE2-CA43-4CDA-8FB4-BFBE08A9AF6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D13120E9-E5B3-4DBD-A195-AE52F7E97E4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D13120E9-E5B3-4DBD-A195-AE52F7E97E4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D13120E9-E5B3-4DBD-A195-AE52F7E97E4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D13120E9-E5B3-4DBD-A195-AE52F7E97E4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

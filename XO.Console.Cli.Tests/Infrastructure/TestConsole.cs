@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Infrastructure;
 
 public sealed class TestConsole : IConsole, IDisposable
 {

@@ -1,4 +1,3 @@
-using System;
 using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Model;
 using Xunit;

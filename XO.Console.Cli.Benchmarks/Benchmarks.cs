@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.Hosting;
@@ -54,7 +49,7 @@ public class Benchmarks
     [Benchmark]
     public ICommandApp InitializeApp()
     {
-        return CommandAppBuilder.Create()
+        return new CommandAppBuilder()
             .AddBranch("do", builder =>
             {
                 builder.AddCommand<HelloCommand>();
@@ -67,7 +62,7 @@ public class Benchmarks
     [Benchmark]
     public async Task<int> RunApp()
     {
-        return await CommandAppBuilder.Create()
+        return await new CommandAppBuilder()
             .AddBranch("do", builder =>
             {
                 builder.AddCommand<HelloCommand>();

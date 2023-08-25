@@ -6,10 +6,7 @@ namespace XO.Console.Cli;
 /// <summary>
 /// Configures a command-line application.
 /// </summary>
-/// <remarks>
-/// Use the static factory methods on <see cref="CommandAppBuilder"/> to create an instance of this interface.
-/// </remarks>
-public interface ICommandAppBuilder : ICommandBuilderProvider<ICommandAppBuilder>
+public interface ICommandAppBuilder : ICommandBuilderAddCommand<ICommandAppBuilder>
 {
     /// <summary>
     /// Builds the application.

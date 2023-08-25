@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using XO.Console.Cli.Implementation;
 using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Model;
 using Xunit;

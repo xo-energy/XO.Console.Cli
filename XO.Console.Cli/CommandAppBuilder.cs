@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using XO.Console.Cli.Commands;
 using XO.Console.Cli.Implementation;
 using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Middleware;
@@ -11,9 +12,6 @@ namespace XO.Console.Cli;
 /// <summary>
 /// Configures a command-line application.
 /// </summary>
-/// <remarks>
-/// Use the static factory methods to create an instance of this class.
-/// </remarks>
 public sealed class CommandAppBuilder : ICommandAppBuilder
 {
     private const string RootVerb = "__ROOT__";
@@ -34,11 +32,19 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     private ITypeResolver _resolver;
     private bool _useExceptionHandler;
 
-    private CommandAppBuilder(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type parametersType,
-        CommandFactory? commandFactory = null)
+    /// <summary>
+    /// Initializes a new instance of <see cref="CommandAppBuilder"/>.
+    /// </summary>
+    public CommandAppBuilder()
+        : this(new CommandBuilder(RootVerb, typeof(CommandParameters))) { }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="CommandAppBuilder"/>.
+    /// </summary>
+    /// <param name="rootCommandBuilder">A <see cref="CommandBuilder"/> that configures the root (default) command.</param>
+    private CommandAppBuilder(CommandBuilder rootCommandBuilder)
     {
-        _commandBuilder = new CommandBuilder(RootVerb, parametersType, commandFactory);
+        _commandBuilder = rootCommandBuilder;
         _converters = ImmutableDictionary.CreateBuilder<Type, Func<string, object?>>();
         _globalOptions = ImmutableList.CreateBuilder<CommandOption>();
         _middleware = new List<Func<ExecutorDelegate, ExecutorDelegate>>(0);
@@ -57,46 +63,54 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     }
 
     /// <summary>
-    /// Creates a new instance of <see cref="ICommandAppBuilder"/>.
-    /// </summary>
-    public static ICommandAppBuilder Create()
-        => new CommandAppBuilder(typeof(CommandParameters));
-
-    /// <summary>
-    /// Creates a new instance of <see cref="ICommandAppBuilder"/> with a default command.
+    /// Creates a new instance of <see cref="CommandAppBuilder"/> with a default command.
     /// </summary>
     /// <remarks>The default command is invoked when the command-line arguments do not specify a sub-command.</remarks>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>
-    public static ICommandAppBuilder WithDefaultCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>()
+    public static CommandAppBuilder WithDefaultCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>()
         where TCommand : class, ICommand
     {
-        return new CommandAppBuilder(
+        var rootCommandBuilder = new CommandBuilder(
+            RootVerb,
             CommandBuilder.GetParametersType<TCommand>(),
             CommandBuilder.CreateCommandFactory<TCommand>());
+
+        return new CommandAppBuilder(rootCommandBuilder);
     }
 
     /// <summary>
-    /// Creates a new instance of <see cref="ICommandAppBuilder"/> with a default command.
+    /// Creates a new instance of <see cref="CommandAppBuilder"/> with a default command.
+    /// </summary>
+    /// <remarks>The default command is invoked when the command-line arguments do not specify a sub-command.</remarks>
+    /// <param name="executeAsync">The command implementation delegate.</param>
+    public static CommandAppBuilder WithDefaultCommand(
+        Func<ICommandContext, CancellationToken, Task<int>> executeAsync)
+    {
+        var rootCommandBuilder = new CommandBuilder(
+            RootVerb,
+            typeof(CommandParameters),
+            _ => new DelegateCommand(executeAsync));
+
+        return new CommandAppBuilder(rootCommandBuilder);
+    }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="CommandAppBuilder"/> with a default command.
     /// </summary>
     /// <remarks>The default command is invoked when the command-line arguments do not specify a sub-command.</remarks>
     /// <param name="executeAsync">The command implementation delegate.</param>
     /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
-    public static ICommandAppBuilder WithDefaultCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
+    public static CommandAppBuilder WithDefaultCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
         Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync)
         where TParameters : CommandParameters
     {
-        return new CommandAppBuilder(
+        var rootCommandBuilder = new CommandBuilder(
+            RootVerb,
             typeof(TParameters),
-            CommandBuilder.CreateCommandFactory(executeAsync));
+            _ => new DelegateCommand<TParameters>(executeAsync));
+
+        return new CommandAppBuilder(rootCommandBuilder);
     }
-
-    /// <inheritdoc/>
-    ICommandBuilder ICommandBuilderProvider<ICommandAppBuilder>.Builder
-        => _commandBuilder;
-
-    /// <inheritdoc/>
-    ICommandAppBuilder ICommandBuilderProvider<ICommandAppBuilder>.Self
-        => this;
 
     /// <inheritdoc/>
     public ICommandApp Build()
@@ -119,6 +133,63 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
         };
 
         return new CommandApp(_resolver, pipeline, rootCommand, settings);
+    }
+
+    /// <inheritdoc/>
+    public ICommandAppBuilder AddBranch(string name, Action<ICommandBuilder> configure)
+    {
+        _commandBuilder.AddBranch(name, configure);
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public ICommandAppBuilder AddBranch<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
+        string name,
+        Action<ICommandBuilder> configure)
+        where TParameters : CommandParameters
+    {
+        _commandBuilder.AddBranch<TParameters>(name, configure);
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public ICommandAppBuilder AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>(
+        Action<ICommandBuilder>? configure = null)
+        where TCommand : class, ICommand
+    {
+        _commandBuilder.AddCommand<TCommand>(configure);
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public ICommandAppBuilder AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TCommand>(
+        string verb,
+        Action<ICommandBuilder>? configure = null)
+        where TCommand : class, ICommand
+    {
+        _commandBuilder.AddCommand<TCommand>(verb, configure);
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public ICommandAppBuilder AddDelegate(
+        string verb,
+        Func<ICommandContext, CancellationToken, Task<int>> executeAsync,
+        Action<ICommandBuilder>? configure = null)
+    {
+        _commandBuilder.AddDelegate(verb, executeAsync, configure);
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public ICommandAppBuilder AddDelegate<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TParameters>(
+        string verb,
+        Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync,
+        Action<ICommandBuilder>? configure = null)
+        where TParameters : CommandParameters
+    {
+        _commandBuilder.AddDelegate(verb, executeAsync, configure);
+        return this;
     }
 
     /// <inheritdoc/>

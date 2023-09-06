@@ -10,11 +10,11 @@
       },
       "GitHubActionsTestLogger": {
         "type": "Direct",
-        "requested": "[2.3.2, )",
-        "resolved": "2.3.2",
-        "contentHash": "RKJ/mmHSqaY/Mzrxt/5qfbeGCc1s23aIH9uR61sDxkI/uqv0fAWNL5onthWtQVVtlp10XHYUx2qZZrF4irUQpg==",
+        "requested": "[2.3.3, )",
+        "resolved": "2.3.3",
+        "contentHash": "9mBfuOIUmZ3dnL/hYaENh/eGKC6r3ufwo2rEkWJVDDj2UUGuu59GsMezYkV3bj/wZ8rcgzDIr1fj/wXh1yklQA==",
         "dependencies": {
-          "Microsoft.TestPlatform.ObjectModel": "17.6.0"
+          "Microsoft.TestPlatform.ObjectModel": "17.7.1"
         }
       },
       "Microsoft.Extensions.Hosting": {
@@ -365,8 +365,8 @@
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
-        "resolved": "17.6.2",
-        "contentHash": "I3S/oELDAe/ckFltBnPb0PV+gADbpc8n0yGTtYfTd7q1hd0cAZKn/FrYoegA/rGws8fEFyJD/2PB6uq+nIjWsg==",
+        "resolved": "17.7.1",
+        "contentHash": "nDmV03yHIdAiG5J3ZEjMyJM2XDjmWORuKgbrGzqlAipBEjUuy5Z5S7WwSqUv9OiaUrtCn9dNYmjfMELUi08leQ==",
         "dependencies": {
           "NuGet.Frameworks": "6.5.0",
           "System.Reflection.Metadata": "1.6.0"

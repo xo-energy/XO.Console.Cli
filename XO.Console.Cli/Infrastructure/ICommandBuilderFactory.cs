@@ -11,6 +11,12 @@ namespace XO.Console.Cli.Infrastructure;
 public interface ICommandBuilderFactory
 {
     /// <summary>
+    /// Adds commands configured using <see cref="CommandAttribute"/> to the <see cref="ICommandAppBuilder"/>.
+    /// </summary>
+    /// <param name="builder">The <see cref="ICommandAppBuilder"/> to configure.</param>
+    void ConfigureCommandApp(ICommandAppBuilder builder);
+
+    /// <summary>
     /// Creates an instance of <see cref="CommandBuilder"/> for the specified command type.
     /// </summary>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>

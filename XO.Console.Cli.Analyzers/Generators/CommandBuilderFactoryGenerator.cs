@@ -1,7 +1,10 @@
 using System.Collections.Immutable;
+using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace XO.Console.Cli.Generators;
 
@@ -11,63 +14,28 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
     private sealed record CommandTypeModel(
         Location Location,
         string Name,
-        string? ParametersName);
+        string ParametersName,
+        ImmutableArray<string> Verbs,
+        ImmutableArray<string> Aliases,
+        string? Description,
+        bool? Hidden);
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var referenceMaterial = context.CompilationProvider.Select(
-            (compilation, _) =>
-            {
-                var commandInterface = compilation.GetTypeByMetadataName("XO.Console.Cli.ICommand`1");
+        var classDeclarations = context.SyntaxProvider.CreateSyntaxProvider(
+            static (node, _) => node is ClassDeclarationSyntax,
+            TransformCommandTypeDeclaration)
+            .Where(x => x is not null)
+            .Select((x, _) => x!);
 
-                return (compilation.AssemblyName, CommandInterface: commandInterface);
-            });
+        var combined = classDeclarations.Collect();
 
-        var classDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "XO.Console.Cli.CommandAttribute",
-            predicate: static (node, cancellationToken) => node is ClassDeclarationSyntax,
-            transform: static (context, cancellationToken) => (INamedTypeSymbol)context.TargetSymbol)
-            .WithComparer(SymbolEqualityComparer.Default);
-
-        var classDeclarationsWithReferenceMaterial = classDeclarations.Combine(referenceMaterial);
-
-        var models = classDeclarationsWithReferenceMaterial.Select(
-            (x, cancellationToken) =>
-            {
-                var (assemblyName, commandInterface) = x.Right;
-
-                if (commandInterface is null)
-                    return null;
-
-                var commandType = x.Left;
-                if (commandType.IsAbstract)
-                    return null;
-
-                ITypeSymbol? commandParametersType = null;
-
-                foreach (var @interface in commandType.AllInterfaces)
-                {
-                    if (commandInterface.Equals(@interface.ConstructedFrom, SymbolEqualityComparer.Default))
-                    {
-                        commandParametersType = @interface.TypeArguments[0];
-                        break;
-                    }
-                }
-
-                return new CommandTypeModel(
-                    commandType.Locations[0],
-                    commandType.ToSourceString(),
-                    commandParametersType?.ToSourceString());
-            })
-            .Where(model => model is not null)
-            .Collect();
-
-        context.RegisterSourceOutput(
-            models,
+        context.RegisterImplementationSourceOutput(
+            combined,
             static (context, source) => Execute(context, source));
     }
 
-    private static void Execute(SourceProductionContext context, ImmutableArray<CommandTypeModel?> models)
+    private static void Execute(SourceProductionContext context, ImmutableArray<CommandTypeModel> models)
     {
         var builder = new StringBuilder();
 
@@ -94,28 +62,28 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                 public static readonly CommandBuilderFactory Instance = new CommandBuilderFactory();
             #pragma warning restore CS0436 // Type conflicts with imported type
 
+            """);
+
+        builder.AppendLine(
+            $$"""
+                public void ConfigureCommandApp(ICommandAppBuilder builder)
+                {
+            """);
+
+        // only generate automatic configuration for commands that specify a verb
+        EmitConfigureCommandAppStatements(builder, ImmutableArray<string>.Empty, models.Where(x => x.Verbs.Length > 0));
+
+        builder.AppendLine(
+            $$"""
+                }
+
                 public CommandBuilder? CreateCommandBuilder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(string verb)
                     where TCommand : class, ICommand
                 {
             """);
 
-        builder.AppendLine();
-
         foreach (var model in models)
-        {
-            if (model!.ParametersName is null)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptors.CommandTypeMustImplementICommand,
-                    model.Location,
-                    model.Name);
-
-                context.ReportDiagnostic(diagnostic);
-                continue;
-            }
-
             EmitCommandFactoryCase(builder, model);
-        }
 
         builder.AppendLine(
             $$"""
@@ -134,16 +102,169 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
         context.AddSource("CommandBuilderFactory.g.cs", builder.ToString());
     }
 
+    private static void EmitConfigureCommandAppStatements(StringBuilder builder, ImmutableArray<string> path, IEnumerable<CommandTypeModel> commands)
+    {
+        var commandsByVerb = commands.ToLookup(x => x.Verbs[path.Length]);
+        var commandsToEmit = new List<CommandTypeModel>();
+        var indent = new string(' ', 8 + path.Length * 4);
+
+        foreach (var verbGroup in commandsByVerb)
+        {
+            CommandTypeModel? executable = null;
+
+            commandsToEmit.Clear();
+
+            foreach (var command in verbGroup)
+            {
+                if (command.Verbs.Length == path.Length + 1)
+                {
+                    executable = command;
+                }
+                else
+                {
+                    commandsToEmit.Add(command);
+                }
+            }
+
+            if (executable != null)
+            {
+                builder.Append($"{indent}builder.AddCommand<{executable.Name}>({SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(verbGroup.Key))}");
+            }
+            else
+            {
+                builder.Append($"{indent}builder.AddBranch({SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(verbGroup.Key))}");
+            }
+
+            if (commandsToEmit.Count > 0)
+            {
+                builder.AppendLine(", builder => {");
+                EmitConfigureCommandAppStatements(builder, path.Add(verbGroup.Key), commandsToEmit);
+                builder.AppendLine($"{indent}}});");
+            }
+            else
+            {
+                builder.AppendLine(");");
+            }
+        }
+    }
+
     private static void EmitCommandFactoryCase(StringBuilder builder, CommandTypeModel model)
     {
         builder.AppendLine(
             $$"""
                     if (typeof(TCommand) == typeof({{model.Name}}))
                     {
-                        return new CommandBuilder<{{model.Name}}, {{model.ParametersName}}>(
+                        var builder = new CommandBuilder<{{model.Name}}, {{model.ParametersName}}>(
                             verb,
                             static (resolver) => resolver.Get<{{model.Name}}>());
+            """);
+
+        foreach (var alias in model.Aliases)
+        {
+            builder.AppendLine(
+            $$"""
+                        builder.AddAlias({{LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(alias))}});
+            """);
+        }
+
+        if (model.Description is not null)
+        {
+            builder.AppendLine(
+            $$"""
+                        builder.SetDescription({{LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(model.Description))}});
+            """);
+        }
+
+        if (model.Hidden.HasValue)
+        {
+            builder.AppendLine(
+            $$"""
+                        builder.SetHidden({{LiteralExpression(model.Hidden.Value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)}});
+            """);
+        }
+
+        builder.AppendLine(
+            $$"""
+                        return builder;
                     }
             """);
+    }
+
+    private static CommandTypeModel? TransformCommandTypeDeclaration(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    {
+        var decl = (ClassDeclarationSyntax)context.Node;
+
+        // get the declared type
+        if (context.SemanticModel.GetDeclaredSymbol(decl) is not INamedTypeSymbol declType)
+            return null;
+
+        // we only need to emit factories for types that can be instantiated
+        if (declType.IsAbstract || declType.IsStatic)
+            return null;
+
+        ITypeSymbol? commandParametersType = null;
+
+        // we only care about types that implement ICommand
+        foreach (var @interface in declType.AllInterfaces)
+        {
+            if (@interface.ConstructedFrom?.EqualsSourceString("XO.Console.Cli.ICommand<TParameters>") == true)
+            {
+                commandParametersType = @interface.TypeArguments[0];
+                break;
+            }
+        }
+
+        if (commandParametersType is null)
+            return null;
+
+        ImmutableArray<string> verbs = ImmutableArray<string>.Empty;
+        ImmutableArray<string> aliases = ImmutableArray<string>.Empty;
+        string? description = null;
+        bool? hidden = null;
+
+        // find relevant attributes
+        foreach (var attribute in declType.GetAttributes())
+        {
+            if (attribute.AttributeClass?.EqualsSourceString("System.ComponentModel.DescriptionAttribute") == true)
+            {
+                description = (string?)attribute.ConstructorArguments[0].Value;
+            }
+            else if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandAttribute") == true)
+            {
+                verbs = ConvertTypedConstantToImmutableArray<string>(attribute.ConstructorArguments[0]);
+
+                foreach (var entry in attribute.NamedArguments)
+                {
+                    switch (entry.Key)
+                    {
+                        case "Aliases":
+                            aliases = ConvertTypedConstantToImmutableArray<string>(entry.Value);
+                            break;
+                        case "IsHidden":
+                            hidden = (bool?)entry.Value.Value;
+                            break;
+                    }
+                }
+            }
+        }
+
+        return new CommandTypeModel(
+            decl.GetLocation(),
+            declType.ToSourceString(),
+            commandParametersType.ToSourceString(),
+            verbs,
+            aliases,
+            description,
+            hidden);
+    }
+
+    public static ImmutableArray<TValue> ConvertTypedConstantToImmutableArray<TValue>(TypedConstant constant)
+    {
+        var builder = ImmutableArray.CreateBuilder<TValue>(constant.Values.Length);
+
+        foreach (var constantValue in constant.Values)
+            builder.Add((TValue)constantValue.Value!);
+
+        return builder.MoveToImmutable();
     }
 }

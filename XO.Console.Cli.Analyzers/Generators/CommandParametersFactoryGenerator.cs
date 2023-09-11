@@ -26,7 +26,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 
         var combined = parametersTypes.Collect();
 
-        context.RegisterSourceOutput(
+        context.RegisterImplementationSourceOutput(
             combined,
             static (context, x) => Execute(context, x));
 
@@ -238,7 +238,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
         for (currentType = declType; currentType is not null; currentType = currentType.BaseType)
         {
             typesToBindCount++;
-            if (currentType.EqualsSourceName("XO.Console.Cli.CommandParameters"))
+            if (currentType.EqualsSourceString("XO.Console.Cli.CommandParameters"))
             {
                 commandParametersType = currentType;
                 break;
@@ -266,9 +266,9 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 
                 foreach (var attribute in member.GetAttributes())
                 {
-                    if (attribute.AttributeClass?.EqualsSourceName("XO.Console.Cli.CommandArgumentAttribute") == true)
+                    if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandArgumentAttribute") == true)
                         typesToBindArgumentCount++;
-                    else if (attribute.AttributeClass?.EqualsSourceName("XO.Console.Cli.CommandOptionAttribute") == true)
+                    else if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandOptionAttribute") == true)
                         typesToBindOptionCount++;
                 }
             }
@@ -296,7 +296,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 
                 foreach (var attribute in attributes)
                 {
-                    if (attribute.AttributeClass?.EqualsSourceName("System.ComponentModel.DescriptionAttribute") == true)
+                    if (attribute.AttributeClass?.EqualsSourceString("System.ComponentModel.DescriptionAttribute") == true)
                     {
                         description = (string?)attribute.ConstructorArguments[0].Value;
                         break;
@@ -305,11 +305,11 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 
                 foreach (var attribute in attributes)
                 {
-                    if (attribute.AttributeClass?.EqualsSourceName("XO.Console.Cli.CommandArgumentAttribute") == true)
+                    if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandArgumentAttribute") == true)
                     {
                         TransformArgument(arguments, attribute, property, description);
                     }
-                    else if (attribute.AttributeClass?.EqualsSourceName("XO.Console.Cli.CommandOptionAttribute") == true)
+                    else if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandOptionAttribute") == true)
                     {
                         TransformOption(options, attribute, property, description);
                     }

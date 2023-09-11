@@ -60,6 +60,9 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
         var descriptionAttribute = _entryAssembly?.GetCustomAttribute<AssemblyDescriptionAttribute>();
         if (descriptionAttribute != null)
             _commandBuilder.SetDescription(descriptionAttribute.Description);
+
+        // call generated configuration methods
+        TypeRegistry.ConfigureCommandApp(this);
     }
 
     /// <summary>

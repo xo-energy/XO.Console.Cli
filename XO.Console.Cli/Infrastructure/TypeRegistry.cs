@@ -18,6 +18,16 @@ public static class TypeRegistry
     private static readonly ConcurrentDictionary<Type, CommandParametersInfo> _commandParametersInfoCache = new();
 
     /// <summary>
+    /// Adds commands configured using <see cref="CommandAttribute"/> to the <see cref="ICommandAppBuilder"/>.
+    /// </summary>
+    /// <param name="builder">The <see cref="ICommandAppBuilder"/> to configure.</param>
+    public static void ConfigureCommandApp(ICommandAppBuilder builder)
+    {
+        foreach (var factory in _commandBuilderFactories)
+            factory.ConfigureCommandApp(builder);
+    }
+
+    /// <summary>
     /// Creates an instance of <see cref="CommandBuilder"/> for the specified command type.
     /// </summary>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>

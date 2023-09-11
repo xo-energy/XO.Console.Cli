@@ -20,8 +20,7 @@ public interface ICommandAppBuilder : ICommandBuilderAddCommand<ICommandAppBuild
     /// <param name="name">The option name, including the option leader (prefix).</param>
     /// <param name="description">The option description, to be included in generated help.</param>
     /// <param name="aliases">Any option aliases, including the option leader (prefix).</param>
-    /// <typeparam name="TValue">The type of the option's value.</typeparam>
-    ICommandAppBuilder AddGlobalOption<TValue>(
+    ICommandAppBuilder AddGlobalOption(
         string name,
         string description,
         params string[] aliases);

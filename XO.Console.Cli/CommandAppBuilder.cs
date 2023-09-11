@@ -194,7 +194,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     }
 
     /// <inheritdoc/>
-    public ICommandAppBuilder AddGlobalOption<TValue>(
+    public ICommandAppBuilder AddGlobalOption(
         string name,
         string description,
         params string[] aliases)
@@ -202,8 +202,8 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
         var option = new CommandOption(
             new CommandOptionAttribute(name, aliases),
             typeof(CommandAppBuilder),
-            typeof(TValue),
-            (context, value) => context.SetGlobalOption(name, value),
+            typeof(string[]),
+            (context, value) => context.SetGlobalOption(name, ((string[])value).ToImmutableArray()),
             description: description);
 
         _globalOptions.Add(option);

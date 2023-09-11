@@ -31,7 +31,7 @@ public interface ICommandAppBuilder : ICommandBuilderAddCommand<ICommandAppBuild
     /// </summary>
     /// <param name="converter">A delegate that converts a parameter value to type <typeparamref name="TValue"/>.</param>
     /// <typeparam name="TValue">The parameter value type.</typeparam>
-    ICommandAppBuilder AddParameterConverter<TValue>(Func<string, TValue?> converter);
+    ICommandAppBuilder AddParameterConverter<TValue>(Func<string, TValue> converter);
 
     /// <summary>
     /// Disables strict parsing.

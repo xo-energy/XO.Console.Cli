@@ -17,7 +17,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     private const string RootVerb = "__ROOT__";
 
     private readonly CommandBuilder _commandBuilder;
-    private readonly ImmutableDictionary<Type, Func<string, object?>>.Builder _converters;
+    private readonly ImmutableDictionary<Type, ParameterValueConverter>.Builder _converters;
     private readonly ImmutableList<CommandOption>.Builder _globalOptions;
     private readonly List<Func<ExecutorDelegate, ExecutorDelegate>> _middleware;
     private readonly Assembly? _entryAssembly;
@@ -45,13 +45,14 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     private CommandAppBuilder(CommandBuilder rootCommandBuilder)
     {
         _commandBuilder = rootCommandBuilder;
-        _converters = ImmutableDictionary.CreateBuilder<Type, Func<string, object?>>();
+        _converters = ImmutableDictionary.CreateBuilder<Type, ParameterValueConverter>();
         _globalOptions = ImmutableList.CreateBuilder<CommandOption>();
         _middleware = new List<Func<ExecutorDelegate, ExecutorDelegate>>(0);
         _entryAssembly = Assembly.GetEntryAssembly();
 
         // set default values of configurable settings
-        _converters.AddRange(CommandAppDefaults.Converters);
+        foreach (var converter in CommandAppDefaults.Converters)
+            _converters.Add(converter.ValueType, converter);
         _optionStyle = CommandAppDefaults.OptionStyle;
         _strict = CommandAppDefaults.Strict;
         _resolver = DefaultTypeResolver.Instance;
@@ -210,9 +211,9 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     }
 
     /// <inheritdoc/>
-    public ICommandAppBuilder AddParameterConverter<TValue>(Func<string, TValue?> converter)
+    public ICommandAppBuilder AddParameterConverter<TValue>(Func<string, TValue> converter)
     {
-        _converters[typeof(TValue)] = (value) => converter(value);
+        _converters[typeof(TValue)] = new ParameterValueConverter<TValue>(converter);
         return this;
     }
 

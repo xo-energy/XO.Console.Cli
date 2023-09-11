@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -13,7 +14,7 @@ namespace XO.Console.Cli.Tests;
 public class CommandParametersBinderTest
 {
     private readonly CommandParametersBinder DefaultBinder
-        = new(CommandAppDefaults.Converters);
+        = new(CommandAppDefaults.Converters.ToImmutableDictionary(x => x.ValueType));
 
     [Fact]
     public void CanBindToDirectoryInfo()

@@ -1,3 +1,5 @@
+using XO.Console.Cli.Infrastructure;
+
 namespace XO.Console.Cli;
 
 /// <summary>
@@ -8,17 +10,17 @@ public static class CommandAppDefaults
     /// <summary>
     /// Gets the collection of default parameter value converters.
     /// </summary>
-    public static readonly IReadOnlyList<KeyValuePair<Type, Func<string, object?>>> Converters
-        = new KeyValuePair<Type, Func<string, object?>>[]
+    public static readonly IReadOnlyList<ParameterValueConverter> Converters
+        = new ParameterValueConverter[]
         {
-            new(typeof(DateOnly), static (value) => DateOnly.Parse(value)),
-            new(typeof(DateTimeOffset), static (value) => DateTimeOffset.Parse(value)),
-            new(typeof(DirectoryInfo), static(value) => new DirectoryInfo(value)),
-            new(typeof(FileInfo), static (value) => new FileInfo(value)),
-            new(typeof(Guid), static (value) => Guid.Parse(value)),
-            new(typeof(TimeOnly), static (value) => TimeOnly.Parse(value)),
-            new(typeof(TimeSpan), static (value) => TimeSpan.Parse(value)),
-            new(typeof(Uri), static (value) => new Uri(value)),
+            ParameterValueConverter.FromDelegate(static (value) => DateOnly.Parse(value)),
+            ParameterValueConverter.FromDelegate(static (value) => DateTimeOffset.Parse(value)),
+            ParameterValueConverter.FromDelegate(static (value) => new DirectoryInfo(value)),
+            ParameterValueConverter.FromDelegate(static (value) => new FileInfo(value)),
+            ParameterValueConverter.FromDelegate(static (value) => Guid.Parse(value)),
+            ParameterValueConverter.FromDelegate(static (value) => TimeOnly.Parse(value)),
+            ParameterValueConverter.FromDelegate(static (value) => TimeSpan.Parse(value)),
+            ParameterValueConverter.FromDelegate(static (value) => new Uri(value)),
         };
 
     /// <summary>

@@ -5,11 +5,11 @@ namespace XO.Console.Cli.Infrastructure;
 
 internal sealed class CommandParametersBinder
 {
-    private readonly Dictionary<Type, Func<string, object?>> _converters;
+    private readonly ImmutableDictionary<Type, ParameterValueConverter> _converters;
 
-    public CommandParametersBinder(IEnumerable<KeyValuePair<Type, Func<string, object?>>> converters)
+    public CommandParametersBinder(ImmutableDictionary<Type, ParameterValueConverter> converters)
     {
-        _converters = new(converters);
+        _converters = converters;
     }
 
     public ImmutableDictionary<CommandParameter, object?> BindParameters(IEnumerable<CommandToken> tokens)
@@ -48,7 +48,7 @@ internal sealed class CommandParametersBinder
             {
                 try
                 {
-                    converted = converter(value);
+                    converted = converter.ConvertUntyped(value);
                     array.SetValue(converted, arrayIndex++);
                 }
                 catch (Exception ex)
@@ -72,7 +72,7 @@ internal sealed class CommandParametersBinder
             var value = values.Single();
             try
             {
-                return converter(value);
+                return converter.ConvertUntyped(value);
             }
             catch (Exception ex)
             {
@@ -83,7 +83,7 @@ internal sealed class CommandParametersBinder
         }
     }
 
-    private Func<string, object?> GetConverter(Type type)
+    private ParameterValueConverter GetConverter(Type type)
     {
         if (Nullable.GetUnderlyingType(type) is Type underlyingType)
             return GetConverter(underlyingType);
@@ -94,11 +94,11 @@ internal sealed class CommandParametersBinder
         // TODO: support IParsable
         if (type.IsEnum)
         {
-            converter = (value) => Enum.Parse(type, value);
+            converter = ParameterValueConverter.FromDelegate((value) => Enum.Parse(type, value));
         }
         else
         {
-            converter = (value) => Convert.ChangeType(value, type);
+            converter = ParameterValueConverter.FromDelegate((value) => Convert.ChangeType(value, type));
         }
 
         _converters.Add(type, converter);

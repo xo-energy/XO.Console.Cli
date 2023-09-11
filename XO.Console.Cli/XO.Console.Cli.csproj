@@ -21,7 +21,6 @@
   <ItemGroup>
     <ProjectReference
       Include="..\XO.Console.Cli.Analyzers\XO.Console.Cli.Analyzers.csproj"
-      OutputItemType="Analyzer"
       ReferenceOutputAssembly="false"
       SkipGetTargetFrameworkProperties="True" />
   </ItemGroup>

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using XO.Console.Cli.Implementation;
 using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli.Infrastructure;
@@ -13,7 +14,7 @@ namespace XO.Console.Cli.Infrastructure;
 public static class TypeRegistry
 {
     private static readonly List<ICommandBuilderFactory> _commandBuilderFactories = new();
-    private static readonly List<ICommandParametersFactory> _commandParametersFactories = new();
+    private static readonly List<ICommandParametersFactory> _commandParametersFactories = new() { BuiltinCommandParametersFactory.Instance };
     private static readonly ConcurrentDictionary<Type, CommandParametersInfo> _commandParametersInfoCache = new();
 
     /// <summary>

@@ -19,6 +19,11 @@ public interface ICommandOptionAttributeData
     public ImmutableArray<string> Aliases { get; }
 
     /// <summary>
+    /// Describes the option in generated help.
+    /// </summary>
+    public string? Description { get; }
+
+    /// <summary>
     /// Indicates whether this option should be hidden from generated help.
     /// </summary>
     public bool IsHidden { get; }

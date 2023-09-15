@@ -1,4 +1,4 @@
-﻿namespace XO.Console.Cli.Model;
+namespace XO.Console.Cli.Model;
 
 /// <summary>
 /// Defines the properties that can by configured by <see cref="CommandArgumentAttribute"/>.
@@ -14,6 +14,11 @@ public interface ICommandArgumentAttributeData
     /// The argument name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Describes the argument in generated help.
+    /// </summary>
+    public string? Description { get; }
 
     /// <summary>
     /// Indicates whether the argument consumes all remaining argument values.

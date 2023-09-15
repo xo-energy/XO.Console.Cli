@@ -27,5 +27,8 @@ public sealed class CommandOptionAttribute : Attribute, ICommandOptionAttributeD
     public ImmutableArray<string> Aliases { get; }
 
     /// <inheritdoc/>
+    public string? Description { get; set; }
+
+    /// <inheritdoc/>
     public bool IsHidden { get; set; }
 }

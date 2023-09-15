@@ -11,28 +11,182 @@ namespace XO.Console.Cli.Generators;
 [Generator(LanguageNames.CSharp)]
 public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 {
-    private sealed record ParametersTypeModel(
-        string Name,
-        ImmutableArray<CommandArgumentModel> Arguments,
-        ImmutableArray<CommandOptionModel> Options);
+    private static readonly ThreadLocal<Stack<INamedTypeSymbol>> ThreadLocalSymbolStack = new();
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var parametersTypes = context.SyntaxProvider.CreateSyntaxProvider(
-            static (node, _) => node is ClassDeclarationSyntax decl,
-            TransformParametersTypeDeclaration)
-            .Where(x => x is not null)
-            .Select((x, _) => x!);
+        var parametersDeclarations = InitializeParametersDeclarationProvider(context);
 
-        var combined = parametersTypes.Collect();
+        var parametersSource = parametersDeclarations
+            .Select(static (parameters, cancellationToken) =>
+            {
+                var source = new StringBuilder();
+
+                EmitDescribeParametersCase(source, parameters);
+
+                return source.ToString();
+            });
 
         context.RegisterImplementationSourceOutput(
-            combined,
+            parametersSource.Collect(),
             static (context, x) => Execute(context, x));
 
     }
 
-    private static void Execute(SourceProductionContext context, ImmutableArray<ParametersTypeModel> models)
+    private static IncrementalValuesProvider<ParametersTypeModel> InitializeParametersDeclarationProvider(
+        IncrementalGeneratorInitializationContext context)
+    {
+        var parametersDeclarationSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
+            static (node, _) => node is ClassDeclarationSyntax decl && decl.BaseList?.Types.Count > 0,
+            static (context, _) => (ClassDeclarationSyntax)context.Node);
+
+        var parametersDeclarations = parametersDeclarationSyntaxProvider.Combine(context.CompilationProvider)
+            .Select(static (x, cancellationToken) =>
+            {
+                var (decl, compilation) = x;
+
+                var semanticModel = compilation.GetSemanticModel(decl.SyntaxTree);
+
+                // get the declared type
+                if (semanticModel.GetDeclaredSymbol(decl, cancellationToken) is not INamedTypeSymbol declType)
+                    return null;
+
+                // we only need to emit binders for types that can be instantiated
+                if (declType.IsAbstract || declType.IsStatic)
+                    return null;
+
+                INamedTypeSymbol? currentType = null;
+                Stack<INamedTypeSymbol> typesToBind;
+                typesToBind = ThreadLocalSymbolStack.Value ??= new();
+                typesToBind.Clear();
+
+                for (currentType = declType; currentType is not null; currentType = currentType.BaseType)
+                {
+                    if (currentType.EqualsSourceString("XO.Console.Cli.CommandParameters"))
+                        break;
+
+                    typesToBind.Push(currentType);
+                }
+
+                // we only care about types that inherit from CommandParameters
+                if (currentType is null)
+                    return null;
+
+                var arguments = ImmutableList<CommandArgumentModel>.Empty;
+                var options = ImmutableList<CommandOptionModel>.Empty;
+
+                while (typesToBind.Count > 0)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var type = typesToBind.Pop();
+
+                    foreach (var member in type.GetMembers())
+                    {
+                        if (member.Kind != SymbolKind.Property ||
+                            member.IsStatic)
+                            continue;
+
+                        var property = (IPropertySymbol)member;
+
+                        foreach (var attribute in property.GetAttributes())
+                        {
+                            switch (attribute.AttributeClass?.ToSourceString())
+                            {
+                                case "XO.Console.Cli.CommandArgumentAttribute"
+                                when GetCommandArgumentAttributeData(property, attribute) is { } argument:
+                                    arguments = arguments.Add(argument);
+                                    break;
+
+                                case "XO.Console.Cli.CommandOptionAttribute"
+                                when GetCommandOptionAttributeData(property, attribute) is { } option:
+                                    options = options.Add(option);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                return new ParametersTypeModel(
+                    declType.ToSourceString(),
+                    arguments.ToImmutableArray(),
+                    options.ToImmutableArray());
+            });
+
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+        return parametersDeclarations.Where(x => x != null);
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+    }
+
+    private static CommandArgumentModel? GetCommandArgumentAttributeData(IPropertySymbol property, AttributeData attr)
+    {
+        if (attr.ConstructorArguments.Length != 2)
+            return null;
+        if (attr.ConstructorArguments[1].IsNull)
+            return null;
+
+        var order = (int)attr.ConstructorArguments[0].Value!;
+        var name = (string)attr.ConstructorArguments[1].Value!;
+        var description = default(string?);
+        var greedy = default(bool);
+        var optional = default(bool);
+
+        foreach (var entry in attr.NamedArguments)
+        {
+            switch (entry.Key)
+            {
+                case nameof(ICommandArgumentAttributeData.Description):
+                    description = (string?)entry.Value.Value;
+                    break;
+                case nameof(ICommandArgumentAttributeData.IsGreedy):
+                    greedy = (bool)entry.Value.Value!;
+                    break;
+                case nameof(ICommandArgumentAttributeData.IsOptional):
+                    optional = (bool)entry.Value.Value!;
+                    break;
+            }
+        }
+
+        return new CommandArgumentModel(name, property, description)
+        {
+            Order = order,
+            IsGreedy = greedy,
+            IsOptional = optional,
+        };
+    }
+
+    private static CommandOptionModel? GetCommandOptionAttributeData(IPropertySymbol property, AttributeData attr)
+    {
+        if (attr.ConstructorArguments.Length != 2)
+            return null;
+        if (attr.ConstructorArguments[0].IsNull)
+            return null;
+
+        var name = (string)attr.ConstructorArguments[0].Value!;
+        var aliases = Definitions.ConvertTypedConstantToImmutableArray<string>(attr.ConstructorArguments[1]);
+        var description = default(string?);
+        var hidden = default(bool);
+
+        foreach (var entry in attr.NamedArguments)
+        {
+            switch (entry.Key)
+            {
+                case nameof(ICommandOptionAttributeData.Description):
+                    description = (string?)entry.Value.Value;
+                    break;
+                case nameof(ICommandOptionAttributeData.IsHidden):
+                    hidden = (bool)entry.Value.Value!;
+                    break;
+            }
+        }
+
+        return new CommandOptionModel(name, property, description, aliases)
+        {
+            IsHidden = hidden,
+        };
+    }
+
+    private static void Execute(SourceProductionContext context, ImmutableArray<string> parametersSource)
     {
         var source = new StringBuilder();
 
@@ -72,8 +226,8 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 
             """);
 
-        foreach (var model in models)
-            EmitDescribeParametersCase(source, model);
+        foreach (var item in parametersSource)
+            source.Append(item);
 
         source.AppendLine(
             $$"""
@@ -220,193 +374,5 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
             default:
                 return $$"""Parse{{parameter.ParameterParsingStrategy}}""";
         }
-    }
-
-    private static ParametersTypeModel? TransformParametersTypeDeclaration(GeneratorSyntaxContext context, CancellationToken cancellationToken)
-    {
-        var decl = (ClassDeclarationSyntax)context.Node;
-        var declType = context.SemanticModel.GetDeclaredSymbol(decl)!;
-        var typesToBindCount = 0;
-        INamedTypeSymbol? commandParametersType = null;
-        INamedTypeSymbol? currentType;
-
-        // we only need to emit binders for types that can be instantiated
-        if (declType.IsAbstract || declType.IsStatic)
-            return null;
-
-        // we only care about types that inherit from CommandParameters
-        for (currentType = declType; currentType is not null; currentType = currentType.BaseType)
-        {
-            typesToBindCount++;
-            if (currentType.EqualsSourceString("XO.Console.Cli.CommandParameters"))
-            {
-                commandParametersType = currentType;
-                break;
-            }
-        }
-
-        if (commandParametersType is null)
-            return null;
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var typesToBind = new Stack<INamedTypeSymbol>(typesToBindCount);
-        var typesToBindArgumentCount = 0;
-        var typesToBindOptionCount = 0;
-
-        // now that we know this type inherits from CommandParameters, collect the types that may declare its parameters
-        for (currentType = declType; !currentType.Equals(commandParametersType, SymbolEqualityComparer.Default); currentType = currentType.BaseType!)
-        {
-            typesToBind.Push(currentType);
-
-            foreach (var member in currentType.GetMembers())
-            {
-                if (member.Kind != SymbolKind.Property)
-                    continue;
-
-                foreach (var attribute in member.GetAttributes())
-                {
-                    if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandArgumentAttribute") == true)
-                        typesToBindArgumentCount++;
-                    else if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandOptionAttribute") == true)
-                        typesToBindOptionCount++;
-                }
-            }
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var arguments = ImmutableArray.CreateBuilder<CommandArgumentModel>(typesToBindArgumentCount);
-        var options = ImmutableArray.CreateBuilder<CommandOptionModel>(typesToBindOptionCount);
-
-        // finally, inspect the attributes
-        while (typesToBind.Count > 0)
-        {
-            var type = typesToBind.Pop();
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            foreach (var member in type.GetMembers())
-            {
-                if (member.Kind != SymbolKind.Property || member is not IPropertySymbol property)
-                    continue;
-
-                var attributes = member.GetAttributes();
-                string? description = null;
-
-                foreach (var attribute in attributes)
-                {
-                    if (attribute.AttributeClass?.EqualsSourceString("System.ComponentModel.DescriptionAttribute") == true)
-                    {
-                        description = (string?)attribute.ConstructorArguments[0].Value;
-                        break;
-                    }
-                }
-
-                foreach (var attribute in attributes)
-                {
-                    if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandArgumentAttribute") == true)
-                    {
-                        TransformArgument(arguments, attribute, property, description);
-                    }
-                    else if (attribute.AttributeClass?.EqualsSourceString("XO.Console.Cli.CommandOptionAttribute") == true)
-                    {
-                        TransformOption(options, attribute, property, description);
-                    }
-                }
-            }
-        }
-
-        return new ParametersTypeModel(
-            declType.ToSourceString(),
-            arguments.MoveToImmutable(),
-            options.MoveToImmutable());
-    }
-
-    private static void TransformArgument(
-        ImmutableArray<CommandArgumentModel>.Builder builder,
-        AttributeData attr,
-        IPropertySymbol property,
-        string? description)
-    {
-        if (attr.ConstructorArguments.Length != 2)
-            return;
-        if (attr.ConstructorArguments[1].IsNull)
-            return;
-
-        var order = (int)attr.ConstructorArguments[0].Value!;
-        var name = (string)attr.ConstructorArguments[1].Value!;
-        var greedy = default(bool);
-        var optional = default(bool);
-
-        foreach (var entry in attr.NamedArguments)
-        {
-            switch (entry.Key)
-            {
-                case nameof(ICommandArgumentAttributeData.IsGreedy):
-                    greedy = (bool)entry.Value.Value!;
-                    break;
-                case nameof(ICommandArgumentAttributeData.IsOptional):
-                    optional = (bool)entry.Value.Value!;
-                    break;
-            }
-        }
-
-        var model = new CommandArgumentModel(name, property, description)
-        {
-            Order = order,
-            IsGreedy = greedy,
-            IsOptional = optional,
-        };
-
-        builder.Add(model);
-    }
-
-    private static void TransformOption(
-        ImmutableArray<CommandOptionModel>.Builder builder,
-        AttributeData attr,
-        IPropertySymbol property,
-        string? description)
-    {
-        if (attr.ConstructorArguments.Length != 2)
-            return;
-        if (attr.ConstructorArguments[0].IsNull)
-            return;
-
-        var name = (string)attr.ConstructorArguments[0].Value!;
-        var aliases = GetAliases(attr.ConstructorArguments[1]);
-        var hidden = default(bool);
-
-        foreach (var entry in attr.NamedArguments)
-        {
-            switch (entry.Key)
-            {
-                case nameof(ICommandOptionAttributeData.IsHidden):
-                    hidden = (bool)entry.Value.Value!;
-                    break;
-            }
-        }
-
-        var model = new CommandOptionModel(name, property, description, aliases)
-        {
-            IsHidden = hidden,
-        };
-
-        builder.Add(model);
-    }
-
-    private static ImmutableArray<string> GetAliases(TypedConstant constructorArgument)
-    {
-        if (constructorArgument.IsNull)
-            return ImmutableArray<string>.Empty;
-        if (constructorArgument.Kind != TypedConstantKind.Array)
-            return ImmutableArray<string>.Empty;
-
-        var builder = ImmutableArray.CreateBuilder<string>(constructorArgument.Values.Length);
-
-        foreach (var item in constructorArgument.Values)
-            builder.Add((string)item.Value!);
-
-        return builder.ToImmutable();
     }
 }

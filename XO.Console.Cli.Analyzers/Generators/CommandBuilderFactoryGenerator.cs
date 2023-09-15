@@ -133,7 +133,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                 var semanticModel = compilation.GetSemanticModel(decl.SyntaxTree);
 
                 // get the declared type
-                if (semanticModel.GetDeclaredSymbol(decl) is not INamedTypeSymbol declType)
+                if (semanticModel.GetDeclaredSymbol(decl, cancellationToken) is not INamedTypeSymbol declType)
                     return null;
 
                 // we don't care about abstract or static types
@@ -281,7 +281,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
     {
         if (kind == CommandModelKind.Branch)
         {
-            path = ConvertTypedConstantToImmutableArray<string>(attribute.ConstructorArguments[0]);
+            path = Definitions.ConvertTypedConstantToImmutableArray<string>(attribute.ConstructorArguments[0]);
         }
         else if (
             kind == CommandModelKind.Command &&
@@ -305,7 +305,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
             switch (entry.Key)
             {
                 case "Aliases":
-                    aliases = ConvertTypedConstantToImmutableArray<string>(entry.Value);
+                    aliases = Definitions.ConvertTypedConstantToImmutableArray<string>(entry.Value);
                     break;
                 case "Description":
                     description = (string?)entry.Value.Value;
@@ -565,15 +565,5 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                             static (resolver) => resolver.Get<{{command.FullName}}>());
                     }
             """);
-    }
-
-    private static ImmutableArray<TValue> ConvertTypedConstantToImmutableArray<TValue>(TypedConstant constant)
-    {
-        var builder = ImmutableArray.CreateBuilder<TValue>(constant.Values.Length);
-
-        foreach (var constantValue in constant.Values)
-            builder.Add((TValue)constantValue.Value!);
-
-        return builder.MoveToImmutable();
     }
 }

@@ -17,4 +17,22 @@ internal sealed record CommandOptionModel : CommandParameterModel, ICommandOptio
     public ImmutableArray<string> Aliases { get; }
     public bool IsFlag { get; }
     public bool IsHidden { get; init; }
+
+    public bool Equals(CommandOptionModel? other)
+    {
+        if ((object?)this == (object?)other)
+            return true;
+
+        return other != null
+            && base.Equals(other)
+            && ImmutableArrayEqualityComparer.Equals(this.Aliases, other.Aliases)
+            && this.IsFlag == other.IsFlag
+            && this.IsHidden == other.IsHidden
+            ;
+    }
+
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
 }

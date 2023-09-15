@@ -26,6 +26,9 @@ public class CommandArgumentAttribute : Attribute, ICommandArgumentAttributeData
     public string Name { get; }
 
     /// <inheritdoc/>
+    public string? Description { get; set; }
+
+    /// <inheritdoc/>
     public bool IsGreedy { get; set; }
 
     /// <inheritdoc/>

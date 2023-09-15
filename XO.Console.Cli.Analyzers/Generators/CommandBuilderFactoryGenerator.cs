@@ -460,20 +460,20 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
             .Distinct()
             .ToLookup(x => x.Path, x => x.Branch, ImmutableArrayEqualityComparer<string>.Default);
 
-        var pathQueue = new Queue<ImmutableArray<string>>(
+        var pathStack = new Stack<ImmutableArray<string>>(
             branchesByPath[ImmutableArray<string>.Empty]);
-        var depth = 0;
+        var depth = 1;
 
         static void EmitCloseBlock(StringBuilder builder, ref int depth)
         {
             depth--;
-            builder.Append(' ', 8 + depth * 4);
+            builder.Append(' ', 4 + depth * 4);
             builder.AppendLine("});");
         }
 
-        while (pathQueue.Count > 0)
+        while (pathStack.Count > 0)
         {
-            var path = pathQueue.Dequeue();
+            var path = pathStack.Pop();
 
             while (depth > path.Length)
                 EmitCloseBlock(builder, ref depth);
@@ -482,7 +482,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
 
             foreach (var next in branchesByPath[path])
             {
-                pathQueue.Enqueue(next);
+                pathStack.Push(next);
                 children++;
             }
 
@@ -493,7 +493,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
             EmitConfigureCommandAppStatement(builder, path, command, children, ref depth);
         }
 
-        while (depth > 0)
+        while (depth > 1)
             EmitCloseBlock(builder, ref depth);
     }
 
@@ -504,7 +504,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
         int children,
         ref int depth)
     {
-        var indent = new string(' ', 8 + depth * 4);
+        var indent = new string(' ', 4 + depth * 4);
         var verb = command?.Verb ?? path[^1];
 
         if (command?.Kind == CommandModelKind.Command)

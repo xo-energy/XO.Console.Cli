@@ -29,10 +29,9 @@ internal sealed class CommandBuilderFactory : ICommandBuilderFactory
     {
         if (typeof(TCommand) == typeof(Test.Command1))
         {
-            var builder = new CommandBuilder<Test.Command1, XO.Console.Cli.CommandParameters>(
+            return new CommandBuilder<Test.Command1, XO.Console.Cli.CommandParameters>(
                 verb,
                 static (resolver) => resolver.Get<Test.Command1>());
-            return builder;
         }
 
         return null;

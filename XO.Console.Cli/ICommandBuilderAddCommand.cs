@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace XO.Console.Cli;
@@ -30,14 +29,8 @@ public interface ICommandBuilderAddCommand<TSelf>
     /// Adds a command.
     /// </summary>
     /// <remarks>
-    /// <para>
     /// The command implementation <typeparamref name="TCommand"/> must accept parameters of a type derived from
     /// this command's parameters type.
-    /// </para>
-    /// <para>
-    /// The command's description is initialized from any instance of <see cref="DescriptionAttribute"/> decorating
-    /// <typeparamref name="TCommand"/>.
-    /// </para>
     /// </remarks>
     /// <param name="verb">The verb that invokes the command.</param>
     /// <param name="configure">A delegate that configures the command.</param>

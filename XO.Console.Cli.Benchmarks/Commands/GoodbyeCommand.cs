@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace XO.Console.Cli.Commands;
 
-[Command]
 internal class GoodbyeCommand : AsyncCommand<GoodbyeCommand.Parameters>
 {
     public sealed class Parameters : CommandParameters

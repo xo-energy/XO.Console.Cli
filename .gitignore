@@ -3,6 +3,7 @@ bin/
 packages/
 BenchmarkDotNet.Artifacts/
 .vs/
+*.binlog
 *.suo
 *.user
 *.received.*

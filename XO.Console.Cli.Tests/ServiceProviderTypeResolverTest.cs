@@ -94,7 +94,6 @@ public class ServiceProviderTypeResolverTest
         Assert.NotNull(command.ServiceProvider);
     }
 
-    [Command]
     internal sealed class TestCommand : AsyncCommand
     {
         public TestCommand(IServiceProvider serviceProvider)
@@ -110,7 +109,6 @@ public class ServiceProviderTypeResolverTest
         }
     }
 
-    [Command]
     internal sealed class TestScopedServiceCommand : AsyncCommand
     {
         public TestScopedServiceCommand(TestScopedService service)
@@ -126,7 +124,6 @@ public class ServiceProviderTypeResolverTest
         }
     }
 
-    [Command]
     internal sealed class TestScopedServiceAsyncCommand : AsyncCommand
     {
         public TestScopedServiceAsyncCommand(TestScopedServiceAsync service)

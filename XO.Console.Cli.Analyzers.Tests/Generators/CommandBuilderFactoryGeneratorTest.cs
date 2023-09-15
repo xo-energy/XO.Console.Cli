@@ -35,7 +35,63 @@ public sealed class CommandBuilderFactoryGeneratorTest
 
             namespace Test;
 
-            [Command("command1", Aliases = new string[] { "command" }, IsHidden = false), Description("Does something?")]
+            [Command("command1", Aliases = new string[] { "command" }, IsHidden = false, Description = "Does something?")]
+            public sealed class Command1 : Command<CommandParameters>
+            {
+                public override int Execute(ICommandContext context, CommandParameters parameters, CancellationToken cancellationToken)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            """);
+    }
+
+    [Fact]
+    public Task GeneratesFactoryForCommandDeclaration_WithBranchAttribute()
+    {
+        return VerifySource(
+            """
+            using System.ComponentModel;
+            using XO.Console.Cli;
+
+            namespace Test;
+
+            [CommandBranch("group")]
+            internal sealed class GroupCommandAttribute : CommandAttribute
+            {
+                public GroupCommandAttribute(string verb)
+                    : base(path) { }
+            }
+
+            [GroupCommand("command1", Aliases = new string[] { "command" }, IsHidden = false, Description = "Does something?")]
+            public sealed class Command1 : Command<CommandParameters>
+            {
+                public override int Execute(ICommandContext context, CommandParameters parameters, CancellationToken cancellationToken)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            """);
+    }
+
+    [Fact]
+    public Task GeneratesFactoryForCommandDeclaration_WithBranchAttributeOptions()
+    {
+        return VerifySource(
+            """
+            using System.ComponentModel;
+            using XO.Console.Cli;
+
+            namespace Test;
+
+            [CommandBranch("group", Aliases = new string[] { "gromp" }, IsHidden = true, Description = "some commands", ParametersType = typeof(CommandParameters))]
+            internal sealed class GroupCommandAttribute : CommandAttribute
+            {
+                public GroupCommandAttribute(string verb)
+                    : base(path) { }
+            }
+
+            [GroupCommand("command1", Aliases = new string[] { "command" }, IsHidden = true, Description = "Does something?")]
             public sealed class Command1 : Command<CommandParameters>
             {
                 public override int Execute(ICommandContext context, CommandParameters parameters, CancellationToken cancellationToken)

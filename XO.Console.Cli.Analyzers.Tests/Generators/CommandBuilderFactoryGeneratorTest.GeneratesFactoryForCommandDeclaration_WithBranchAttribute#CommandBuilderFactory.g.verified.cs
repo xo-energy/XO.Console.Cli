@@ -22,9 +22,11 @@ internal sealed class CommandBuilderFactory : ICommandBuilderFactory
 
     public void ConfigureCommandApp(ICommandAppBuilder builder)
     {
-        builder.AddCommand<Test.Command1>("command1", builder => {
-            builder.AddAlias("command");
-            builder.SetDescription("Does something?");
+        builder.AddBranch("group", builder => {
+            builder.AddCommand<Test.Command1>("command1", builder => {
+                builder.AddAlias("command");
+                builder.SetDescription("Does something?");
+            });
         });
     }
 

@@ -22,9 +22,15 @@ internal sealed class CommandBuilderFactory : ICommandBuilderFactory
 
     public void ConfigureCommandApp(ICommandAppBuilder builder)
     {
-        builder.AddCommand<Test.Command1>("command1", builder => {
-            builder.AddAlias("command");
-            builder.SetDescription("Does something?");
+        builder.AddBranch<XO.Console.Cli.CommandParameters>("group", builder => {
+            builder.AddAlias("gromp");
+            builder.SetDescription("some commands");
+            builder.SetHidden(true);
+            builder.AddCommand<Test.Command1>("command1", builder => {
+                builder.AddAlias("command");
+                builder.SetDescription("Does something?");
+                builder.SetHidden(true);
+            });
         });
     }
 

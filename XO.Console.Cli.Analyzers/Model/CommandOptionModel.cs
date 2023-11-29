@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace XO.Console.Cli.Model;
 
-internal sealed record CommandOptionModel : CommandParameterModel, ICommandOptionAttributeData
+public sealed record CommandOptionModel : CommandParameterModel, ICommandOptionAttributeData
 {
     [SetsRequiredMembers]
     public CommandOptionModel(string name, IPropertySymbol property, string? description, ImmutableArray<string> aliases)

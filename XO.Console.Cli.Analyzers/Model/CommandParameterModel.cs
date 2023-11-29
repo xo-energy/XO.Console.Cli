@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace XO.Console.Cli.Model;
 
-internal abstract record CommandParameterModel
+public abstract record CommandParameterModel
 {
     [SetsRequiredMembers]
     protected CommandParameterModel(string name, IPropertySymbol property, string? description)

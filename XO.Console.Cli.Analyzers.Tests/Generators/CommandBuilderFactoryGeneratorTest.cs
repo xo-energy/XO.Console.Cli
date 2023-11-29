@@ -163,24 +163,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
 
     private static Task VerifySource(string source)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
-        var references = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(_ => !_.IsDynamic && !string.IsNullOrWhiteSpace(_.Location))
-            .Select(_ => MetadataReference.CreateFromFile(_.Location))
-            .Concat(new[]
-            {
-                MetadataReference.CreateFromFile(typeof(CommandParameters).Assembly.Location),
-            })
-            .ToArray();
-        var compilation = CSharpCompilation.Create(
-            assemblyName: "Test",
-            syntaxTrees: new[] { syntaxTree },
-            references: references);
-
         var generator = new CommandBuilderFactoryGenerator();
-        var generatorDriver = CSharpGeneratorDriver.Create(generator);
-
-        var result = generatorDriver.RunGenerators(compilation);
+        var result = CompilationHelper.RunGenerators(source, generator);
 
         return Verify(result);
     }

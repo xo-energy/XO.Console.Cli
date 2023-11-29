@@ -1,0 +1,53 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+
+namespace XO.Console.Cli;
+
+internal static class CompilationHelper
+{
+    public static CSharpCompilation CreateCompilation(string source)
+    {
+        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        return CreateCompilation(syntaxTree);
+    }
+
+    public static CSharpCompilation CreateCompilation(params SyntaxTree[] syntaxTrees)
+    {
+        var references = AppDomain.CurrentDomain.GetAssemblies()
+            .Where(_ => !_.IsDynamic && !string.IsNullOrWhiteSpace(_.Location))
+            .Select(_ => MetadataReference.CreateFromFile(_.Location))
+            .Concat(new[]
+            {
+                MetadataReference.CreateFromFile(typeof(CommandParameters).Assembly.Location),
+            })
+            .ToArray();
+        var compilation = CSharpCompilation.Create(
+            assemblyName: "Test",
+            syntaxTrees: syntaxTrees,
+            references: references);
+
+        return compilation;
+    }
+
+    public static GeneratorDriver? RunGenerators(string source, params IIncrementalGenerator[] generators)
+    {
+        var compilation = CreateCompilation(source);
+
+        return RunGenerators(compilation, generators);
+    }
+
+    public static GeneratorDriver? RunGenerators(SyntaxTree syntaxTree, params IIncrementalGenerator[] generators)
+    {
+        var compilation = CreateCompilation(syntaxTree);
+
+        return RunGenerators(compilation, generators);
+    }
+
+    public static GeneratorDriver? RunGenerators(CSharpCompilation compilation, params IIncrementalGenerator[] generators)
+    {
+        var generatorDriver = CSharpGeneratorDriver.Create(generators);
+        var result = generatorDriver.RunGenerators(compilation);
+
+        return result;
+    }
+}

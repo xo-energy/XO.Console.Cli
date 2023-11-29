@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 
 namespace XO.Console.Cli;
 
-internal static class DiagnosticDescriptors
+public static class DiagnosticDescriptors
 {
     public static readonly DiagnosticDescriptor CommandTypeMustImplementICommand
         = new DiagnosticDescriptor(

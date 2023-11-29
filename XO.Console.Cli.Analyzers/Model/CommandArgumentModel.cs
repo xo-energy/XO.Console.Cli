@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace XO.Console.Cli.Model;
 
-internal sealed record CommandArgumentModel : CommandParameterModel, ICommandArgumentAttributeData
+public sealed record CommandArgumentModel : CommandParameterModel, ICommandArgumentAttributeData
 {
     [SetsRequiredMembers]
     public CommandArgumentModel(string name, IPropertySymbol property, string? description)

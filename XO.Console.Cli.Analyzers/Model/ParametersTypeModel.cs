@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace XO.Console.Cli.Model;
 
-internal sealed record ParametersTypeModel(
+public sealed record ParametersTypeModel(
     string Name,
     ImmutableArray<CommandArgumentModel> Arguments,
     ImmutableArray<CommandOptionModel> Options)

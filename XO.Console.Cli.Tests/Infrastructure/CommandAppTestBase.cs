@@ -1,7 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace XO.Console.Cli;
 
 public abstract class CommandAppTestBase : IDisposable

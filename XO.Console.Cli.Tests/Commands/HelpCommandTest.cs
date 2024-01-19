@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using XO.Console.Cli.Tests.Fixtures;
 using Xunit;
 

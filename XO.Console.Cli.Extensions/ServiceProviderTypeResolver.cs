@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace XO.Console.Cli;
@@ -34,7 +35,7 @@ public class ServiceProviderTypeResolver : ITypeResolver, ITypeResolverScopeFact
     }
 
     /// <inheritdoc/>
-    public object? Get(Type? type)
+    public object? Get([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type? type)
     {
         if (type == null)
             return null;
@@ -49,7 +50,7 @@ public class ServiceProviderTypeResolver : ITypeResolver, ITypeResolverScopeFact
     }
 
     /// <inheritdoc/>
-    public T? Get<T>()
+    public T? Get<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>()
     {
         var instance = _serviceProvider.GetService<T>();
 

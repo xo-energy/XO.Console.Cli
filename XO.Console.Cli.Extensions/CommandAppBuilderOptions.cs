@@ -12,10 +12,11 @@ public sealed class CommandAppBuilderOptions
     /// </summary>
     /// <remarks>
     /// Used to configure the factory method that will be called to initialize the <see cref="ICommandAppBuilder"/>. The
-    /// default factory method is <see cref="CommandAppBuilder.Create"/>. To configure a default command, set an
-    /// appropriate factory method; for example, <see cref="CommandAppBuilder.WithDefaultCommand{TCommand}()"/>.
+    /// default factory method is the default constructor. To configure a default command, set an appropriate factory
+    /// method; for example, <see cref="CommandAppBuilder.WithDefaultCommand{TCommand}()"/>.
     /// </remarks>
-    public Func<ICommandAppBuilder> CommandAppBuilderFactory { get; set; } = CommandAppBuilder.Create;
+    public Func<ICommandAppBuilder> CommandAppBuilderFactory { get; set; }
+        = static () => new CommandAppBuilder();
 
     /// <summary>
     /// A list of delegates that configure <see cref="ICommandAppBuilder"/>.

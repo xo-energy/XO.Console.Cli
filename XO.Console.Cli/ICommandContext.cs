@@ -1,3 +1,6 @@
+using System.Collections.Immutable;
+using XO.Console.Cli.Model;
+
 namespace XO.Console.Cli;
 
 /// <summary>
@@ -31,16 +34,15 @@ public interface ICommandContext
     /// Gets the value of a global option.
     /// </summary>
     /// <param name="name">The option name, including the option leader (prefix).</param>
-    /// <typeparam name="TValue">The type of the option's value.</typeparam>
-    /// <returns>The option value, if the option is set; otherwise, the default value of <typeparamref name="TValue"/>.</returns>
-    TValue? GetGlobalOption<TValue>(string name);
+    /// <returns>The option value.</returns>
+    /// <exception cref="KeyNotFoundException">The specified global option is not set.</exception>
+    ImmutableArray<string> GetGlobalOption(string name);
 
     /// <summary>
     /// Gets the value of a global option.
     /// </summary>
     /// <param name="name">The option name, including the option leader (prefix).</param>
-    /// <param name="value">The option value, if the option is set; otherwise, the default value of <typeparamref name="TValue"/>.</param>
-    /// <typeparam name="TValue">The type of the option's value.</typeparam>
+    /// <param name="value">The option value, if the option is set.</param>
     /// <returns>If the option was set, <c>true</c>; otherwise, <c>false</c>.</returns>
-    bool TryGetGlobalOption<TValue>(string name, out TValue? value);
+    bool TryGetGlobalOption(string name, out ImmutableArray<string> value);
 }

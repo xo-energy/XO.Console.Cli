@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using XO.Console.Cli.Commands;
-using XO.Console.Cli.Tests.Fixtures;
+using XO.Console.Cli.Fixtures;
+using XO.Console.Cli.Infrastructure;
+using XO.Console.Cli.Model;
 using Xunit;
 
-namespace XO.Console.Cli.Tests;
+namespace XO.Console.Cli;
 
 public class CommandAppTest : CommandAppTestBase
 {
@@ -98,7 +97,7 @@ public class CommandAppTest : CommandAppTestBase
     [Fact]
     public void BindReturnsCommand()
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .AddCommand<TestCommands.NoOp>("noop")
             .Build();
 
@@ -112,7 +111,7 @@ public class CommandAppTest : CommandAppTestBase
     {
         var alias = "noooop";
 
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .AddCommand<TestCommands.NoOp>("noop", builder => builder.AddAlias(alias))
             .Build();
 
@@ -124,7 +123,7 @@ public class CommandAppTest : CommandAppTestBase
     [Fact]
     public void BindReturnsCommandBranch()
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .AddBranch("branch",
                 builder =>
                 {
@@ -255,7 +254,7 @@ public class CommandAppTest : CommandAppTestBase
     [Fact]
     public void ParseReturnsError_WithGreedyArgumentMissing()
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .AddDelegate<TestParameters.Greedy>("verb", Builtins.Delegates.NoOp)
             .Build();
         var parse = app.Parse(new[] { "verb" });
@@ -267,7 +266,7 @@ public class CommandAppTest : CommandAppTestBase
     [MemberData(nameof(GetGreedyArgs))]
     public void ParseReturnsSuccess_WithGreedyArgument(string[] args)
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .AddDelegate<TestParameters.Greedy>("verb", Builtins.Delegates.NoOp)
             .Build();
         var parse = app.Parse(args);
@@ -278,7 +277,7 @@ public class CommandAppTest : CommandAppTestBase
     [Fact]
     public void ParseReturnsSuccess_WithGreedyOptionalArgument()
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .AddDelegate<TestParameters.GreedyOptional>("verb", Builtins.Delegates.NoOp)
             .Build();
         var parse = app.Parse(new[] { "verb" });
@@ -416,7 +415,7 @@ public class CommandAppTest : CommandAppTestBase
     public void ParseReturnsUnexpectedOption()
     {
         var arg = "--option";
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .Build();
 
         var parse = app.Parse(new[] { arg });
@@ -458,7 +457,7 @@ public class CommandAppTest : CommandAppTestBase
     {
         var expected = new[] { "extra1", "extra2" };
 
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .DisableStrictParsing()
             .Build();
 
@@ -475,7 +474,7 @@ public class CommandAppTest : CommandAppTestBase
     {
         var args = new[] { "--" };
 
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .Build();
 
         var parse = app.Parse(args);
@@ -490,7 +489,7 @@ public class CommandAppTest : CommandAppTestBase
     {
         var expected = new[] { "extra1", "extra2" };
 
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .Build();
 
         Assert.Throws<CommandParsingException>(() => app.Bind(expected));
@@ -510,19 +509,19 @@ public class CommandAppTest : CommandAppTestBase
     [Fact]
     public void WithEmptyApp_EmptyArgsBindsToMissingCommand()
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .Build();
 
         var parse = app.Parse(Array.Empty<string>());
         var context = app.Bind(parse);
 
-        Assert.IsType<MissingCommand>(context.Command);
+        Assert.IsType<MissingCommand<CommandParameters>>(context.Command);
     }
 
     [Fact]
     public void WithEmptyApp_CliExplainOptionBindsToCliExplainCommand()
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .Build();
 
         var context = app.Bind(new[] { "--cli-explain" });
@@ -533,7 +532,7 @@ public class CommandAppTest : CommandAppTestBase
     [Fact]
     public void WithEmptyApp_HelpOptionBindsToHelpCommand()
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .Build();
 
         var parse = app.Parse(new[] { "--help" });
@@ -545,7 +544,7 @@ public class CommandAppTest : CommandAppTestBase
     [Fact]
     public void WithEmptyApp_VersionOptionBindsToVersionCommand()
     {
-        var app = CommandAppBuilder.Create()
+        var app = new CommandAppBuilder()
             .Build();
 
         var parse = app.Parse(new[] { "--version" });

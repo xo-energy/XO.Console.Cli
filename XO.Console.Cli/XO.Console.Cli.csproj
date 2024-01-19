@@ -4,10 +4,33 @@
     <TargetFramework>net6.0</TargetFramework>
     <Description>A command line parser and application framework</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
   
   <ItemGroup>
     <InternalsVisibleTo Include="XO.Console.Cli.Tests" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="PolySharp" Version="1.13.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference
+      Include="..\XO.Console.Cli.Analyzers\XO.Console.Cli.Analyzers.csproj"
+      ReferenceOutputAssembly="false"
+      SkipGetTargetFrameworkProperties="True" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None
+      Include="..\XO.Console.Cli.Analyzers\bin\$(Configuration)\netstandard2.0\XO.Console.Cli.Analyzers.dll"
+      Pack="true"
+      PackagePath="analyzers/dotnet/cs"
+      Visible="false" />
   </ItemGroup>
 
 </Project>

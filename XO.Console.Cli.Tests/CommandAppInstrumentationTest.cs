@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Trace;
 using Xunit;
 
-namespace XO.Console.Cli.Tests;
+namespace XO.Console.Cli;
 
 public class CommandAppInstrumentationTest
 {

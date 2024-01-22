@@ -1,3 +1,4 @@
 using BenchmarkDotNet.Running;
+using XO.Console.Cli;
 
-BenchmarkRunner.Run(typeof(Program).Assembly);
+BenchmarkRunner.Run<Benchmarks>(args: args);

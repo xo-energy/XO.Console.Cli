@@ -9,10 +9,11 @@ using XO.Console.Cli.Model;
 namespace XO.Console.Cli;
 
 [MinColumn, MaxColumn, MeanColumn, MedianColumn]
-[Orderer(BenchmarkDotNet.Order.SummaryOrderPolicy.Method)]
 [DryJob(RuntimeMoniker.Net60)]
 [DryJob(RuntimeMoniker.Net80)]
 [DryJob(RuntimeMoniker.NativeAot80)]
+[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.NativeAot80)]
 public class Benchmarks
 {
     private sealed class NullConsole : IConsole
@@ -48,16 +49,17 @@ public class Benchmarks
     };
 
     [Benchmark]
-    public ICommandApp InitializeApp()
+    public async Task<int> RunCommandExplicitly()
     {
-        return new CommandAppBuilder()
-            .AddBranch("do", builder =>
-            {
-                builder.AddCommand<HelloCommand>("hello");
-                builder.AddCommand<GoodbyeCommand>("goodbye");
-            })
-            .UseMiddleware(NullConsoleMiddleware)
-            .Build();
+        var command = new HelloCommand();
+        var parameters = new HelloCommand.Parameters() { Name = "Frank", Times = 2 };
+        var parseResult = new CommandParseResult(ImmutableArray<CommandToken>.Empty, ImmutableList<string>.Empty);
+        var scope = new DefaultTypeResolverScope(DefaultTypeResolver.Instance);
+        var context = new CommandContext(scope, command, parameters, parseResult) { Console = NullConsole.Instance };
+
+        return await command
+            .ExecuteAsync(context, parameters, default)
+            .ConfigureAwait(false);
     }
 
     [Benchmark]
@@ -71,20 +73,6 @@ public class Benchmarks
             })
             .UseMiddleware(NullConsoleMiddleware)
             .ExecuteAsync(Args)
-            .ConfigureAwait(false);
-    }
-
-    [Benchmark(Baseline = true)]
-    public async Task<int> RunCommandExplicitly()
-    {
-        var command = new HelloCommand();
-        var parameters = new HelloCommand.Parameters() { Name = "Frank", Times = 2 };
-        var parseResult = new CommandParseResult(ImmutableArray<CommandToken>.Empty, ImmutableList<string>.Empty);
-        var scope = new DefaultTypeResolverScope(DefaultTypeResolver.Instance);
-        var context = new CommandContext(scope, command, parameters, parseResult) { Console = NullConsole.Instance };
-
-        return await command
-            .ExecuteAsync(context, parameters, default)
             .ConfigureAwait(false);
     }
 
@@ -103,37 +91,5 @@ public class Benchmarks
                 builder.UseMiddleware(NullConsoleMiddleware);
             })
             .ConfigureAwait(false);
-    }
-
-    [Benchmark]
-    public async Task<int> RunHostedCommandExplicitly()
-    {
-        using var host = new HostBuilder()
-            .Build();
-
-        try
-        {
-            await host.StartAsync()
-                .ConfigureAwait(false);
-
-            var command = new HelloCommand();
-            var parameters = new HelloCommand.Parameters() { Name = "Frank", Times = 2 };
-            var parseResult = new CommandParseResult(ImmutableArray<CommandToken>.Empty, ImmutableList<string>.Empty);
-            var scope = new DefaultTypeResolverScope(DefaultTypeResolver.Instance);
-            var context = new CommandContext(scope, command, parameters, parseResult) { Console = NullConsole.Instance };
-
-            var result = await command
-                .ExecuteAsync(context, parameters, default)
-                .ConfigureAwait(false);
-
-            await host.StopAsync()
-                .ConfigureAwait(false);
-
-            return result;
-        }
-        catch
-        {
-            return 1;
-        }
     }
 }

@@ -19,12 +19,6 @@
           "OpenTelemetry.Api.ProviderBuilderExtensions": "1.8.1"
         }
       },
-      "OpenTelemetry.SemanticConventions": {
-        "type": "Direct",
-        "requested": "[1.0.0-rc9.9, )",
-        "resolved": "1.0.0-rc9.9",
-        "contentHash": "Ag1czlfURv4vthJtbHLWUMO7raVX8/IKlcZRd4RFE8CsBRniXT+wtRvh0RRULYyoTbchOey41U8NkPTIZJl7zg=="
-      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -213,12 +207,6 @@
           "Microsoft.Extensions.Logging.Configuration": "8.0.0",
           "OpenTelemetry.Api.ProviderBuilderExtensions": "1.8.1"
         }
-      },
-      "OpenTelemetry.SemanticConventions": {
-        "type": "Direct",
-        "requested": "[1.0.0-rc9.9, )",
-        "resolved": "1.0.0-rc9.9",
-        "contentHash": "Ag1czlfURv4vthJtbHLWUMO7raVX8/IKlcZRd4RFE8CsBRniXT+wtRvh0RRULYyoTbchOey41U8NkPTIZJl7zg=="
       },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",

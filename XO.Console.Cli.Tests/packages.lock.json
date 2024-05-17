@@ -422,11 +422,6 @@
           "OpenTelemetry.Api": "1.8.1"
         }
       },
-      "OpenTelemetry.SemanticConventions": {
-        "type": "Transitive",
-        "resolved": "1.0.0-rc9.9",
-        "contentHash": "Ag1czlfURv4vthJtbHLWUMO7raVX8/IKlcZRd4RFE8CsBRniXT+wtRvh0RRULYyoTbchOey41U8NkPTIZJl7zg=="
-      },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -528,7 +523,6 @@
         "type": "Project",
         "dependencies": {
           "OpenTelemetry": "[1.8.1, )",
-          "OpenTelemetry.SemanticConventions": "[1.0.0-rc9.9, )",
           "XO.Console.Cli": "[1.0.0, )",
           "XO.Console.Cli.Extensions": "[1.0.0, )"
         }
@@ -950,11 +944,6 @@
           "OpenTelemetry.Api": "1.8.1"
         }
       },
-      "OpenTelemetry.SemanticConventions": {
-        "type": "Transitive",
-        "resolved": "1.0.0-rc9.9",
-        "contentHash": "Ag1czlfURv4vthJtbHLWUMO7raVX8/IKlcZRd4RFE8CsBRniXT+wtRvh0RRULYyoTbchOey41U8NkPTIZJl7zg=="
-      },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -1044,7 +1033,6 @@
         "type": "Project",
         "dependencies": {
           "OpenTelemetry": "[1.8.1, )",
-          "OpenTelemetry.SemanticConventions": "[1.0.0-rc9.9, )",
           "XO.Console.Cli": "[1.0.0, )",
           "XO.Console.Cli.Extensions": "[1.0.0, )"
         }

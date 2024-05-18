@@ -1,10 +1,8 @@
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace XO.Console.Cli.Generators;
 
-[UsesVerify]
 public sealed class CommandParametersFactoryGeneratorTest
 {
     [Fact]

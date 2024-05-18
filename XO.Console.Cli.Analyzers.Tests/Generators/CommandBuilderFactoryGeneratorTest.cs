@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace XO.Console.Cli.Generators;
 
-[UsesVerify]
 public sealed class CommandBuilderFactoryGeneratorTest
 {
     [Fact]

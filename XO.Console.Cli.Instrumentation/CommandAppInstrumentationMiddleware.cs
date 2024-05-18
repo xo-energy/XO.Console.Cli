@@ -46,8 +46,8 @@ public sealed class CommandAppInstrumentationMiddleware : ICommandAppMiddleware
         {
             if (activity?.IsAllDataRequested == true)
             {
-                activity.AddTag(TraceSemanticConventions.AttributeCodeFunction, nameof(AsyncCommand.ExecuteAsync));
-                activity.AddTag(TraceSemanticConventions.AttributeCodeNamespace, context.Command.GetType().FullName);
+                activity.AddTag("code.function", nameof(AsyncCommand.ExecuteAsync));
+                activity.AddTag("code.namespace", context.Command.GetType().FullName);
                 _options.EnrichWithCommandContext?.Invoke(activity, context);
             }
 

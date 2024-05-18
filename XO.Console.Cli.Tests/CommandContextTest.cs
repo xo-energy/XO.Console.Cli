@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using XO.Console.Cli.Commands;
 using XO.Console.Cli.Features;
 using XO.Console.Cli.Implementation;

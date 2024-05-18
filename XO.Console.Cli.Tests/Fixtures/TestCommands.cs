@@ -1,6 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace XO.Console.Cli.Fixtures;
 
 public static class TestCommands

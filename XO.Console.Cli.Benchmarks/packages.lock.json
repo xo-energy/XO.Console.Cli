@@ -502,7 +502,7 @@
         }
       }
     },
-    "net7.0": {
+    "net8.0": {
       "BenchmarkDotNet": {
         "type": "Direct",
         "requested": "[0.13.7, )",

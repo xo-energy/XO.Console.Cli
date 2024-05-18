@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.Hosting;
 using XO.Console.Cli.Commands;
@@ -11,9 +10,9 @@ namespace XO.Console.Cli;
 
 [MinColumn, MaxColumn, MeanColumn, MedianColumn]
 [Orderer(BenchmarkDotNet.Order.SummaryOrderPolicy.Method)]
-[SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net60, launchCount: 50)]
-[SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net70, launchCount: 50)]
-[SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.NativeAot70, launchCount: 50)]
+[DryJob(RuntimeMoniker.Net60)]
+[DryJob(RuntimeMoniker.Net80)]
+[DryJob(RuntimeMoniker.NativeAot80)]
 public class Benchmarks
 {
     private sealed class NullConsole : IConsole
@@ -75,7 +74,7 @@ public class Benchmarks
             .ConfigureAwait(false);
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public async Task<int> RunCommandExplicitly()
     {
         var command = new HelloCommand();

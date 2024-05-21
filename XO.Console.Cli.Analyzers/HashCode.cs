@@ -12,10 +12,7 @@ internal static class HashCode
     }
 
     public static int Add<T>(int hash, T value)
-    {
-        hash = unchecked(hash * Prime2 + value?.GetHashCode() ?? 0);
-        return hash;
-    }
+        => Add(hash, value?.GetHashCode() ?? 0);
 
     public static int Combine<T1, T2>(T1 value1, T2 value2)
     {

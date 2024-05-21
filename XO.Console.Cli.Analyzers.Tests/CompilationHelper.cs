@@ -5,6 +5,31 @@ namespace XO.Console.Cli;
 
 internal static class CompilationHelper
 {
+    public static CSharpCompilation CompileParameters(string propertyName, string propertyType)
+    {
+        return CreateCompilation(
+            $$"""
+            using XO.Console.Cli;
+
+            namespace Test;
+
+            public sealed class Parameters : CommandParameters
+            {
+                [CommandArgument(1, "{{propertyName}}")]
+                public {{propertyType}} {{propertyName}} { get; set; }
+            }
+            """);
+    }
+
+    public static IPropertySymbol? CompileParametersAndGetSymbol(string propertyName, string propertyType)
+    {
+        var compilation = CompileParameters(propertyName, propertyType);
+        var parameters = compilation.GetTypeByMetadataName("Test.Parameters");
+        var property = parameters?.GetMembers(propertyName).OfType<IPropertySymbol>().SingleOrDefault();
+
+        return property;
+    }
+
     public static CSharpCompilation CreateCompilation(string source)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source);

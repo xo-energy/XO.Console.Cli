@@ -188,6 +188,10 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 
     private static void Execute(SourceProductionContext context, ImmutableArray<string> parametersSource)
     {
+        // don't output empty factories
+        if (parametersSource.IsDefaultOrEmpty)
+            return;
+
         var source = new StringBuilder();
 
         source.AppendLine(

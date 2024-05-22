@@ -439,14 +439,24 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                 {
             """);
 
+        var commandCount = 0;
+
         foreach (var command in commands)
         {
             foreach (var diagnostic in command.Diagnostics)
                 context.ReportDiagnostic(diagnostic);
 
+            // it should be impossible for ParametersType to be null for CommandModelKind.Command
             if (command.Kind == CommandModelKind.Command)
-                EmitCommandFactoryCase(builder, command);
+            {
+                EmitCommandFactoryCase(builder, command.FullName, command.ParametersType!);
+                commandCount++;
+            }
         }
+
+        // don't output empty factories
+        if (commandCount == 0 && commandsByPathIndex.Count == 0)
+            return;
 
         builder.AppendLine(
             $$"""
@@ -565,18 +575,15 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
         }
     }
 
-    private static void EmitCommandFactoryCase(StringBuilder builder, CommandModel command)
+    private static void EmitCommandFactoryCase(StringBuilder builder, string fullName, string parametersType)
     {
-        if (command.ParametersType is null)
-            return;
-
         builder.AppendLine(
             $$"""
-                    if (typeof(TCommand) == typeof({{command.FullName}}))
+                    if (typeof(TCommand) == typeof({{fullName}}))
                     {
-                        return new CommandBuilder<{{command.FullName}}, {{command.ParametersType}}>(
+                        return new CommandBuilder<{{fullName}}, {{parametersType}}>(
                             verb,
-                            static (resolver) => resolver.Get<{{command.FullName}}>());
+                            static (resolver) => resolver.Get<{{fullName}}>());
                     }
             """);
     }

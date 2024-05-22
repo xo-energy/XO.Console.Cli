@@ -6,6 +6,7 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 XOCLI101 | XOCLI | Error | Command implementations must implement `ICommand<TParameters>`
+XOCLI102 | XOCLI | Error | Command implementations must not be abstract
 XOCLI111 | XOCLI | Error | Commands may not have multiple command attributes
 XOCLI121 | XOCLI | Warning | Duplicate verb will be ignored
 XOCLI201 | XOCLI | Error | `CommandBranchAttribute` must be applied to a custom attribute that derives from `CommandAttribute`

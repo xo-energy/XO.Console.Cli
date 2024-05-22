@@ -13,6 +13,15 @@ internal static class DiagnosticDescriptors
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor CommandTypeMustNotBeAbstract
+        = new DiagnosticDescriptor(
+            "XOCLI102",
+            "Command implementations must not be abstract",
+            "Command class '{0}' must not be abstract",
+            "XOCLI",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor CommandMayNotHaveMultipleCommandAttributes
         = new DiagnosticDescriptor(
             "XOCLI111",

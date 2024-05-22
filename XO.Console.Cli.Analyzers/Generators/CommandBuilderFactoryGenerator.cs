@@ -53,7 +53,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                 var diagnostics = ImmutableArray<Diagnostic>.Empty;
                 var targetSymbol = (INamedTypeSymbol)context.TargetSymbol;
 
-                // validate that the target class inherits from CommandAttributej
+                // validate that the target class inherits from CommandAttribute
                 INamedTypeSymbol? baseType;
                 for (baseType = targetSymbol.BaseType; baseType is not null; baseType = baseType.BaseType)
                 {
@@ -70,38 +70,10 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                             location,
                             targetSymbol.ToDisplayString()));
                 }
-
-                // generate diagnostic if the target class does not have a 'verb' constructor argument
-                var targetSymbolInvalidConstructorCount =
-                    targetSymbol.InstanceConstructors.Length -
-                    targetSymbol.InstanceConstructors.Count(static constructor =>
-                    {
-                        if (constructor.Parameters.Length == 0)
-                            return false;
-
-                        if (constructor.Parameters[0].Type.SpecialType != SpecialType.System_String)
-                            return false;
-
-                        return constructor.Parameters[0].Name.Equals("verb", StringComparison.OrdinalIgnoreCase);
-                    });
-                if (targetSymbol.InstanceConstructors.Length == 0)
+                else
                 {
-                    diagnostics = diagnostics.Add(
-                        Diagnostic.Create(
-                            DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter,
-                            location,
-                            targetSymbol.ToDisplayString(),
-                            0));
-                }
-                else if (targetSymbolInvalidConstructorCount > 0)
-                {
-                    diagnostics = diagnostics.Add(
-                        Diagnostic.Create(
-                            DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter,
-                            location,
-                            targetSymbol.ToDisplayString(),
-                            targetSymbolInvalidConstructorCount,
-                            " whose first parameter is not 'string verb'"));
+                    // generate diagnostic if the target class does not have a 'verb' constructor argument
+                    CheckCommandAttributeConstructors(ref diagnostics, targetSymbol, location);
                 }
 
                 var attributeData = GetCommandAttributeData(
@@ -274,6 +246,48 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
 #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
     }
 
+    private static void CheckCommandAttributeConstructors(ref ImmutableArray<Diagnostic> diagnostics, INamedTypeSymbol targetSymbol, Location? location)
+    {
+        var targetSymbolPublicConstructorsCount =
+            targetSymbol.InstanceConstructors.Count(static constructor => constructor.DeclaredAccessibility == Accessibility.Public);
+        if (targetSymbolPublicConstructorsCount == 0)
+        {
+            diagnostics = diagnostics.Add(
+                Diagnostic.Create(
+                    DiagnosticDescriptors.CommandAttributeMustHavePublicConstructor,
+                    location,
+                    targetSymbol.ToDisplayString()));
+            return;
+        }
+
+        var targetSymbolInvalidConstructorCount =
+            targetSymbol.InstanceConstructors.Count(static constructor =>
+            {
+                if (constructor.DeclaredAccessibility != Accessibility.Public)
+                    return false;
+
+                if (constructor.Parameters.Length == 0)
+                    return true;
+
+                if (constructor.Parameters[0].Type.SpecialType != SpecialType.System_String)
+                    return true;
+
+                if (!constructor.Parameters[0].Name.Equals("verb", StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                return false;
+            });
+        if (targetSymbolInvalidConstructorCount > 0)
+        {
+            diagnostics = diagnostics.Add(
+                Diagnostic.Create(
+                    DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter,
+                    location,
+                    targetSymbol.ToDisplayString(),
+                    targetSymbolInvalidConstructorCount));
+        }
+    }
+
     private static CommandAttributeData GetCommandAttributeData(
         CommandModelKind kind,
         AttributeData attribute,
@@ -386,7 +400,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                                 DiagnosticDescriptors.DuplicatePathWillBeIgnored,
                                 candidate.Location,
                                 candidate.FullName,
-                                candidate.Path,
+                                String.Join(" ", candidate.Path),
                                 branch.FullName));
                         break;
 

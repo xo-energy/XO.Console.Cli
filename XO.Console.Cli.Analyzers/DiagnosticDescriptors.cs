@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 
 namespace XO.Console.Cli;
 
-public static class DiagnosticDescriptors
+internal static class DiagnosticDescriptors
 {
     public static readonly DiagnosticDescriptor CommandTypeMustImplementICommand
         = new DiagnosticDescriptor(
@@ -15,7 +15,7 @@ public static class DiagnosticDescriptors
 
     public static readonly DiagnosticDescriptor CommandMayNotHaveMultipleCommandAttributes
         = new DiagnosticDescriptor(
-            "XOCLI102",
+            "XOCLI111",
             "Commands may not have multiple command attributes",
             "More than one CommandAttribute (or subclass of CommandAttribute) is applied to command class '{0}'",
             "XOCLI",
@@ -24,7 +24,7 @@ public static class DiagnosticDescriptors
 
     public static readonly DiagnosticDescriptor DuplicateVerbWillBeIgnored
         = new DiagnosticDescriptor(
-            "XOCLI103",
+            "XOCLI121",
             "Duplicate verb will be ignored",
             "Command '{0}' has the same verb '{1}' as '{2}'",
             "XOCLI",
@@ -40,18 +40,27 @@ public static class DiagnosticDescriptors
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor CommandAttributeMustHavePublicConstructor
+        = new DiagnosticDescriptor(
+            "XOCLI211",
+            "Custom CommandAttributes must have a public constructor",
+            "Custom CommandAttribute '{0}' has 0 public constructors",
+            "XOCLI",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor CommandAttributeConstructorsMustHaveVerbParameter
         = new DiagnosticDescriptor(
-            "XOCLI202",
+            "XOCLI212",
             "Custom CommandAttribute constructors must have a first parameter 'string verb'",
-            "Custom CommandAttribute '{0}' has {1} public constructor(s){2}",
+            "Custom CommandAttribute '{0}' has {1} invalid constructor(s)",
             "XOCLI",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
     public static readonly DiagnosticDescriptor DuplicatePathWillBeIgnored
         = new DiagnosticDescriptor(
-            "XOCLI203",
+            "XOCLI221",
             "Duplicate path will be ignored",
             "CommandBranchAttribute target '{0}' has the same path '{1}' as '{2}'",
             "XOCLI",

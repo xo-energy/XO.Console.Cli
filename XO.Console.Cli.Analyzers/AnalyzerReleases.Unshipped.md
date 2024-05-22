@@ -5,9 +5,10 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-XOCLI101 | XOCLI | Error | XOCLI101_CommandTypeMustImplementICommand
-XOCLI102 | XOCLI | Error | XOCLI102_CommandMayNotHaveMultipleCommandAttributes
-XOCLI103 | XOCLI | Warning | XOCLI103_DuplicateVerbWillBeIgnored
-XOCLI201 | XOCLI | Error | XOCLI201_CommandBranchAttributeMustBeAppliedToCommandAttribute
-XOCLI202 | XOCLI | Error | XOCLI202_CommandAttributeConstructorsMustHaveVerbParameter
-XOCLI203 | XOCLI | Warning | XOCLI203_DuplicatePathWillBeIgnored
+XOCLI101 | XOCLI | Error | Command implementations must implement `ICommand<TParameters>`
+XOCLI111 | XOCLI | Error | Commands may not have multiple command attributes
+XOCLI121 | XOCLI | Warning | Duplicate verb will be ignored
+XOCLI201 | XOCLI | Error | `CommandBranchAttribute` must be applied to a custom attribute that derives from `CommandAttribute`
+XOCLI211 | XOCLI | Error | Custom command attributes must have a public constructor
+XOCLI212 | XOCLI | Error | Custom command attribute constructors must have a first parameter `string verb`
+XOCLI221 | XOCLI | Warning | Duplicate path will be ignored

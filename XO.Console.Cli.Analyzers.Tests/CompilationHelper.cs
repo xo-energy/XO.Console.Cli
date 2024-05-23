@@ -54,25 +54,9 @@ internal static class CompilationHelper
         return compilation;
     }
 
-    public static GeneratorDriver? RunGenerators(string source, params IIncrementalGenerator[] generators)
+    public static GeneratorDriver RunGenerators(CSharpCompilation compilation, params IIncrementalGenerator[] generators)
     {
-        var compilation = CreateCompilation(source);
-
-        return RunGenerators(compilation, generators);
-    }
-
-    public static GeneratorDriver? RunGenerators(SyntaxTree syntaxTree, params IIncrementalGenerator[] generators)
-    {
-        var compilation = CreateCompilation(syntaxTree);
-
-        return RunGenerators(compilation, generators);
-    }
-
-    public static GeneratorDriver? RunGenerators(CSharpCompilation compilation, params IIncrementalGenerator[] generators)
-    {
-        var generatorDriver = CSharpGeneratorDriver.Create(generators);
-        var result = generatorDriver.RunGenerators(compilation);
-
-        return result;
+        return CSharpGeneratorDriver.Create(generators)
+            .RunGenerators(compilation);
     }
 }

@@ -120,8 +120,6 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 
     private static CommandArgumentModel? GetCommandArgumentAttributeData(IPropertySymbol property, AttributeData attr)
     {
-        if (attr.ConstructorArguments.Length != 2)
-            return null;
         if (attr.ConstructorArguments[1].IsNull)
             return null;
 
@@ -157,8 +155,6 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 
     private static CommandOptionModel? GetCommandOptionAttributeData(IPropertySymbol property, AttributeData attr)
     {
-        if (attr.ConstructorArguments.Length != 2)
-            return null;
         if (attr.ConstructorArguments[0].IsNull)
             return null;
 

@@ -169,23 +169,26 @@ internal sealed class CommandApp : ICommandApp
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.CliExplain):
                     return BindInternal(
                         parseResult,
-                        new ConfiguredCommand<CliExplainCommand, CommandParameters>(
+                        new ConfiguredCommand(
                             _builtinOptions.CliExplain.Name,
-                            static _ => new CliExplainCommand()));
+                            static _ => new CliExplainCommand(),
+                            typeof(CommandParameters)));
 
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.Help):
                     return BindInternal(
                         parseResult,
-                        new ConfiguredCommand<HelpCommand, CommandParameters>(
+                        new ConfiguredCommand(
                             _builtinOptions.Help.Name,
-                            _ => new HelpCommand(this)));
+                            _ => new HelpCommand(this),
+                            typeof(CommandParameters)));
 
                 case CommandTokenType.Option when Object.ReferenceEquals(token.Context, _builtinOptions.Version):
                     return BindInternal(
                         parseResult,
-                        new ConfiguredCommand<VersionCommand, CommandParameters>(
+                        new ConfiguredCommand(
                             _builtinOptions.Version.Name,
-                            _ => new VersionCommand(_settings.ApplicationVersion)));
+                            _ => new VersionCommand(_settings.ApplicationVersion),
+                            typeof(CommandParameters)));
 
                 case CommandTokenType.Unknown:
                     hasErrors = true;

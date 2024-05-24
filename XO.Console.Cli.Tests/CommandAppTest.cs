@@ -515,7 +515,7 @@ public class CommandAppTest : CommandAppTestBase
         var parse = app.Parse(Array.Empty<string>());
         var context = app.Bind(parse);
 
-        Assert.IsType<MissingCommand<CommandParameters>>(context.Command);
+        Assert.IsType<MissingCommand>(context.Command);
     }
 
     [Fact]

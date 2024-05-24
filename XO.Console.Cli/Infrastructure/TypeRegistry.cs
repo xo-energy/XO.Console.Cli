@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using XO.Console.Cli.Implementation;
 using XO.Console.Cli.Model;
 
@@ -34,7 +33,7 @@ public static class TypeRegistry
     /// <param name="verb">The verb that invokes the command.</param>
     /// <returns>A new instance of <see cref="CommandBuilder"/>.</returns>
     /// <exception cref="CommandTypeException">No registered <see cref="ICommandBuilderFactory"/> supports the specified type.</exception>
-    public static CommandBuilder CreateCommandBuilder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(
+    public static CommandBuilder CreateCommandBuilder<TCommand>(
         string verb)
         where TCommand : class, ICommand
     {

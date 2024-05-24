@@ -35,12 +35,12 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     /// Initializes a new instance of <see cref="CommandAppBuilder"/>.
     /// </summary>
     public CommandAppBuilder()
-        : this(CommandBuilder.CreateMissing<CommandParameters>(RootVerb)) { }
+        : this(CommandBuilder.CreateMissing(RootVerb, typeof(CommandParameters))) { }
 
     /// <summary>
     /// Initializes a new instance of <see cref="CommandAppBuilder"/>.
     /// </summary>
-    /// <param name="rootCommandBuilder">A <see cref="CommandBuilder"/> that configures the root (default) command.</param>
+    /// <param name="rootCommandBuilder">An <see cref="ICommandBuilder"/> that configures the root (default) command.</param>
     private CommandAppBuilder(CommandBuilder rootCommandBuilder)
     {
         _commandBuilder = rootCommandBuilder;
@@ -70,7 +70,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     /// </summary>
     /// <remarks>The default command is invoked when the command-line arguments do not specify a sub-command.</remarks>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>
-    public static CommandAppBuilder WithDefaultCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>()
+    public static CommandAppBuilder WithDefaultCommand<TCommand>()
         where TCommand : class, ICommand
     {
         var rootCommandBuilder = TypeRegistry.CreateCommandBuilder<TCommand>(RootVerb);
@@ -85,7 +85,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     public static CommandAppBuilder WithDefaultCommand(
         Func<ICommandContext, CancellationToken, Task<int>> executeAsync)
     {
-        var rootCommandBuilder = CommandBuilder.FromDelegate<CommandParameters>(RootVerb, executeAsync);
+        var rootCommandBuilder = CommandBuilder.CreateDelegate(RootVerb, executeAsync, typeof(CommandParameters));
         return new CommandAppBuilder(rootCommandBuilder);
     }
 
@@ -99,7 +99,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
         Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync)
         where TParameters : CommandParameters
     {
-        var rootCommandBuilder = CommandBuilder.FromDelegate<TParameters>(RootVerb, executeAsync);
+        var rootCommandBuilder = CommandBuilder.CreateDelegate<TParameters>(RootVerb, executeAsync);
         return new CommandAppBuilder(rootCommandBuilder);
     }
 
@@ -144,7 +144,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     }
 
     /// <inheritdoc/>
-    public ICommandAppBuilder AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(
+    public ICommandAppBuilder AddCommand<TCommand>(
         string verb,
         Action<ICommandBuilder>? configure = null)
         where TCommand : class, ICommand

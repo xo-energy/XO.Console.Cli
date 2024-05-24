@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace XO.Console.Cli.Infrastructure;
 
 /// <summary>
@@ -22,6 +20,6 @@ public interface ICommandBuilderFactory
     /// <typeparam name="TCommand">The command implementation type.</typeparam>
     /// <param name="verb">The verb that invokes the command.</param>
     /// <returns>If this factory supports commands of type <typeparamref name="TCommand"/>, a new instance of <see cref="CommandBuilder"/>; otherwise, <see langword="null"/>.</returns>
-    CommandBuilder? CreateCommandBuilder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(string verb)
+    CommandBuilder? CreateCommandBuilder<TCommand>(string verb)
         where TCommand : class, ICommand;
 }

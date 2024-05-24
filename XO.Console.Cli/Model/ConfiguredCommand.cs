@@ -6,15 +6,35 @@ namespace XO.Console.Cli.Model;
 /// <summary>
 /// Stores the configuration for a command and its parameters.
 /// </summary>
-public abstract class ConfiguredCommand
+public sealed class ConfiguredCommand
 {
+    private readonly string _verb;
+    private readonly Func<ITypeResolver, ICommand?> _factory;
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    private readonly Type _parametersType;
+
     /// <summary>
     /// Initializes a new instance of <see cref="ConfiguredCommand"/>.
     /// </summary>
     /// <param name="verb">The verb that invokes this command.</param>
-    public ConfiguredCommand(string verb)
+    /// <param name="factory">A factory delegate that creates instance(s) of the command implementation type.</param>
+    /// <param name="parametersType">The type of the command's parameters.</param>
+    /// <remarks>
+    /// <see cref="ConfiguredCommand"/> supports the <c>XO.Console.Cli</c> infrastructure and is not intended to be used
+    /// directly by consumers. <paramref name="parametersType"/> is checked at application startup for
+    /// assignment-compatibility with the parent command's parameters type, and executing the command returned by the
+    /// <paramref name="factory"/> delegate will throw an exception if <paramref name="parametersType"/> does not match
+    /// its <see cref="ICommand{TParameters}"/> implementation. Use the <see cref="ICommandBuilder"/> interface for
+    /// type-checked command configuration.
+    /// </remarks>
+    public ConfiguredCommand(
+        string verb,
+        Func<ITypeResolver, ICommand?> factory,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type parametersType)
     {
-        this.Verb = verb;
+        _verb = verb;
+        _factory = factory;
+        _parametersType = parametersType;
     }
 
     /// <summary>
@@ -26,7 +46,7 @@ public abstract class ConfiguredCommand
     /// <summary>
     /// The collection of children of this command.
     /// </summary>
-    public IImmutableList<ConfiguredCommand> Commands { get; init; }
+    public ImmutableList<ConfiguredCommand> Commands { get; init; }
         = ImmutableList<ConfiguredCommand>.Empty;
 
     /// <summary>
@@ -42,26 +62,30 @@ public abstract class ConfiguredCommand
     /// <summary>
     /// The type of the command's parameters.
     /// </summary>
-    public abstract Type ParametersType { get; }
+    public Type ParametersType => _parametersType;
 
     /// <summary>
     /// The verb that invokes this command.
     /// </summary>
-    public string Verb { get; }
+    public string Verb => _verb;
 
     /// <summary>
     /// Creates an instance of the command implementation type.
     /// </summary>
     /// <param name="resolver">The <see cref="ITypeResolver"/> that will instantiate the command.</param>
     /// <returns>A new instance of <see cref="ICommand"/>.</returns>
-    public abstract ICommand CreateCommand(ITypeResolver resolver);
+    public ICommand CreateCommand(ITypeResolver resolver)
+        => _factory(resolver)
+        ?? throw new CommandTypeException(_factory.Method.ReturnType, "Failed to instantiate command!");
 
     /// <summary>
     /// Creates an instance of the command's parameters type.
     /// </summary>
     /// <param name="resolver">The <see cref="ITypeResolver"/> that will instantiate the command.</param>
     /// <returns>A new instance of <see cref="CommandParameters"/>.</returns>
-    public abstract CommandParameters CreateParameters(ITypeResolver resolver);
+    public CommandParameters CreateParameters(ITypeResolver resolver)
+        => resolver.Get(_parametersType) as CommandParameters
+        ?? throw new CommandTypeException(_parametersType, "Failed to instantiate parameters!");
 
     /// <summary>
     /// Tests whether the given verb matches this command.
@@ -73,46 +97,4 @@ public abstract class ConfiguredCommand
         return this.Verb == verb
             || this.Aliases.Contains(verb);
     }
-}
-
-/// <summary>
-/// Stores the configuration for a command and its parameters.
-/// </summary>
-/// <typeparam name="TCommand">The command implementation type.</typeparam>
-/// <typeparam name="TParameters">The command parameters type.</typeparam>
-public sealed class ConfiguredCommand<
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand,
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TParameters>
-    : ConfiguredCommand
-    where TCommand : ICommand<TParameters>
-    where TParameters : CommandParameters
-{
-    private readonly Func<ITypeResolver, TCommand?> _commandFactory;
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="ConfiguredCommand{TCommand, TParameters}"/>.
-    /// </summary>
-    /// <param name="verb">The verb that invokes this command.</param>
-    /// <param name="factory">A factory delegate that creates instance(s) of the command implementation type.</param>
-    public ConfiguredCommand(string verb, Func<ITypeResolver, TCommand?> factory)
-        : base(verb)
-    {
-        _commandFactory = factory;
-    }
-
-    /// <inheritdoc/>
-    public override Type ParametersType
-        => typeof(TParameters);
-
-    /// <returns>A new instance of <typeparamref name="TCommand"/>.</returns>
-    /// <inheritdoc/>
-    public override ICommand CreateCommand(ITypeResolver resolver)
-        => _commandFactory(resolver)
-        ?? throw new CommandTypeException(typeof(TCommand), "Failed to instantiate command!");
-
-    /// <returns>A new instance of <typeparamref name="TParameters"/>.</returns>
-    /// <inheritdoc/>
-    public override CommandParameters CreateParameters(ITypeResolver resolver)
-        => resolver.Get<TParameters>()
-        ?? throw new CommandTypeException(typeof(TParameters), "Failed to instantiate parameters!");
 }

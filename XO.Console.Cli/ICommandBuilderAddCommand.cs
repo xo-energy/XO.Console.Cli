@@ -35,7 +35,7 @@ public interface ICommandBuilderAddCommand<TSelf>
     /// <param name="verb">The verb that invokes the command.</param>
     /// <param name="configure">A delegate that configures the command.</param>
     /// <typeparam name="TCommand">The command implementation type.</typeparam>
-    TSelf AddCommand<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(string verb, Action<ICommandBuilder>? configure = null)
+    TSelf AddCommand<TCommand>(string verb, Action<ICommandBuilder>? configure = null)
         where TCommand : class, ICommand;
 
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
 namespace XO.Console.Cli.Generators;
@@ -7,7 +8,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     [Fact]
     public void DoesNotGenerateEmptyFactory()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var driver = CompilationHelper.RunGenerator<CommandBuilderFactoryGenerator>(
             """
             namespace Test;
 
@@ -15,16 +16,17 @@ public sealed class CommandBuilderFactoryGeneratorTest
             {
                 public void Execute() { }
             }
-            """);
-        var result = driver.GetRunResult();
+            """,
+            out var outputCompilation,
+            out _);
 
-        Assert.Empty(result.GeneratedTrees);
+        Assert.Single(outputCompilation.SyntaxTrees);
     }
 
     [Fact]
     public void DoesNotReportDiagnostic_ForCommandAttributeWithPrivateConstructorAndPublicConstructor()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using XO.Console.Cli;
 
@@ -40,15 +42,14 @@ public sealed class CommandBuilderFactoryGeneratorTest
                     : this(verb, 1) { }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Empty(result.Diagnostics);
+        Assert.Empty(diagnostics);
     }
 
     [Fact]
     public void DoesNotReportDiagnostic_ForCommandAttributeWithMultipleConstructors()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using XO.Console.Cli;
 
@@ -64,9 +65,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
                     : this(verb, 1) { }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Empty(result.Diagnostics);
+        Assert.Empty(diagnostics);
     }
 
     [Fact]
@@ -344,7 +344,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
 
             namespace Test;
 
-            [Obsolete]
+            [System.ComponentModel.Description("Hello")]
             [Command("command1")]
             public sealed class Command1 : Command<CommandParameters>
             {
@@ -359,7 +359,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     [Fact]
     public void ReportsDiagnostic_ForCommandAttributeWithPrivateConstructor()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using XO.Console.Cli;
 
@@ -372,9 +372,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
                     : base(verb) { }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Contains(result.Diagnostics, static (diagnostic) =>
+        Assert.Contains(diagnostics, static (diagnostic) =>
         {
             return diagnostic.Id == DiagnosticDescriptors.CommandAttributeMustHavePublicConstructor.Id
                 && diagnostic.GetMessage().Contains("Test.GroupCommandAttribute");
@@ -384,7 +383,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     [Fact]
     public void ReportsDiagnostic_ForCommandAttributeWithWrongConstructorParameters()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using XO.Console.Cli;
 
@@ -397,9 +396,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
                     : base(honk) { }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Contains(result.Diagnostics, static (diagnostic) =>
+        Assert.Contains(diagnostics, static (diagnostic) =>
         {
             return diagnostic.Id == DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter.Id
                 && diagnostic.GetMessage().Contains("Test.GroupCommandAttribute");
@@ -409,7 +407,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     [Fact]
     public void ReportsDiagnostic_ForCommandAttributeWithSomeWrongConstructorParameters()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using XO.Console.Cli;
 
@@ -428,9 +426,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
                     : base("") { }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Contains(result.Diagnostics, static (diagnostic) =>
+        Assert.Contains(diagnostics, static (diagnostic) =>
         {
             return diagnostic.Id == DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter.Id
                 && diagnostic.GetMessage().Contains("Test.GroupCommandAttribute");
@@ -440,7 +437,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     [Fact]
     public void ReportsDiagnostic_ForDuplicatePath()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using XO.Console.Cli;
 
@@ -460,9 +457,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
                     : base(verb) { }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Contains(result.Diagnostics, static (diagnostic) =>
+        Assert.Contains(diagnostics, static (diagnostic) =>
         {
             return diagnostic.Id == DiagnosticDescriptors.DuplicatePathWillBeIgnored.Id
                 && diagnostic.GetMessage().Contains("Test.DuplicateCommandAttribute");
@@ -472,7 +468,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     [Fact]
     public void ReportsDiagnostic_ForDuplicateVerb()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using System;
             using System.Threading;
@@ -498,9 +494,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
                 }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Contains(result.Diagnostics, static (diagnostic) =>
+        Assert.Contains(diagnostics, static (diagnostic) =>
         {
             return diagnostic.Id == DiagnosticDescriptors.DuplicateVerbWillBeIgnored.Id
                 && diagnostic.GetMessage().Contains("Test.DuplicateCommand1");
@@ -510,7 +505,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     [Fact]
     public void ReportsDiagnostic_ForMultipleCommandAttributes()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using System;
             using System.Threading;
@@ -542,9 +537,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
                 }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Contains(result.Diagnostics, static (diagnostic) =>
+        Assert.Contains(diagnostics, static (diagnostic) =>
         {
             return diagnostic.Id == DiagnosticDescriptors.CommandMayNotHaveMultipleCommandAttributes.Id
                 && diagnostic.GetMessage().Contains("Test.Command1");
@@ -554,7 +548,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     [Fact]
     public void ReportsDiagnostic_ForWrongCommandBranchAttributeTarget()
     {
-        var driver = RunCommandBuilderFactoryGenerator(
+        var diagnostics = GetGeneratorDiagnostics(
             """
             using XO.Console.Cli;
 
@@ -566,40 +560,24 @@ public sealed class CommandBuilderFactoryGeneratorTest
                 public string Value { get; set; }
             }
             """);
-        var result = driver.GetRunResult();
 
-        Assert.Contains(result.Diagnostics, static (diagnostic) =>
+        Assert.Contains(diagnostics, static (diagnostic) =>
         {
             return diagnostic.Id == DiagnosticDescriptors.CommandBranchAttributeMustBeAppliedToCommandAttribute.Id
                 && diagnostic.GetMessage().Contains("Test.MyClass");
         });
     }
 
-    private static GeneratorDriver RunCommandBuilderFactoryGenerator(string source)
+    private static ImmutableArray<Diagnostic> GetGeneratorDiagnostics(string source)
     {
-        const string main =
-            """
-
-            internal static class Program
-            {
-                public static int Main(string[] args) => 0;
-            }
-            """;
-
-        var generator = new CommandBuilderFactoryGenerator();
-        var compilation = CompilationHelper.CreateCompilation(source + main);
-        var driver = CompilationHelper.RunGenerators(compilation, generator);
-
-        // make sure there were no compilation errors (are we testing what we think we are?)
-        Assert.Empty(compilation.GetDiagnostics());
-
-        return driver;
+        _ = CompilationHelper.RunGenerator<CommandBuilderFactoryGenerator>(source, out _, out var diagnostics);
+        return diagnostics;
     }
 
-    private static Task VerifySource(string source)
+    private static async Task VerifySource(string source)
     {
-        var driver = RunCommandBuilderFactoryGenerator(source);
+        var driver = CompilationHelper.RunGeneratorAndAssertEmptyDiagnostics<CommandBuilderFactoryGenerator>(source);
 
-        return Verify(driver);
+        await Verify(driver);
     }
 }

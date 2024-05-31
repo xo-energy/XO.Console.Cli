@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -54,9 +55,52 @@ internal static class CompilationHelper
         return compilation;
     }
 
-    public static GeneratorDriver RunGenerators(CSharpCompilation compilation, params IIncrementalGenerator[] generators)
+    public static GeneratorDriver RunGenerator<TGenerator>(
+        string source,
+        out Compilation outputCompilation,
+        out ImmutableArray<Diagnostic> diagnostics,
+        CancellationToken cancellationToken = default)
+        where TGenerator : IIncrementalGenerator, new()
     {
-        return CSharpGeneratorDriver.Create(generators)
-            .RunGenerators(compilation);
+        const string main =
+            """
+
+            internal static class Program
+            {
+                public static int Main(string[] args) => 0;
+            }
+            """;
+
+        var generator = new TGenerator();
+        var compilation = CreateCompilation(source + main);
+
+        // make sure the input source compiles without warnings before involving the generator
+        Assert.Empty(compilation.GetDiagnostics(cancellationToken));
+
+        var driver = CSharpGeneratorDriver.Create(generator)
+            .RunGeneratorsAndUpdateCompilation(compilation, out outputCompilation, out diagnostics, cancellationToken);
+
+        return driver;
+    }
+
+    public static GeneratorDriver RunGeneratorAndAssertEmptyDiagnostics<TGenerator>(string source)
+        where TGenerator : IIncrementalGenerator, new()
+    {
+        var driver = RunGenerator<TGenerator>(
+            source,
+            out var outputCompilation,
+            out var diagnostics);
+
+        // make sure the generator didn't output any diagnostics
+        Assert.Empty(diagnostics);
+
+        // make sure the generator added a syntax tree to the compilation
+        Assert.Equal(2, outputCompilation.SyntaxTrees.Count());
+
+        // make sure the generator's output compiles
+        Assert.Empty(outputCompilation.GetDiagnostics());
+
+        // don't call Verify directly; it will mess up its detection of the source test
+        return driver;
     }
 }

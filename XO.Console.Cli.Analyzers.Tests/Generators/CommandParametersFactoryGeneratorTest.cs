@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace XO.Console.Cli.Generators;
 
 public sealed class CommandParametersFactoryGeneratorTest
@@ -205,10 +203,12 @@ public sealed class CommandParametersFactoryGeneratorTest
     [Fact]
     public void DoesNotGenerateEmptyFactory()
     {
-        var driver = RunCommandParametersFactoryGenerator("");
-        var result = driver.GetRunResult();
+        _ = CompilationHelper.RunGenerator<CommandParametersFactoryGenerator>(
+            "",
+            out var outputCompilation,
+            out _);
 
-        Assert.Empty(result.GeneratedTrees);
+        Assert.Single(outputCompilation.SyntaxTrees);
     }
 
     [Fact]
@@ -248,7 +248,7 @@ public sealed class CommandParametersFactoryGeneratorTest
     [Fact]
     public void IgnoresTypeNotDerivedFromCommandParameters()
     {
-        var driver = RunCommandParametersFactoryGenerator(
+        _ = CompilationHelper.RunGenerator<CommandParametersFactoryGenerator>(
             """
             using System;
 
@@ -258,37 +258,17 @@ public sealed class CommandParametersFactoryGeneratorTest
             {
                 public object Clone() => new Thing();
             }
-            """);
-        var result = driver.GetRunResult();
+            """,
+            out var outputCompilation,
+            out _);
 
-        Assert.Empty(result.GeneratedTrees);
+        Assert.Single(outputCompilation.SyntaxTrees);
     }
 
-    private static GeneratorDriver RunCommandParametersFactoryGenerator(string source)
+    private static async Task VerifySource(string source)
     {
-        const string main =
-            """
+        var driver = CompilationHelper.RunGeneratorAndAssertEmptyDiagnostics<CommandParametersFactoryGenerator>(source);
 
-            internal static class Program
-            {
-                public static int Main(string[] args) => 0;
-            }
-            """;
-
-        var generator = new CommandParametersFactoryGenerator();
-        var compilation = CompilationHelper.CreateCompilation(source + main);
-        var driver = CompilationHelper.RunGenerators(compilation, generator);
-
-        // make sure there were no compilation errors (are we testing what we think we are?)
-        Assert.Empty(compilation.GetDiagnostics());
-
-        return driver;
-    }
-
-    private static Task VerifySource(string source)
-    {
-        var driver = RunCommandParametersFactoryGenerator(source);
-
-        return Verify(driver);
+        await Verify(driver);
     }
 }

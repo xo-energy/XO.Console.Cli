@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
-namespace XO.Console.Cli.Model;
+namespace XO.Console.Cli.Infrastructure;
 
 /// <summary>
 /// Stores the configuration for a command and its parameters.

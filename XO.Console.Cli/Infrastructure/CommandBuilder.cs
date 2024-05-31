@@ -1,7 +1,5 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using XO.Console.Cli.Commands;
-using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli.Infrastructure;
 

@@ -62,7 +62,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
             _commandBuilder.SetDescription(descriptionAttribute.Description);
 
         // call generated configuration methods
-        TypeRegistry.ConfigureCommandApp(this);
+        TypeRegistry.AddCommandAttributeCommands(_commandBuilder);
     }
 
     /// <summary>

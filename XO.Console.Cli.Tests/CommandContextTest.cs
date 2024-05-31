@@ -1,6 +1,6 @@
-using XO.Console.Cli.Commands;
 using XO.Console.Cli.Features;
 using XO.Console.Cli.Implementation;
+using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Model;
 using Xunit;
 

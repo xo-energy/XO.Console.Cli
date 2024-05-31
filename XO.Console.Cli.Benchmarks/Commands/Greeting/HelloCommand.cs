@@ -1,5 +1,6 @@
-namespace XO.Console.Cli.Commands;
+namespace XO.Console.Cli.Commands.Greeting;
 
+[GreetingCommand("hello")]
 internal class HelloCommand : AsyncCommand<HelloCommand.Parameters>
 {
     public sealed class Parameters : CommandParameters

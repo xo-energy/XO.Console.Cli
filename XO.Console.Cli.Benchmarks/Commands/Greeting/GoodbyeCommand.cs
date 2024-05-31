@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XO.Console.Cli.Commands;
+namespace XO.Console.Cli.Commands.Greeting;
 
+[GreetingCommand("goodbye")]
 internal class GoodbyeCommand : AsyncCommand<GoodbyeCommand.Parameters>
 {
     public sealed class Parameters : CommandParameters

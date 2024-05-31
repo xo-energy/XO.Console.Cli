@@ -1,21 +1,57 @@
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Toolchains.CsProj;
+using BenchmarkDotNet.Toolchains.NativeAot;
 using Microsoft.Extensions.Hosting;
-using XO.Console.Cli.Commands;
+using XO.Console.Cli.Commands.Greeting;
 using XO.Console.Cli.Implementation;
 using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli;
 
+[Config(typeof(Config))]
 [MinColumn, MaxColumn, MeanColumn, MedianColumn]
-[DryJob(RuntimeMoniker.Net60)]
-[DryJob(RuntimeMoniker.Net80)]
-[DryJob(RuntimeMoniker.NativeAot80)]
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.NativeAot80)]
+[Orderer(BenchmarkDotNet.Order.SummaryOrderPolicy.Method)]
 public class Benchmarks
 {
+    private sealed class Config : ManualConfig
+    {
+        public Config()
+        {
+            AddJob([
+                new("net6.0", Job.Default)
+                {
+                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp60 },
+                },
+                new("net8.0", Job.Default)
+                {
+                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp80 },
+                },
+                new("net8.0-aot", Job.Default)
+                {
+                    Infrastructure = { Toolchain = NativeAotToolchain.Net80 },
+                },
+                new("dry-net6.0", Job.Dry)
+                {
+                    Run = { LaunchCount = 20 },
+                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp60 },
+                },
+                new("dry-net8.0", Job.Dry)
+                {
+                    Run = { LaunchCount = 20 },
+                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp80 },
+                },
+                new("dry-net8.0-aot", Job.Dry)
+                {
+                    Run = { LaunchCount = 20 },
+                    Infrastructure = { Toolchain = NativeAotToolchain.Net80 },
+                },
+            ]);
+        }
+    }
+
     private sealed class NullConsole : IConsole
     {
         public TextReader Input => TextReader.Null;
@@ -41,7 +77,7 @@ public class Benchmarks
         };
 
     private static readonly string[] Args = new[] {
-        "do",
+        "greeting",
         "hello",
         "--times=2",
         "--name",
@@ -66,11 +102,6 @@ public class Benchmarks
     public async Task<int> RunApp()
     {
         return await new CommandAppBuilder()
-            .AddBranch("do", builder =>
-            {
-                builder.AddCommand<HelloCommand>("hello");
-                builder.AddCommand<GoodbyeCommand>("goodbye");
-            })
             .UseMiddleware(NullConsoleMiddleware)
             .ExecuteAsync(Args)
             .ConfigureAwait(false);
@@ -82,12 +113,6 @@ public class Benchmarks
         return await new HostBuilder()
             .RunCommandAppAsync(Args, (_, builder) =>
             {
-                builder.AddBranch("do", builder =>
-                    {
-                        builder.AddCommand<HelloCommand>("hello");
-                        builder.AddCommand<GoodbyeCommand>("goodbye");
-                    })
-                    ;
                 builder.UseMiddleware(NullConsoleMiddleware);
             })
             .ConfigureAwait(false);

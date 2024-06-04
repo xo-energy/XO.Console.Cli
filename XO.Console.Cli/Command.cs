@@ -16,7 +16,7 @@ public abstract class Command : ICommand<CommandParameters>
     public abstract int Execute(ICommandContext context, CancellationToken cancellationToken);
 
     /// <inheritdoc/>
-    Task<int> ICommand.ExecuteAsync(
+    Task<int> ICommand<CommandParameters>.ExecuteAsync(
         ICommandContext context,
         CommandParameters _,
         CancellationToken cancellationToken)
@@ -42,12 +42,12 @@ public abstract class Command<TParameters> : ICommand<TParameters>
     public abstract int Execute(ICommandContext context, TParameters parameters, CancellationToken cancellationToken);
 
     /// <inheritdoc/>
-    Task<int> ICommand.ExecuteAsync(
+    Task<int> ICommand<TParameters>.ExecuteAsync(
         ICommandContext context,
-        CommandParameters parameters,
+        TParameters parameters,
         CancellationToken cancellationToken)
     {
-        var result = Execute(context, (TParameters)parameters, cancellationToken);
+        var result = Execute(context, parameters, cancellationToken);
         return Task.FromResult(result);
     }
 }

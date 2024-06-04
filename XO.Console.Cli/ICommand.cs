@@ -4,7 +4,8 @@ namespace XO.Console.Cli;
 /// Represents a command.
 /// </summary>
 /// <remarks>
-/// This interface cannot be implemented directly. These abstract classes are provided for implementing commands:
+/// This interface cannot be implemented directly. You must implement <see cref="ICommand{TParameters}"/> or one of
+/// these abstract classes:
 /// <list type="bullet">
 ///     <item><see cref="AsyncCommand"/>: asynchronous command, no parameters</item>
 ///     <item><see cref="AsyncCommand{TParameters}"/>: asynchronous command with parameters</item>
@@ -28,7 +29,7 @@ public interface ICommand
     /// <returns>A <see cref="Task{T}"/> whose result is the exit code of the command.</returns>
     internal Task<int> ExecuteAsync(
         ICommandContext context,
-        CommandParameters parameters,
+        object parameters,
         CancellationToken cancellationToken = default);
 }
 
@@ -36,7 +37,7 @@ public interface ICommand
 /// Represents a command with parameters.
 /// </summary>
 /// <remarks>
-/// This interface cannot be implemented directly. These abstract classes are provided for implementing commands:
+/// These abstract classes are provided for implementing commands:
 /// <list type="bullet">
 ///     <item><see cref="AsyncCommand{TParameters}"/>: asynchronous command with parameters</item>
 ///     <item><see cref="Command{TParameters}"/>: synchronous command with parameters</item>
@@ -45,4 +46,24 @@ public interface ICommand
 /// <typeparam name="TParameters">A class whose properties describe the command parameters.</typeparam>
 public interface ICommand<TParameters> : ICommand
     where TParameters : CommandParameters
-{ }
+{
+    /// <summary>
+    /// Executes the command.
+    /// </summary>
+    /// <param name="context">The command execution context.</param>
+    /// <param name="parameters">The parameters bound from the command-line arguments.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> that may request that command execution be canceled.</param>
+    /// <returns>A <see cref="Task{T}"/> whose result is the exit code of the command.</returns>
+    Task<int> ExecuteAsync(
+        ICommandContext context,
+        TParameters parameters,
+        CancellationToken cancellationToken = default);
+
+    /// <inheritdoc/>
+    Task<int> ICommand.ExecuteAsync(
+        ICommandContext context,
+        object parameters,
+        CancellationToken cancellationToken)
+        => ExecuteAsync(context, (TParameters)parameters, cancellationToken);
+}
+

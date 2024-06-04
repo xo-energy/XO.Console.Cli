@@ -16,7 +16,7 @@ public abstract class AsyncCommand : ICommand<CommandParameters>
     public abstract Task<int> ExecuteAsync(ICommandContext context, CancellationToken cancellationToken);
 
     /// <inheritdoc/>
-    Task<int> ICommand.ExecuteAsync(
+    Task<int> ICommand<CommandParameters>.ExecuteAsync(
         ICommandContext context,
         CommandParameters _,
         CancellationToken cancellationToken)
@@ -37,11 +37,4 @@ public abstract class AsyncCommand<TParameters> : ICommand<TParameters>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that may request that command execution be canceled.</param>
     /// <returns>A <see cref="Task{T}"/> whose result is the exit code of the command.</returns>
     public abstract Task<int> ExecuteAsync(ICommandContext context, TParameters parameters, CancellationToken cancellationToken);
-
-    /// <inheritdoc/>
-    Task<int> ICommand.ExecuteAsync(
-        ICommandContext context,
-        CommandParameters parameters,
-        CancellationToken cancellationToken)
-        => ExecuteAsync(context, (TParameters)parameters, cancellationToken);
 }

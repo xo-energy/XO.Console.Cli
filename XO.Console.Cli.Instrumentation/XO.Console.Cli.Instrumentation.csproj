@@ -4,6 +4,7 @@
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <Description>OpenTelemetry instrumentation for XO.Console.Cli</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,11 @@
   <ItemGroup>
     <ProjectReference Include="..\XO.Console.Cli.Extensions\XO.Console.Cli.Extensions.csproj" />
     <ProjectReference Include="..\XO.Console.Cli\XO.Console.Cli.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt" Link="LICENSE.txt" Pack="true" PackagePath="/" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>

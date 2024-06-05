@@ -9,6 +9,19 @@ internal static class ImmutableArrayEqualityComparer
 
     public static int GetHashCode<T>(ImmutableArray<T> array)
         => ImmutableArrayEqualityComparer<T>.Default.GetHashCode(array);
+
+    public static int GetMatchLength<T>(ImmutableArray<T> x, ImmutableArray<T> y)
+    {
+        var length = 0;
+
+        for (int i = 0; i < x.Length && i < y.Length; i++)
+        {
+            if (EqualityComparer<T>.Default.Equals(x[i], y[i]))
+                length++;
+        }
+
+        return length;
+    }
 }
 
 internal sealed class ImmutableArrayEqualityComparer<T> : IEqualityComparer<ImmutableArray<T>>

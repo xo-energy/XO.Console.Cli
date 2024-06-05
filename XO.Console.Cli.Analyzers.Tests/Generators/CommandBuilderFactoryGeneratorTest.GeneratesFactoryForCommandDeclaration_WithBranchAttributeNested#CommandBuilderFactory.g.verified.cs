@@ -34,15 +34,15 @@ internal sealed class CommandBuilderFactory : ICommandBuilderFactory
             });
         commands2.Clear();
         commands2.Add(
-            new ConfiguredCommand("command2", static (resolver) => resolver.Get<Test.Command2>(), typeof(XO.Console.Cli.CommandParameters))
-            {
-                Description = "Does something else?",
-            });
-        commands2.Add(
             new ConfiguredCommand("command1", static (resolver) => resolver.Get<Test.Command1>(), typeof(XO.Console.Cli.CommandParameters))
             {
                 Aliases = global::System.Collections.Immutable.ImmutableHashSet.Create("command"),
                 Description = "Does something?",
+            });
+        commands2.Add(
+            new ConfiguredCommand("command2", static (resolver) => resolver.Get<Test.Command2>(), typeof(XO.Console.Cli.CommandParameters))
+            {
+                Description = "Does something else?",
             });
         commands1.Add(
             new ConfiguredCommand("load", static (_) => new MissingCommand(), typeof(CommandParameters))

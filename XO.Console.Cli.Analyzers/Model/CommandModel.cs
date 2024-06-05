@@ -13,7 +13,7 @@ internal sealed record CommandModel(
     CommandModelKind Kind,
     string FullName,
     Location Location,
-    ImmutableArray<Diagnostic> Diagnostics,
+    ImmutableList<Diagnostic> Diagnostics,
     ImmutableArray<string> Path = default,
     ImmutableArray<string> Aliases = default,
     string? Description = null,
@@ -24,7 +24,7 @@ internal sealed record CommandModel(
         CommandModelKind kind,
         string fullName,
         Location location,
-        ImmutableArray<Diagnostic> diagnostics,
+        ImmutableList<Diagnostic> diagnostics,
         CommandAttributeData? attributeData,
         string? parametersType = null)
     {
@@ -49,7 +49,7 @@ internal sealed record CommandModel(
             && this.Kind == other.Kind
             && this.FullName == other.FullName
             && this.Location == other.Location
-            && ImmutableArrayEqualityComparer.Equals(this.Diagnostics, other.Diagnostics)
+            && Enumerable.SequenceEqual(this.Diagnostics, other.Diagnostics)
             && ImmutableArrayEqualityComparer.Equals(this.Path, other.Path)
             && ImmutableArrayEqualityComparer.Equals(this.Aliases, other.Aliases)
             && this.Description == other.Description

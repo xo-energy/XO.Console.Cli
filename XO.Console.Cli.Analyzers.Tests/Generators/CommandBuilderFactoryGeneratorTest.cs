@@ -357,7 +357,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
     }
 
     [Fact]
-    public void ReportsDiagnostic_ForCommandAttributeWithPrivateConstructor()
+    public Task ReportsDiagnostic_ForCommandAttributeWithPrivateConstructor()
     {
         var diagnostics = GetGeneratorDiagnostics(
             """
@@ -373,15 +373,11 @@ public sealed class CommandBuilderFactoryGeneratorTest
             }
             """);
 
-        Assert.Contains(diagnostics, static (diagnostic) =>
-        {
-            return diagnostic.Id == DiagnosticDescriptors.CommandAttributeMustHavePublicConstructor.Id
-                && diagnostic.GetMessage().Contains("Test.GroupCommandAttribute");
-        });
+        return Verify(diagnostics);
     }
 
     [Fact]
-    public void ReportsDiagnostic_ForCommandAttributeWithWrongConstructorParameters()
+    public Task ReportsDiagnostic_ForCommandAttributeWithWrongConstructorParameters()
     {
         var diagnostics = GetGeneratorDiagnostics(
             """
@@ -397,15 +393,11 @@ public sealed class CommandBuilderFactoryGeneratorTest
             }
             """);
 
-        Assert.Contains(diagnostics, static (diagnostic) =>
-        {
-            return diagnostic.Id == DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter.Id
-                && diagnostic.GetMessage().Contains("Test.GroupCommandAttribute");
-        });
+        return Verify(diagnostics);
     }
 
     [Fact]
-    public void ReportsDiagnostic_ForCommandAttributeWithSomeWrongConstructorParameters()
+    public Task ReportsDiagnostic_ForCommandAttributeWithSomeWrongConstructorParameters()
     {
         var diagnostics = GetGeneratorDiagnostics(
             """
@@ -427,15 +419,11 @@ public sealed class CommandBuilderFactoryGeneratorTest
             }
             """);
 
-        Assert.Contains(diagnostics, static (diagnostic) =>
-        {
-            return diagnostic.Id == DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter.Id
-                && diagnostic.GetMessage().Contains("Test.GroupCommandAttribute");
-        });
+        return Verify(diagnostics);
     }
 
     [Fact]
-    public void ReportsDiagnostic_ForDuplicatePath()
+    public Task ReportsDiagnostic_ForDuplicatePath()
     {
         var diagnostics = GetGeneratorDiagnostics(
             """
@@ -458,15 +446,11 @@ public sealed class CommandBuilderFactoryGeneratorTest
             }
             """);
 
-        Assert.Contains(diagnostics, static (diagnostic) =>
-        {
-            return diagnostic.Id == DiagnosticDescriptors.DuplicatePathWillBeIgnored.Id
-                && diagnostic.GetMessage().Contains("Test.DuplicateCommandAttribute");
-        });
+        return Verify(diagnostics);
     }
 
     [Fact]
-    public void ReportsDiagnostic_ForDuplicateVerb()
+    public Task ReportsDiagnostic_ForDuplicateVerb()
     {
         var diagnostics = GetGeneratorDiagnostics(
             """
@@ -495,15 +479,11 @@ public sealed class CommandBuilderFactoryGeneratorTest
             }
             """);
 
-        Assert.Contains(diagnostics, static (diagnostic) =>
-        {
-            return diagnostic.Id == DiagnosticDescriptors.DuplicateVerbWillBeIgnored.Id
-                && diagnostic.GetMessage().Contains("Test.DuplicateCommand1");
-        });
+        return Verify(diagnostics);
     }
 
     [Fact]
-    public void ReportsDiagnostic_ForMultipleCommandAttributes()
+    public Task ReportsDiagnostic_ForMultipleCommandAttributes()
     {
         var diagnostics = GetGeneratorDiagnostics(
             """
@@ -538,15 +518,11 @@ public sealed class CommandBuilderFactoryGeneratorTest
             }
             """);
 
-        Assert.Contains(diagnostics, static (diagnostic) =>
-        {
-            return diagnostic.Id == DiagnosticDescriptors.CommandMayNotHaveMultipleCommandAttributes.Id
-                && diagnostic.GetMessage().Contains("Test.Command1");
-        });
+        return Verify(diagnostics);
     }
 
     [Fact]
-    public void ReportsDiagnostic_ForWrongCommandBranchAttributeTarget()
+    public Task ReportsDiagnostic_ForWrongCommandBranchAttributeTarget()
     {
         var diagnostics = GetGeneratorDiagnostics(
             """
@@ -561,11 +537,7 @@ public sealed class CommandBuilderFactoryGeneratorTest
             }
             """);
 
-        Assert.Contains(diagnostics, static (diagnostic) =>
-        {
-            return diagnostic.Id == DiagnosticDescriptors.CommandBranchAttributeMustBeAppliedToCommandAttribute.Id
-                && diagnostic.GetMessage().Contains("Test.MyClass");
-        });
+        return Verify(diagnostics);
     }
 
     private static ImmutableArray<Diagnostic> GetGeneratorDiagnostics(string source)

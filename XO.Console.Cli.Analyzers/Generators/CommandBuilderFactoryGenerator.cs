@@ -49,8 +49,9 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
             static (context, cancellationToken) =>
             {
                 var attribute = context.Attributes[0];
-                var location = context.TargetNode.GetLocation();
                 var diagnostics = ImmutableArray<Diagnostic>.Empty;
+                var targetNode = (ClassDeclarationSyntax)context.TargetNode;
+                var targetNodeIdentifierLocation = targetNode.Identifier.GetLocation();
                 var targetSymbol = (INamedTypeSymbol)context.TargetSymbol;
 
                 // validate that the target class inherits from CommandAttribute
@@ -67,13 +68,13 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                     diagnostics = diagnostics.Add(
                         Diagnostic.Create(
                             DiagnosticDescriptors.CommandBranchAttributeMustBeAppliedToCommandAttribute,
-                            location,
+                            targetNodeIdentifierLocation,
                             targetSymbol.ToDisplayString()));
                 }
                 else
                 {
                     // generate diagnostic if the target class does not have a 'verb' constructor argument
-                    CheckCommandAttributeConstructors(ref diagnostics, targetSymbol, location);
+                    CheckCommandAttributeConstructors(ref diagnostics, targetSymbol, targetNode);
                 }
 
                 var attributeData = GetCommandAttributeData(
@@ -84,7 +85,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                 return CommandModel.FromAttributeData(
                     CommandModelKind.Branch,
                     targetSymbol.ToSourceString(),
-                    location,
+                    targetNodeIdentifierLocation,
                     diagnostics,
                     attributeData);
             })
@@ -167,7 +168,7 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
                 var (_, compilation) = x;
                 var (commandDeclaration, commandBranchAttributeIndex) = x.Left;
 
-                var location = commandDeclaration.SyntaxNode.GetLocation();
+                var location = commandDeclaration.SyntaxNode.Identifier.GetLocation();
                 var diagnostics = ImmutableArray<Diagnostic>.Empty;
 
                 var semanticModel = compilation.GetSemanticModel(commandDeclaration.SyntaxNode.SyntaxTree);
@@ -246,45 +247,43 @@ public sealed class CommandBuilderFactoryGenerator : IIncrementalGenerator
 #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
     }
 
-    private static void CheckCommandAttributeConstructors(ref ImmutableArray<Diagnostic> diagnostics, INamedTypeSymbol targetSymbol, Location? location)
+    private static void CheckCommandAttributeConstructors(ref ImmutableArray<Diagnostic> diagnostics, INamedTypeSymbol targetSymbol, ClassDeclarationSyntax targetNode)
     {
-        var targetSymbolPublicConstructorsCount =
-            targetSymbol.InstanceConstructors.Count(static constructor => constructor.DeclaredAccessibility == Accessibility.Public);
+        var targetSymbolIdentifierLocation = targetNode.Identifier.GetLocation();
+        var targetSymbolPublicConstructorsCount = 0;
+
+        foreach (var constructor in targetSymbol.InstanceConstructors)
+        {
+            if (constructor.DeclaredAccessibility != Accessibility.Public || constructor.IsImplicitlyDeclared)
+                continue;
+
+            if (constructor.Parameters.Length < 1 ||
+                constructor.Parameters[0].Type.SpecialType != SpecialType.System_String ||
+                !constructor.Parameters[0].Name.Equals("verb", StringComparison.OrdinalIgnoreCase))
+            {
+                var location = targetSymbolIdentifierLocation;
+
+                // place the squiggle on the constructor identifier if it's available
+                if (constructor.DeclaringSyntaxReferences[0].GetSyntax() is ConstructorDeclarationSyntax constructorNode)
+                    location = constructorNode.Identifier.GetLocation();
+
+                diagnostics = diagnostics.Add(
+                    Diagnostic.Create(
+                        DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter,
+                        location,
+                        constructor.ToDisplayString()));
+            }
+
+            targetSymbolPublicConstructorsCount++;
+        }
+
         if (targetSymbolPublicConstructorsCount == 0)
         {
             diagnostics = diagnostics.Add(
                 Diagnostic.Create(
                     DiagnosticDescriptors.CommandAttributeMustHavePublicConstructor,
-                    location,
+                    targetSymbolIdentifierLocation,
                     targetSymbol.ToDisplayString()));
-            return;
-        }
-
-        var targetSymbolInvalidConstructorCount =
-            targetSymbol.InstanceConstructors.Count(static constructor =>
-            {
-                if (constructor.DeclaredAccessibility != Accessibility.Public)
-                    return false;
-
-                if (constructor.Parameters.Length == 0)
-                    return true;
-
-                if (constructor.Parameters[0].Type.SpecialType != SpecialType.System_String)
-                    return true;
-
-                if (!constructor.Parameters[0].Name.Equals("verb", StringComparison.OrdinalIgnoreCase))
-                    return true;
-
-                return false;
-            });
-        if (targetSymbolInvalidConstructorCount > 0)
-        {
-            diagnostics = diagnostics.Add(
-                Diagnostic.Create(
-                    DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter,
-                    location,
-                    targetSymbol.ToDisplayString(),
-                    targetSymbolInvalidConstructorCount));
         }
     }
 

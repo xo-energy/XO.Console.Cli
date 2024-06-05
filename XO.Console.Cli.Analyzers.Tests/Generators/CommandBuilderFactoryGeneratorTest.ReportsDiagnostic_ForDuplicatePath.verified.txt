@@ -1,0 +1,12 @@
+﻿[
+  {
+    Id: XOCLI221,
+    Title: Duplicate path will be ignored,
+    Severity: Warning,
+    WarningLevel: 1,
+    Location: : (12,22)-(12,47),
+    MessageFormat: CommandBranchAttribute target '{0}' has the same path '{1}' as '{2}',
+    Message: CommandBranchAttribute target 'Test.DuplicateCommandAttribute' has the same path 'group' as 'Test.GroupCommandAttribute',
+    Category: XOCLI
+  }
+]

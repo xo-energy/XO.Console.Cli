@@ -53,7 +53,7 @@ internal static class DiagnosticDescriptors
         = new DiagnosticDescriptor(
             "XOCLI211",
             "Custom CommandAttributes must have a public constructor",
-            "Custom CommandAttribute '{0}' has 0 public constructors",
+            "Custom CommandAttribute '{0}' must have a public constructor",
             "XOCLI",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
@@ -62,7 +62,7 @@ internal static class DiagnosticDescriptors
         = new DiagnosticDescriptor(
             "XOCLI212",
             "Custom CommandAttribute constructors must have a first parameter 'string verb'",
-            "Custom CommandAttribute '{0}' has {1} invalid constructor(s)",
+            "Custom CommandAttribute constructor '{0}' must have a first parameter 'string verb'",
             "XOCLI",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);

@@ -34,7 +34,7 @@ public sealed partial class CommandBuilderFactoryGenerator : IIncrementalGenerat
             static (context, command) =>
             {
                 foreach (var diagnostic in command.Diagnostics)
-                    context.ReportDiagnostic(diagnostic);
+                    context.ReportDiagnostic(diagnostic.CreateDiagnostic());
             });
         context.RegisterSourceOutput(
             commandBranchAttributes,
@@ -43,7 +43,7 @@ public sealed partial class CommandBuilderFactoryGenerator : IIncrementalGenerat
                 foreach (var command in commands)
                 {
                     foreach (var diagnostic in command.Diagnostics)
-                        context.ReportDiagnostic(diagnostic);
+                        context.ReportDiagnostic(diagnostic.CreateDiagnostic());
                 }
             });
 

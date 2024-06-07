@@ -20,7 +20,7 @@ public sealed partial class CommandBuilderFactoryGenerator
             static (context, cancellationToken) =>
             {
                 var attribute = context.Attributes[0];
-                var diagnostics = ImmutableList<Diagnostic>.Empty;
+                var diagnostics = ImmutableList<DiagnosticInfo>.Empty;
                 var targetNode = (ClassDeclarationSyntax)context.TargetNode;
                 var targetNodeIdentifierLocation = targetNode.Identifier.GetLocation();
                 var targetSymbol = (INamedTypeSymbol)context.TargetSymbol;
@@ -37,7 +37,7 @@ public sealed partial class CommandBuilderFactoryGenerator
                 if (baseType is null)
                 {
                     diagnostics = diagnostics.Add(
-                        Diagnostic.Create(
+                        new(
                             DiagnosticDescriptors.CommandBranchAttributeMustBeAppliedToCommandAttribute,
                             targetNodeIdentifierLocation,
                             targetSymbol.ToDisplayString()));
@@ -133,7 +133,7 @@ public sealed partial class CommandBuilderFactoryGenerator
             });
     }
 
-    private static void CheckCommandAttributeConstructors(ref ImmutableList<Diagnostic> diagnostics, INamedTypeSymbol targetSymbol, ClassDeclarationSyntax targetNode)
+    private static void CheckCommandAttributeConstructors(ref ImmutableList<DiagnosticInfo> diagnostics, INamedTypeSymbol targetSymbol, ClassDeclarationSyntax targetNode)
     {
         var targetSymbolIdentifierLocation = targetNode.Identifier.GetLocation();
         var targetSymbolPublicConstructorsCount = 0;
@@ -154,7 +154,7 @@ public sealed partial class CommandBuilderFactoryGenerator
                     location = constructorNode.Identifier.GetLocation();
 
                 diagnostics = diagnostics.Add(
-                    Diagnostic.Create(
+                    new(
                         DiagnosticDescriptors.CommandAttributeConstructorsMustHaveVerbParameter,
                         location,
                         constructor.ToDisplayString()));
@@ -166,7 +166,7 @@ public sealed partial class CommandBuilderFactoryGenerator
         if (targetSymbolPublicConstructorsCount == 0)
         {
             diagnostics = diagnostics.Add(
-                Diagnostic.Create(
+                new(
                     DiagnosticDescriptors.CommandAttributeMustHavePublicConstructor,
                     targetSymbolIdentifierLocation,
                     targetSymbol.ToDisplayString()));
@@ -179,7 +179,7 @@ public sealed partial class CommandBuilderFactoryGenerator
         string parametersType)
     {
         var declIdentifierLocation = decl.Identifier.GetLocation();
-        var diagnosticsBuilder = ImmutableList.CreateBuilder<Diagnostic>();
+        var diagnosticsBuilder = ImmutableList.CreateBuilder<DiagnosticInfo>();
 
         CommandAttributeData? attributeData = null;
 
@@ -194,7 +194,7 @@ public sealed partial class CommandBuilderFactoryGenerator
             if (attributeData is not null)
             {
                 diagnosticsBuilder.Add(
-                    Diagnostic.Create(
+                    new(
                         DiagnosticDescriptors.CommandMayNotHaveMultipleCommandAttributes,
                         declIdentifierLocation,
                         declSymbol.ToSourceString()));

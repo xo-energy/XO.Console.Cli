@@ -41,7 +41,7 @@ public sealed partial class CommandBuilderFactoryGenerator
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DiagnosticDescriptors.DuplicatePathWillBeIgnored,
-                            candidate.Location,
+                            candidate.LocationInfo?.ToLocation(),
                             candidate.FullName,
                             String.Join(" ", candidate.Path),
                             currentCommand.FullName));
@@ -51,7 +51,7 @@ public sealed partial class CommandBuilderFactoryGenerator
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DiagnosticDescriptors.DuplicateVerbWillBeIgnored,
-                            candidate.Location,
+                            candidate.LocationInfo?.ToLocation(),
                             candidate.FullName,
                             candidate.Verb,
                             currentCommand.FullName));

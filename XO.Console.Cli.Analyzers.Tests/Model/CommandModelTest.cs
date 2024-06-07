@@ -35,7 +35,7 @@ public sealed class CommandModelTest
     {
         var model1 = new CommandModel(CommandModelKind.Command, "get", Location.None, []);
         var model2 = new CommandModel(CommandModelKind.Command, "get", Location.None, [
-            Diagnostic.Create(DiagnosticDescriptors.CommandMayNotHaveMultipleCommandAttributes, Location.None),
+            new(DiagnosticDescriptors.CommandMayNotHaveMultipleCommandAttributes, Location.None),
         ]);
 
         Assert.Equal(model1.GetHashCode(), model2.GetHashCode());

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
 
 namespace XO.Console.Cli.Model;
 
@@ -12,8 +11,8 @@ internal enum CommandModelKind
 internal sealed record CommandModel(
     CommandModelKind Kind,
     string FullName,
-    Location Location,
-    ImmutableList<Diagnostic> Diagnostics,
+    LocationInfo? LocationInfo,
+    ImmutableList<DiagnosticInfo> Diagnostics,
     ImmutableArray<string> Path = default,
     ImmutableArray<string> Aliases = default,
     string? Description = null,
@@ -23,8 +22,8 @@ internal sealed record CommandModel(
     public static CommandModel FromAttributeData(
         CommandModelKind kind,
         string fullName,
-        Location location,
-        ImmutableList<Diagnostic> diagnostics,
+        LocationInfo? location,
+        ImmutableList<DiagnosticInfo> diagnostics,
         CommandAttributeData? attributeData,
         string? parametersType = null)
     {
@@ -48,7 +47,7 @@ internal sealed record CommandModel(
         return other != null
             && this.Kind == other.Kind
             && this.FullName == other.FullName
-            && this.Location == other.Location
+            && this.LocationInfo == other.LocationInfo
             && Enumerable.SequenceEqual(this.Diagnostics, other.Diagnostics)
             && ImmutableArrayEqualityComparer.Equals(this.Path, other.Path)
             && ImmutableArrayEqualityComparer.Equals(this.Aliases, other.Aliases)

@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using XO.Console.Cli.Implementation;
 using XO.Console.Cli.Infrastructure;
 using XO.Console.Cli.Middleware;
@@ -19,7 +18,6 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     private readonly ImmutableDictionary<Type, ParameterValueConverter>.Builder _converters;
     private readonly ImmutableList<CommandOption>.Builder _globalOptions;
     private readonly List<Func<ExecutorDelegate, ExecutorDelegate>> _middleware;
-    private readonly Assembly? _entryAssembly;
 
     private string? _applicationName;
     private string? _applicationVersion;
@@ -47,7 +45,6 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
         _converters = ImmutableDictionary.CreateBuilder<Type, ParameterValueConverter>();
         _globalOptions = ImmutableList.CreateBuilder<CommandOption>();
         _middleware = new List<Func<ExecutorDelegate, ExecutorDelegate>>(0);
-        _entryAssembly = Assembly.GetEntryAssembly();
 
         // set default values of configurable settings
         foreach (var converter in CommandAppDefaults.Converters)
@@ -57,9 +54,9 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
         _resolver = DefaultTypeResolver.Instance;
 
         // set default root command description from assembly description, if present
-        var descriptionAttribute = _entryAssembly?.GetCustomAttribute<AssemblyDescriptionAttribute>();
-        if (descriptionAttribute != null)
-            _commandBuilder.SetDescription(descriptionAttribute.Description);
+        var descriptionAttributeValue = TypeRegistry.EntryAssemblyDescription;
+        if (descriptionAttributeValue != null)
+            _commandBuilder.SetDescription(descriptionAttributeValue);
 
         // call generated configuration methods
         TypeRegistry.AddCommandAttributeCommands(_commandBuilder);
@@ -318,7 +315,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
 
     private string GetDefaultApplicationName()
     {
-        var name = _entryAssembly?.GetName().Name;
+        var name = TypeRegistry.EntryAssemblyName;
 
         if (name == null && Environment.ProcessPath != null)
             name = Path.GetFileName(Environment.ProcessPath);
@@ -329,12 +326,6 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
     private string GetDefaultApplicationVersion()
     {
         // try to use the informational version attribute on the assembly
-        var attr = _entryAssembly?.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-        if (attr != null)
-            return attr.InformationalVersion;
-
-        // if that doesn't work, use the assembly version
-        return _entryAssembly?.GetName().Version?.ToString()
-            ?? String.Empty;
+        return TypeRegistry.EntryAssemblyVersion ?? String.Empty;
     }
 }

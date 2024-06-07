@@ -15,6 +15,21 @@ public static class TypeRegistry
     private static readonly List<ICommandParametersFactory> _commandParametersFactories = new() { BuiltinCommandParametersFactory.Instance };
 
     /// <summary>
+    /// Gets the name of the entry assembly (detected via source generation).
+    /// </summary>
+    public static string? EntryAssemblyName { get; private set; }
+
+    /// <summary>
+    /// Gets the description of the entry assembly (detected via source generation).
+    /// </summary>
+    public static string? EntryAssemblyDescription { get; private set; }
+
+    /// <summary>
+    /// Gets the version of the entry assembly (detected via source generation).
+    /// </summary>
+    public static string? EntryAssemblyVersion { get; private set; }
+
+    /// <summary>
     /// Adds commands configured using <see cref="CommandAttribute"/> to the application.
     /// </summary>
     /// <param name="builder">The application's root<see cref="CommandBuilder"/>.</param>
@@ -81,5 +96,15 @@ public static class TypeRegistry
     public static void RegisterCommandParametersFactory(ICommandParametersFactory factory)
     {
         _commandParametersFactories.Add(factory);
+    }
+
+    /// <summary>
+    /// Sets the entry assembly properties.
+    /// </summary>
+    public static void SetEntryAssemblyProperties(string? assemblyName, string? assemblyDescription, string? assemblyVersion)
+    {
+        EntryAssemblyName = assemblyName;
+        EntryAssemblyDescription = assemblyDescription;
+        EntryAssemblyVersion = assemblyVersion;
     }
 }

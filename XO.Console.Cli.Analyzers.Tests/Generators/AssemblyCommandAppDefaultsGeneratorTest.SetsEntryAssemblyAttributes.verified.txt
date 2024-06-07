@@ -1,0 +1,10 @@
+﻿Test 1.2.3-beta.3
+
+A test assembly
+
+USAGE
+  Test
+
+OPTIONS
+  -h, --help       Shows this help
+      --version    Shows the application version

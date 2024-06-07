@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using XO.Console.Cli.Infrastructure;
 
 namespace XO.Console.Cli.Model;
 
@@ -8,7 +7,7 @@ internal sealed class CommandAppSettings
     public CommandAppSettings(
         string applicationName,
         string applicationVersion,
-        ImmutableDictionary<Type, ParameterValueConverter> converters,
+        ImmutableDictionary<Type, Delegate> converters,
         ImmutableList<CommandOption> globalOptions)
     {
         this.ApplicationName = applicationName;
@@ -21,7 +20,7 @@ internal sealed class CommandAppSettings
 
     public string ApplicationVersion { get; }
 
-    public ImmutableDictionary<Type, ParameterValueConverter> Converters { get; }
+    public ImmutableDictionary<Type, Delegate> Converters { get; }
 
     public ImmutableList<CommandOption> GlobalOptions { get; }
 

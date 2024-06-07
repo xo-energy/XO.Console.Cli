@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using XO.Console.Cli.Infrastructure;
 
 namespace XO.Console.Cli;
@@ -10,9 +11,8 @@ public static class CommandAppDefaults
     /// <summary>
     /// Gets the collection of default parameter value converters.
     /// </summary>
-    public static readonly IReadOnlyList<ParameterValueConverter> Converters
-        = new ParameterValueConverter[]
-        {
+    public static readonly ImmutableDictionary<Type, Delegate> Converters
+        = ImmutableDictionary.CreateRange([
             ParameterValueConverter.FromDelegate(static (value) => DateOnly.Parse(value)),
             ParameterValueConverter.FromDelegate(static (value) => DateTimeOffset.Parse(value)),
             ParameterValueConverter.FromDelegate(static (value) => new DirectoryInfo(value)),
@@ -21,7 +21,7 @@ public static class CommandAppDefaults
             ParameterValueConverter.FromDelegate(static (value) => TimeOnly.Parse(value)),
             ParameterValueConverter.FromDelegate(static (value) => TimeSpan.Parse(value)),
             ParameterValueConverter.FromDelegate(static (value) => new Uri(value)),
-        };
+        ]);
 
     /// <summary>
     /// Gets the default option style, which determines the required leading character(s) in options names.

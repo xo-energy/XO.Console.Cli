@@ -4,50 +4,19 @@ namespace XO.Console.Cli.Infrastructure;
 /// Defines a conversion of string parameter values to a specific type.
 /// </summary>
 /// <typeparam name="TValue">The type of value this converter produces.</typeparam>
-public sealed class ParameterValueConverter<TValue> : ParameterValueConverter
-{
-    private readonly Func<string, TValue> _converter;
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="ParameterValueConverter{TValue}"/>.
-    /// </summary>
-    /// <param name="converter">A delegate that implements the conversion.</param>
-    public ParameterValueConverter(Func<string, TValue> converter)
-    {
-        _converter = converter;
-    }
-
-    /// <summary>
-    /// Gets the delegate that implements the conversion.
-    /// </summary>
-    public Func<string, TValue> Convert
-        => _converter;
-
-    /// <inheritdoc/>
-    public override Type ValueType
-        => typeof(TValue);
-}
+/// <param name="input">The string value to convert.</param>
+public delegate TValue ParameterValueConverter<TValue>(string input);
 
 /// <summary>
-/// Defines a conversion of string parameter values to a specific type.
+/// Defines utility methods for parsing command parameter values.
 /// </summary>
-/// <remarks>
-/// This abstract base type serves as both a non-generic base type for collections of <see
-/// cref="ParameterValueConverter{TValue}"/> and a place to define static methods used by source-generated
-/// implementations of <see cref="ICommandParametersFactory"/>.
-/// </remarks>
-public abstract class ParameterValueConverter
+public static class ParameterValueConverter
 {
-    /// <summary>
-    /// Gets the type of value this converter produces.
-    /// </summary>
-    public abstract Type ValueType { get; }
-
-    /// <inheritdoc cref="ConvertArray{TValue}(IEnumerable{string}, IReadOnlyDictionary{Type, ParameterValueConverter}, Func{string, TValue}, int)"/>
+    /// <inheritdoc cref="ConvertArray{TValue}(IEnumerable{string}, IReadOnlyDictionary{Type, Delegate}, ParameterValueConverter{TValue}, int)"/>
     public static TValue[] ConvertArray<TValue>(
         IEnumerable<string> values,
-        IReadOnlyDictionary<Type, ParameterValueConverter> converters,
-        Func<string, TValue> defaultConverter)
+        IReadOnlyDictionary<Type, Delegate> converters,
+        ParameterValueConverter<TValue> defaultConverter)
     {
         if (values.TryGetNonEnumeratedCount(out var count))
             return ConvertArray<TValue>(values, converters, defaultConverter, count);
@@ -57,7 +26,7 @@ public abstract class ParameterValueConverter
 
         // support runtime-configured converters
         if (converters.TryGetValue(typeof(TValue), out var abstractConverter))
-            converter = ((ParameterValueConverter<TValue>)abstractConverter).Convert;
+            converter = (ParameterValueConverter<TValue>)abstractConverter;
 
         foreach (var value in values)
         {
@@ -78,8 +47,8 @@ public abstract class ParameterValueConverter
     /// <returns>An array of <typeparamref name="TValue"/> with length equal to the number of elements in <paramref name="values"/>.</returns>
     public static TValue[] ConvertArray<TValue>(
         IEnumerable<string> values,
-        IReadOnlyDictionary<Type, ParameterValueConverter> converters,
-        Func<string, TValue> defaultConverter,
+        IReadOnlyDictionary<Type, Delegate> converters,
+        ParameterValueConverter<TValue> defaultConverter,
         int count)
     {
         int i = 0;
@@ -88,7 +57,7 @@ public abstract class ParameterValueConverter
 
         // support runtime-configured converters
         if (converters.TryGetValue(typeof(TValue), out var abstractConverter))
-            converter = ((ParameterValueConverter<TValue>)abstractConverter).Convert;
+            converter = (ParameterValueConverter<TValue>)abstractConverter;
 
         foreach (var value in values)
         {
@@ -110,8 +79,8 @@ public abstract class ParameterValueConverter
     /// <exception cref="ArgumentException"><paramref name="values"/> contains more than one element</exception>
     public static TValue ConvertSingle<TValue>(
         IEnumerable<string> values,
-        IReadOnlyDictionary<Type, ParameterValueConverter> converters,
-        Func<string, TValue> defaultConverter)
+        IReadOnlyDictionary<Type, Delegate> converters,
+        ParameterValueConverter<TValue> defaultConverter)
     {
         using var enumerator = values.GetEnumerator();
 
@@ -123,7 +92,7 @@ public abstract class ParameterValueConverter
 
         // support runtime-configured converters
         if (converters.TryGetValue(typeof(TValue), out var abstractConverter))
-            converter = ((ParameterValueConverter<TValue>)abstractConverter).Convert;
+            converter = (ParameterValueConverter<TValue>)abstractConverter;
 
         if (enumerator.MoveNext())
             throw new ArgumentException("Parameter does not support multiple values", nameof(values));
@@ -137,8 +106,8 @@ public abstract class ParameterValueConverter
     /// <typeparam name="TValue">The type of value the converter will produce.</typeparam>
     /// <param name="converter">A delegate that implements the conversion.</param>
     /// <returns>A new instance of <see cref="ParameterValueConverter{TValue}"/>.</returns>
-    public static ParameterValueConverter<TValue> FromDelegate<TValue>(Func<string, TValue> converter)
-        => new(converter);
+    public static KeyValuePair<Type, Delegate> FromDelegate<TValue>(ParameterValueConverter<TValue> converter)
+        => new(typeof(TValue), converter);
 
     /// <summary>
     /// Converts a string to a single character.

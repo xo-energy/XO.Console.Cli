@@ -1,5 +1,3 @@
-using XO.Console.Cli.Infrastructure;
-
 namespace XO.Console.Cli.Model;
 
 /// <summary>
@@ -11,7 +9,7 @@ namespace XO.Console.Cli.Model;
 public delegate void CommandParameterSetter(
     CommandContext context,
     IEnumerable<string> values,
-    IReadOnlyDictionary<Type, ParameterValueConverter> converters);
+    IReadOnlyDictionary<Type, Delegate> converters);
 
 /// <summary>
 /// Represents an argument or option to a command-line command.

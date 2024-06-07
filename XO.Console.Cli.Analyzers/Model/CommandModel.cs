@@ -48,7 +48,7 @@ internal sealed record CommandModel(
             && this.Kind == other.Kind
             && this.FullName == other.FullName
             && this.LocationInfo == other.LocationInfo
-            && Enumerable.SequenceEqual(this.Diagnostics, other.Diagnostics)
+            && ImmutableArrayEqualityComparer.Equals(this.Diagnostics, other.Diagnostics)
             && ImmutableArrayEqualityComparer.Equals(this.Path, other.Path)
             && ImmutableArrayEqualityComparer.Equals(this.Aliases, other.Aliases)
             && this.Description == other.Description

@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace XO.Console.Cli.Model;
 
@@ -32,7 +27,7 @@ public sealed class ParametersTypeModelTest
         public static readonly ParametersTypeModel Empty
             = new ParametersTypeModel(
                 "name",
-                ImmutableArray<CommandArgumentModel>.Empty,
-                ImmutableArray<CommandOptionModel>.Empty);
+                ImmutableList<CommandArgumentModel>.Empty,
+                ImmutableList<CommandOptionModel>.Empty);
     }
 }

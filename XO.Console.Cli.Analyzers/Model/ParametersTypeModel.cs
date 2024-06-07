@@ -4,8 +4,8 @@ namespace XO.Console.Cli.Model;
 
 public sealed record ParametersTypeModel(
     string Name,
-    ImmutableArray<CommandArgumentModel> Arguments,
-    ImmutableArray<CommandOptionModel> Options)
+    ImmutableList<CommandArgumentModel> Arguments,
+    ImmutableList<CommandOptionModel> Options)
 {
     public bool Equals(ParametersTypeModel? other)
     {

@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using XO.Console.Cli.Implementation;
 using XO.Console.Cli.Model;
 
@@ -14,7 +13,6 @@ public static class TypeRegistry
 {
     private static readonly List<ICommandBuilderFactory> _commandBuilderFactories = new();
     private static readonly List<ICommandParametersFactory> _commandParametersFactories = new() { BuiltinCommandParametersFactory.Instance };
-    private static readonly ConcurrentDictionary<Type, CommandParametersInfo> _commandParametersInfoCache = new();
 
     /// <summary>
     /// Adds commands configured using <see cref="CommandAttribute"/> to the application.
@@ -56,20 +54,15 @@ public static class TypeRegistry
     /// <exception cref="CommandTypeException">No registered <see cref="ICommandParametersFactory"/> supports the specified type.</exception>
     public static CommandParametersInfo DescribeParameters(Type parametersType)
     {
-        return _commandParametersInfoCache.GetOrAdd(
-            parametersType,
-            static parametersType =>
-            {
-                foreach (var factory in _commandParametersFactories)
-                {
-                    if (factory.DescribeParameters(parametersType) is { } parameters)
-                        return parameters;
-                }
+        foreach (var factory in _commandParametersFactories)
+        {
+            if (factory.DescribeParameters(parametersType) is { } parameters)
+                return parameters;
+        }
 
-                throw new CommandTypeException(
-                    parametersType,
-                    $"No {nameof(ICommandParametersFactory)} registered for {parametersType}");
-            });
+        throw new CommandTypeException(
+            parametersType,
+            $"No {nameof(ICommandParametersFactory)} registered for {parametersType}");
     }
 
     /// <summary>

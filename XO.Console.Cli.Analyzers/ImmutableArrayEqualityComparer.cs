@@ -7,6 +7,26 @@ internal static class ImmutableArrayEqualityComparer
     public static bool Equals<T>(ImmutableArray<T> x, ImmutableArray<T> y)
         => ImmutableArrayEqualityComparer<T>.Default.Equals(x, y);
 
+    public static bool Equals<T>(ImmutableList<T> x, ImmutableList<T> y)
+    {
+        if (Object.Equals(x, y))
+            return true;
+
+        if (x == null || y == null)
+            return false;
+
+        if (x.Count != y.Count)
+            return false;
+
+        for (int i = 0; i < x.Count; i++)
+        {
+            if (!EqualityComparer<T>.Default.Equals(x[i], y[i]))
+                return false;
+        }
+
+        return true;
+    }
+
     public static int GetHashCode<T>(ImmutableArray<T> array)
         => ImmutableArrayEqualityComparer<T>.Default.GetHashCode(array);
 

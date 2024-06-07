@@ -11,8 +11,6 @@ namespace XO.Console.Cli.Generators;
 [Generator(LanguageNames.CSharp)]
 public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
 {
-    private static readonly ThreadLocal<Stack<INamedTypeSymbol>> ThreadLocalSymbolStack = new();
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var parametersDeclarations = InitializeParametersDeclarationProvider(context);
@@ -36,19 +34,14 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
     private static IncrementalValuesProvider<ParametersTypeModel> InitializeParametersDeclarationProvider(
         IncrementalGeneratorInitializationContext context)
     {
-        var parametersDeclarationSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
+        var parametersDeclarations = context.SyntaxProvider.CreateSyntaxProvider(
             static (node, _) => node is ClassDeclarationSyntax decl && decl.BaseList?.Types.Count > 0,
-            static (context, _) => (ClassDeclarationSyntax)context.Node);
-
-        var parametersDeclarations = parametersDeclarationSyntaxProvider.Combine(context.CompilationProvider)
-            .Select(static (x, cancellationToken) =>
+            static (context, cancellationToken) =>
             {
-                var (decl, compilation) = x;
-
-                var semanticModel = compilation.GetSemanticModel(decl.SyntaxTree);
+                var decl = (ClassDeclarationSyntax)context.Node;
 
                 // get the declared type
-                if (semanticModel.GetDeclaredSymbol(decl, cancellationToken) is not INamedTypeSymbol declType)
+                if (context.SemanticModel.GetDeclaredSymbol(decl, cancellationToken) is not INamedTypeSymbol declType)
                     return null;
 
                 // we only need to emit binders for types that can be instantiated
@@ -56,30 +49,26 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
                     return null;
 
                 INamedTypeSymbol? currentType = null;
-                Stack<INamedTypeSymbol> typesToBind;
-                typesToBind = ThreadLocalSymbolStack.Value ??= new();
-                typesToBind.Clear();
+                var typesToBind = ImmutableStack<INamedTypeSymbol>.Empty;
 
                 for (currentType = declType; currentType is not null; currentType = currentType.BaseType)
                 {
                     if (currentType.EqualsSourceString("XO.Console.Cli.CommandParameters"))
                         break;
 
-                    typesToBind.Push(currentType);
+                    typesToBind = typesToBind.Push(currentType);
                 }
 
                 // we only care about types that inherit from CommandParameters
                 if (currentType is null)
                     return null;
 
-                var arguments = ImmutableList<CommandArgumentModel>.Empty;
-                var options = ImmutableList<CommandOptionModel>.Empty;
+                var arguments = ImmutableList.CreateBuilder<CommandArgumentModel>();
+                var options = ImmutableList.CreateBuilder<CommandOptionModel>();
 
-                while (typesToBind.Count > 0)
+                while (!typesToBind.IsEmpty)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var type = typesToBind.Pop();
+                    typesToBind = typesToBind.Pop(out var type);
 
                     foreach (var member in type.GetMembers())
                     {
@@ -95,22 +84,19 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
                             {
                                 case "XO.Console.Cli.CommandArgumentAttribute"
                                 when GetCommandArgumentAttributeData(property, attribute) is { } argument:
-                                    arguments = arguments.Add(argument);
+                                    arguments.Add(argument);
                                     break;
 
                                 case "XO.Console.Cli.CommandOptionAttribute"
                                 when GetCommandOptionAttributeData(property, attribute) is { } option:
-                                    options = options.Add(option);
+                                    options.Add(option);
                                     break;
                             }
                         }
                     }
                 }
 
-                return new ParametersTypeModel(
-                    declType.ToSourceString(),
-                    arguments.ToImmutableArray(),
-                    options.ToImmutableArray());
+                return new ParametersTypeModel(declType.ToSourceString(), arguments.ToImmutable(), options.ToImmutable());
             });
 
 #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
@@ -264,7 +250,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
     {
         var arguments = parametersModel.Arguments;
 
-        if (arguments.Length == 0)
+        if (arguments.Count == 0)
         {
             source.AppendLine(
             $$"""
@@ -279,7 +265,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
             """);
         }
 
-        for (int i = 0; i < arguments.Length; i++)
+        for (int i = 0; i < arguments.Count; i++)
         {
             var model = arguments[i];
             source.AppendLine(
@@ -293,7 +279,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
                                     Order = {{LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(model.Order))}},
                                     IsGreedy = {{LiteralExpression(model.IsGreedy ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)}},
                                     IsOptional = {{LiteralExpression(model.IsOptional ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)}},
-                                }{{(i + 1 < arguments.Length ? "," : "),")}}
+                                }{{(i + 1 < arguments.Count ? "," : "),")}}
             """);
         }
     }
@@ -302,7 +288,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
     {
         var options = parametersModel.Options;
 
-        if (options.Length == 0)
+        if (options.Count == 0)
         {
             source.AppendLine(
             $$"""
@@ -317,7 +303,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
             """);
         }
 
-        for (int i = 0; i < options.Length; i++)
+        for (int i = 0; i < options.Count; i++)
         {
             var model = options[i];
             var aliasLiteralParams = String.Join(", ", from alias in model.Aliases select LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(alias)));
@@ -332,7 +318,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
                                     Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>({{aliasLiteralParams}}),
                                     IsFlag = {{LiteralExpression(model.IsFlag ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)}},
                                     IsHidden = {{LiteralExpression(model.IsHidden ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)}},
-                                }{{(i + 1 < options.Length ? "," : "));")}}
+                                }{{(i + 1 < options.Count ? "," : "));")}}
             """);
         }
     }

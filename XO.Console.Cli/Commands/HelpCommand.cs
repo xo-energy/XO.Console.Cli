@@ -104,7 +104,7 @@ internal sealed class HelpCommand : AsyncCommand
         var optionsLength = GetBuiltinOptions(command).Max(x => x.Name.Length);
         foreach (var option in Enumerable.Concat(options, _app.Settings.GlobalOptions))
         {
-            var length = GetMaxLength(option.GetNames());
+            var length = GetMaxLength(option);
             if (optionsLength < length)
                 optionsLength = length;
         }
@@ -180,8 +180,18 @@ internal sealed class HelpCommand : AsyncCommand
         return builder.ToImmutable();
     }
 
-    private static int GetMaxLength(IEnumerable<string> values)
-        => values.Select(x => x.Length).DefaultIfEmpty().Max();
+    private static int GetMaxLength(CommandOption option)
+    {
+        var max = option.Name.Length;
+
+        foreach (var alias in option.Aliases)
+        {
+            if (max < alias.Length)
+                max = alias.Length;
+        }
+
+        return max;
+    }
 
     private async Task WriteOptionsAsync(ICommandContext context, int length, IEnumerable<CommandOption> options)
     {

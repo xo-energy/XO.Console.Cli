@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using XO.Console.Cli.Infrastructure;
 
 namespace XO.Console.Cli.Model;
@@ -8,8 +9,9 @@ namespace XO.Console.Cli.Model;
 internal sealed class CommandParserState
 {
     private readonly CommandAppSettings _settings;
+    private readonly Regex _optionValidationPattern;
 
-    public CommandParserState(int count, IImmutableList<ConfiguredCommand> commands, CommandAppSettings settings)
+    public CommandParserState(int count, ImmutableList<ConfiguredCommand> commands, CommandAppSettings settings)
     {
         this.Commands = commands;
         this.Arguments = new();
@@ -19,9 +21,10 @@ internal sealed class CommandParserState
         this.Errors = ImmutableList.CreateBuilder<string>();
 
         _settings = settings;
+        _optionValidationPattern = settings.OptionStyle.GetNameValidationPattern();
     }
 
-    public IImmutableList<ConfiguredCommand> Commands { get; set; }
+    public ImmutableList<ConfiguredCommand> Commands { get; set; }
     public Queue<CommandArgument> Arguments { get; }
     public Dictionary<string, CommandOption> Options { get; }
     public HashSet<CommandParameter> ParametersSeen { get; }
@@ -29,35 +32,41 @@ internal sealed class CommandParserState
     public ImmutableList<string>.Builder Errors { get; }
     public bool ExplicitArguments { get; set; }
 
-    public void AddArguments(IEnumerable<CommandArgument> arguments)
+    public void AddOption(Type parametersType, CommandOption option)
+    {
+        if (!this.ParametersSeen.Add(option))
+            return;
+
+        ValidateOptionName(parametersType, option.Name);
+        this.Options.Add(option.Name, option);
+
+        foreach (var alias in option.Aliases)
+        {
+            ValidateOptionName(parametersType, alias);
+            this.Options.Add(alias, option);
+        }
+    }
+
+    public void AddParameters(ConfiguredCommand configuredCommand)
     {
         Debug.Assert(this.Arguments.Count == 0);
 
-        foreach (var argument in arguments)
+        var parametersInfo = TypeRegistry.DescribeParameters(configuredCommand.ParametersType);
+
+        CommandArgument? previous = null;
+        foreach (var argument in parametersInfo.Arguments)
         {
             if (!this.ParametersSeen.Add(argument))
                 continue;
 
+            ValidateArgument(configuredCommand, argument, previous);
             this.Arguments.Enqueue(argument);
+
+            previous = argument;
         }
-    }
 
-    public void AddOptions(IEnumerable<CommandOption> options)
-    {
-        foreach (var option in options)
-        {
-            if (!this.ParametersSeen.Add(option))
-                continue;
-
-            foreach (var name in option.GetNames())
-                this.Options.Add(name, option);
-        }
-    }
-
-    public void AddParameters(CommandParametersInfo parametersInfo)
-    {
-        AddArguments(parametersInfo.Arguments);
-        AddOptions(parametersInfo.Options);
+        foreach (var option in parametersInfo.Options)
+            AddOption(configuredCommand.ParametersType, option);
     }
 
     public bool TryGetOption(string[] parts, [NotNullWhen(true)] out CommandOption? option, out string? value)
@@ -97,5 +106,44 @@ internal sealed class CommandParserState
         }
 
         return !optionGroup.IsEmpty;
+    }
+
+    private void ValidateArgument(ConfiguredCommand configuredCommand, CommandArgument argument, CommandArgument? previous)
+    {
+        if (previous?.IsGreedy == true)
+        {
+            throw new CommandTypeException(
+                configuredCommand.ParametersType,
+                $"Argument '{previous}' is greedy, but there are other arguments after it");
+        }
+
+        if (previous?.IsOptional == true && !argument.IsOptional)
+        {
+            throw new CommandTypeException(
+                configuredCommand.ParametersType,
+                $"Argument '{argument}' is required, but the previous argument was optional");
+        }
+
+        if (argument.IsGreedy && configuredCommand.Commands.Count > 0)
+        {
+            throw new CommandTypeException(
+                configuredCommand.ParametersType,
+                $"Command '{configuredCommand.Verb}' has subcommands, but its argument '{argument.Name}' is greedy");
+        }
+
+        if (argument.IsOptional && configuredCommand.Commands.Count > 0)
+        {
+            throw new CommandTypeException(
+                configuredCommand.ParametersType,
+                $"Command '{configuredCommand.Verb}' has subcommands, but its argument '{argument.Name}' is optional");
+        }
+    }
+
+    private void ValidateOptionName(Type parametersType, string name)
+    {
+        if (!_optionValidationPattern.IsMatch(name))
+            throw new CommandTypeException(parametersType, $"Option name '{name}' is invalid");
+        if (this.Options.ContainsKey(name))
+            throw new CommandTypeException(parametersType, $"Duplicate option name '{name}'");
     }
 }

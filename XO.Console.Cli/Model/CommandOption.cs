@@ -34,15 +34,4 @@ public sealed class CommandOption : CommandParameter, ICommandOptionAttributeDat
 
     /// <inheritdoc/>
     public bool IsHidden { get; init; }
-
-    /// <summary>
-    /// Enumerates the names of this option, including the primary name and any aliases.
-    /// </summary>
-    public IEnumerable<string> GetNames()
-    {
-        yield return this.Name;
-
-        foreach (var alias in this.Aliases)
-            yield return alias;
-    }
 }

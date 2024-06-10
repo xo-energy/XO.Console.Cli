@@ -48,9 +48,12 @@ internal sealed class CommandApp : ICommandApp
 
         var state = new CommandParserState(args.Count, _rootCommand.Commands, _settings);
 
-        state.AddOptions(_builtinOptions);
-        state.AddOptions(_settings.GlobalOptions);
-        state.AddParameters(TypeRegistry.DescribeParameters(_rootCommand.ParametersType));
+        foreach (var option in _builtinOptions)
+            state.AddOption(typeof(Builtins.Options), option);
+        foreach (var option in _settings.GlobalOptions)
+            state.AddOption(typeof(CommandAppSettings), option);
+
+        state.AddParameters(_rootCommand);
 
         // parse args
         for (int i = 0; i < args.Count; ++i)
@@ -119,10 +122,9 @@ internal sealed class CommandApp : ICommandApp
                 state.Commands = next.Commands;
 
                 // do not accept the '--version' builtin option for subcommands
-                foreach (var name in _builtinOptions.Version.GetNames())
-                    state.Options.Remove(name);
+                state.Options.Remove(_builtinOptions.Version.Name);
 
-                state.AddParameters(TypeRegistry.DescribeParameters(next.ParametersType));
+                state.AddParameters(next);
             }
             else
             {

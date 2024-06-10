@@ -96,6 +96,9 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
                     }
                 }
 
+                // arguments are ordered!
+                arguments.Sort((x, y) => x.Order.CompareTo(y.Order));
+
                 return new ParametersTypeModel(declType.ToSourceString(), arguments.ToImmutable(), options.ToImmutable());
             });
 

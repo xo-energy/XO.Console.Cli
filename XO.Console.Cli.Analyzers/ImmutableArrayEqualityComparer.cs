@@ -7,7 +7,7 @@ internal static class ImmutableArrayEqualityComparer
     public static bool Equals<T>(ImmutableArray<T> x, ImmutableArray<T> y)
         => ImmutableArrayEqualityComparer<T>.Default.Equals(x, y);
 
-    public static bool Equals<T>(ImmutableList<T> x, ImmutableList<T> y)
+    public static bool Equals<T>(ImmutableList<T>? x, ImmutableList<T>? y)
     {
         if (Object.Equals(x, y))
             return true;
@@ -32,6 +32,9 @@ internal static class ImmutableArrayEqualityComparer
 
     public static int GetMatchLength<T>(ImmutableArray<T> x, ImmutableArray<T> y)
     {
+        if (x.IsDefault || y.IsDefault)
+            return 0;
+
         var length = 0;
 
         for (int i = 0; i < x.Length && i < y.Length; i++)

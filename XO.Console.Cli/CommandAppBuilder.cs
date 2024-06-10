@@ -176,6 +176,7 @@ public sealed class CommandAppBuilder : ICommandAppBuilder
         params string[] aliases)
     {
         var option = new CommandOption(
+            $"global::{name}",
             name,
             (context, values, _) => context.SetGlobalOption(name, values.ToImmutableArray()),
             typeof(string),

@@ -266,7 +266,7 @@ internal sealed class CommandApp : ICommandApp
         return await _pipeline(context, cancellationToken).ConfigureAwait(false);
     }
 
-    private static IEnumerable<(CommandParameter Parameter, string Value)> GetTokensByParameter(IEnumerable<CommandToken> tokens)
+    private static IEnumerable<(AbstractCommandParameter Parameter, string Value)> GetTokensByParameter(IEnumerable<CommandToken> tokens)
     {
         foreach (var token in tokens)
         {

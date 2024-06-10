@@ -27,7 +27,7 @@ internal sealed class CommandParserState
     public ImmutableList<ConfiguredCommand> Commands { get; set; }
     public Queue<CommandArgument> Arguments { get; }
     public Dictionary<string, CommandOption> Options { get; }
-    public HashSet<CommandParameter> ParametersSeen { get; }
+    public HashSet<AbstractCommandParameter> ParametersSeen { get; }
     public CommandToken[] Tokens { get; }
     public ImmutableList<string>.Builder Errors { get; }
     public bool ExplicitArguments { get; set; }

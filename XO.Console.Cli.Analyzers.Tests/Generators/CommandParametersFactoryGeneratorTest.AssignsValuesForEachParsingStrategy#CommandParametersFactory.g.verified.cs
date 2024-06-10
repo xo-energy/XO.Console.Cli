@@ -29,6 +29,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                 global::System.Collections.Immutable.ImmutableArray<CommandArgument>.Empty,
                 global::System.Collections.Immutable.ImmutableArray.Create<CommandOption>(
                     new CommandOption(
+                        "Test.Parameters.Constructor",
                         "--value",
                         static (context, values, converters) => ((Test.Parameters)context.Parameters).Constructor = ParameterValueConverter.ConvertSingle<Test.MyType>(values, converters, static (value) => new Test.MyType(value)),
                         typeof(Test.MyType),
@@ -39,6 +40,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         IsHidden = false,
                     },
                     new CommandOption(
+                        "Test.Parameters.Parse",
                         "--count",
                         static (context, values, converters) => ((Test.Parameters)context.Parameters).Parse = ParameterValueConverter.ConvertSingle<System.Int32>(values, converters, static (value) => System.Int32.Parse(value)),
                         typeof(System.Int32),
@@ -49,6 +51,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         IsHidden = false,
                     },
                     new CommandOption(
+                        "Test.Parameters.Enum",
                         "--style",
                         static (context, values, converters) => ((Test.Parameters)context.Parameters).Enum = ParameterValueConverter.ConvertSingle<XO.Console.Cli.CommandOptionStyle>(values, converters, ParameterValueConverter.ParseEnum<XO.Console.Cli.CommandOptionStyle>),
                         typeof(XO.Console.Cli.CommandOptionStyle),
@@ -59,6 +62,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         IsHidden = false,
                     },
                     new CommandOption(
+                        "Test.Parameters.None",
                         "--command",
                         static (context, values, converters) => ((Test.Parameters)context.Parameters).None = ParameterValueConverter.ConvertSingle<XO.Console.Cli.Command>(values, converters, ParameterValueConverter.ParseNone<XO.Console.Cli.Command>),
                         typeof(XO.Console.Cli.Command),
@@ -69,6 +73,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         IsHidden = false,
                     },
                     new CommandOption(
+                        "Test.Parameters.String",
                         "--name",
                         static (context, values, converters) => ((Test.Parameters)context.Parameters).String = ParameterValueConverter.ConvertSingle<System.String>(values, converters, static (value) => value),
                         typeof(System.String),
@@ -79,6 +84,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         IsHidden = false,
                     },
                     new CommandOption(
+                        "Test.Parameters.Char",
                         "--code",
                         static (context, values, converters) => ((Test.Parameters)context.Parameters).Char = ParameterValueConverter.ConvertSingle<System.Char>(values, converters, ParameterValueConverter.ParseChar),
                         typeof(System.Char),

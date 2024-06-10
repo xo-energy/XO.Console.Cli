@@ -12,6 +12,7 @@ internal static class Builtins
     {
         public static CommandArgument Remaining { get; }
             = new CommandArgument(
+                $"{typeof(Arguments).FullName}.{nameof(Remaining)}",
                 RemainingArgumentName,
                 (context, values, _) => context.RemainingArguments.AddRange(values),
                 typeof(string),
@@ -42,6 +43,7 @@ internal static class Builtins
             };
 
             CliExplain = new CommandOption(
+                $"{typeof(Options).FullName}.{nameof(CliExplain)}",
                 optionStyle.GetNameWithLeader("cli-explain"),
                 DiscardValue,
                 typeof(bool),
@@ -52,6 +54,7 @@ internal static class Builtins
                 IsHidden = true,
             };
             Help = new CommandOption(
+                $"{typeof(Options).FullName}.{nameof(Help)}",
                 optionStyle.GetNameWithLeader("help"),
                 DiscardValue,
                 typeof(bool),
@@ -61,6 +64,7 @@ internal static class Builtins
                 IsFlag = true,
             };
             Version = new CommandOption(
+                $"{typeof(Options).FullName}.{nameof(Version)}",
                 optionStyle.GetNameWithLeader("version"),
                 DiscardValue,
                 typeof(bool),

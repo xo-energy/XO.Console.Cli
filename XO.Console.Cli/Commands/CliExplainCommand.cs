@@ -14,10 +14,10 @@ internal sealed class CliExplainCommand : Command
         {
             string? description = token.Context switch
             {
-                CommandParameter parameter when
+                AbstractCommandParameter parameter when
                     token.TokenType is CommandTokenType.OptionValue or CommandTokenType.Argument
                     => $"{parameter.ValueType} '{parameter.Name}'",
-                CommandParameter parameter => parameter.ToString(),
+                AbstractCommandParameter parameter => parameter.ToString(),
                 ConfiguredCommand command => command.ParametersType.ToString(),
                 IImmutableList<CommandOption> group when
                     token.TokenType is CommandTokenType.OptionGroup

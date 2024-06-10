@@ -9,6 +9,7 @@ public class CommandParserStateTest
     private static CommandOption CreateOption(string name, ImmutableArray<string> aliases)
     {
         return new CommandOption(
+            $"{nameof(CommandParserStateTest)}.Option",
             name,
             Builtins.Options.DiscardValue,
             typeof(string),

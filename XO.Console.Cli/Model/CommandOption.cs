@@ -5,21 +5,23 @@ namespace XO.Console.Cli.Model;
 /// <summary>
 /// Represents an option of a command-line command.
 /// </summary>
-public sealed class CommandOption : CommandParameter, ICommandOptionAttributeData
+public sealed class CommandOption : AbstractCommandParameter, ICommandOptionAttributeData
 {
     /// <summary>
     /// Initializes a new instance of <see cref="CommandOption"/>.
     /// </summary>
+    /// <param name="targetPropertyId">A string that uniquely identifies the target property.</param>
     /// <param name="name">The option name, including the option leader (prefix).</param>
     /// <param name="setter">A delegate that parses and assigns the value of the argument.</param>
     /// <param name="valueType">The type of value the option accepts. (If the option accepts multiple values, this is the type of each individually.)</param>
     /// <param name="description">A description of this parameter, which is used in generated help.</param>
     public CommandOption(
+        string targetPropertyId,
         string name,
         CommandParameterSetter setter,
         Type valueType,
         string? description)
-        : base(name, setter, valueType, description)
+        : base(targetPropertyId, name, setter, valueType, description)
     {
         this.Aliases = ImmutableArray<string>.Empty;
     }

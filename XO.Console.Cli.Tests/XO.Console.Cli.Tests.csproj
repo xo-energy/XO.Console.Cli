@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <RootNamespace>XO.Console.Cli</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\XO.Console.Cli.Analyzers\XO.Console.Cli.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\XO.Console.Cli.Extensions\XO.Console.Cli.Extensions.csproj" />
     <ProjectReference Include="..\XO.Console.Cli.Instrumentation\XO.Console.Cli.Instrumentation.csproj" />
     <ProjectReference Include="..\XO.Console.Cli\XO.Console.Cli.csproj" />

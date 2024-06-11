@@ -1,4 +1,4 @@
-namespace XO.Console.Cli.Tests.Fixtures;
+namespace XO.Console.Cli.Fixtures;
 
 public static class TestCommands
 {

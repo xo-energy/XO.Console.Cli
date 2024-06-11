@@ -1,7 +1,8 @@
-using XO.Console.Cli.Tests.Fixtures;
+using XO.Console.Cli.Fixtures;
+using XO.Console.Cli.Infrastructure;
 using Xunit;
 
-namespace XO.Console.Cli.Commands.Tests;
+namespace XO.Console.Cli.Commands;
 
 public class HelpCommandTest : CommandAppTestBase
 {

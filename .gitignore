@@ -1,6 +1,10 @@
 obj/
 bin/
 packages/
+reports/
+BenchmarkDotNet.Artifacts/
 .vs/
+*.binlog
 *.suo
 *.user
+*.received.*

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace XO.Console.Cli;
@@ -5,10 +6,7 @@ namespace XO.Console.Cli;
 /// <summary>
 /// Configures a command-line application.
 /// </summary>
-/// <remarks>
-/// Use the static factory methods on <see cref="CommandAppBuilder"/> to create an instance of this interface.
-/// </remarks>
-public interface ICommandAppBuilder : ICommandBuilderProvider<ICommandAppBuilder>
+public interface ICommandAppBuilder : ICommandBuilderAddCommand<ICommandAppBuilder>
 {
     /// <summary>
     /// Builds the application.
@@ -22,8 +20,7 @@ public interface ICommandAppBuilder : ICommandBuilderProvider<ICommandAppBuilder
     /// <param name="name">The option name, including the option leader (prefix).</param>
     /// <param name="description">The option description, to be included in generated help.</param>
     /// <param name="aliases">Any option aliases, including the option leader (prefix).</param>
-    /// <typeparam name="TValue">The type of the option's value.</typeparam>
-    ICommandAppBuilder AddGlobalOption<TValue>(
+    ICommandAppBuilder AddGlobalOption(
         string name,
         string description,
         params string[] aliases);
@@ -33,7 +30,7 @@ public interface ICommandAppBuilder : ICommandBuilderProvider<ICommandAppBuilder
     /// </summary>
     /// <param name="converter">A delegate that converts a parameter value to type <typeparamref name="TValue"/>.</param>
     /// <typeparam name="TValue">The parameter value type.</typeparam>
-    ICommandAppBuilder AddParameterConverter<TValue>(Func<string, TValue?> converter);
+    ICommandAppBuilder AddParameterConverter<TValue>(Func<string, TValue> converter);
 
     /// <summary>
     /// Disables strict parsing.
@@ -117,7 +114,7 @@ public interface ICommandAppBuilder : ICommandBuilderProvider<ICommandAppBuilder
     /// Adds a middleware to the application pipeline.
     /// </summary>
     /// <typeparam name="TMiddleware">The middleware implementation type.</typeparam>
-    ICommandAppBuilder UseMiddleware<TMiddleware>()
+    ICommandAppBuilder UseMiddleware<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TMiddleware>()
         where TMiddleware : ICommandAppMiddleware;
 
     /// <summary>

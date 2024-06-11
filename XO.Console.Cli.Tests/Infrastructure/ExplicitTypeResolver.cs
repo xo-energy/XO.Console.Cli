@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Infrastructure;
 
 public sealed class ExplicitTypeResolver : ITypeResolver
 {

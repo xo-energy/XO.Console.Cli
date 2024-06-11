@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
+using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli.Instrumentation;
 

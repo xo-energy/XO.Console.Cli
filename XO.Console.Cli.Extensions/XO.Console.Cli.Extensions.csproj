@@ -4,9 +4,11 @@
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <Description>Integrates XO.Console.Cli with Microsoft.Extensions.DependencyInjection and Microsoft.Extensions.Hosting</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsTrimmable>true</IsTrimmable>
     <RootNamespace>XO.Console.Cli</RootNamespace>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\XO.Console.Cli\XO.Console.Cli.csproj" />
   </ItemGroup>
@@ -15,6 +17,11 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt" Link="LICENSE.txt" Pack="true" PackagePath="/" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>

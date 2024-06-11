@@ -1,3 +1,5 @@
+using XO.Console.Cli.Model;
+
 namespace XO.Console.Cli;
 
 /// <summary>

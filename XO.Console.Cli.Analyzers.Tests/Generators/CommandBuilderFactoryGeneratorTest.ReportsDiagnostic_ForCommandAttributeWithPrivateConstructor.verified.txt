@@ -1,0 +1,12 @@
+﻿[
+  {
+    Id: XOCLI211,
+    Title: Custom CommandAttributes must have a public constructor,
+    Severity: Error,
+    WarningLevel: 0,
+    Location: : (5,22)-(5,43),
+    MessageFormat: Custom CommandAttribute '{0}' must have a public constructor,
+    Message: Custom CommandAttribute 'Test.GroupCommandAttribute' must have a public constructor,
+    Category: XOCLI
+  }
+]

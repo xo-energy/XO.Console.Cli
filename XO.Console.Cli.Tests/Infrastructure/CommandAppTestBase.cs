@@ -1,4 +1,4 @@
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Infrastructure;
 
 public abstract class CommandAppTestBase : IDisposable
 {
@@ -8,18 +8,20 @@ public abstract class CommandAppTestBase : IDisposable
         => LazyInitializer.EnsureInitialized(ref _console);
 
     protected ICommandAppBuilder CreateBuilder()
-        => CommandAppBuilder.Create()
+        => new CommandAppBuilder()
             .UseConsole(this.Console);
 
     protected ICommandAppBuilder CreateBuilder<TParameters>(
         Func<ICommandContext, TParameters, CancellationToken, Task<int>> executeAsync)
         where TParameters : CommandParameters
-        => CommandAppBuilder.WithDefaultCommand<TParameters>(executeAsync)
+        => CommandAppBuilder
+            .WithDefaultCommand(executeAsync)
             .UseConsole(this.Console);
 
     protected ICommandAppBuilder CreateBuilder<TDefaultCommand>()
         where TDefaultCommand : class, ICommand
-        => CommandAppBuilder.WithDefaultCommand<TDefaultCommand>()
+        => CommandAppBuilder
+            .WithDefaultCommand<TDefaultCommand>()
             .UseConsole(this.Console);
 
     public void Dispose()

@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace XO.Console.Cli;
 
 /// <summary>
@@ -16,7 +18,11 @@ public enum CommandOptionStyle
     Dos,
 }
 
+#if NET8_0_OR_GREATER
+internal static partial class CommandOptionStyleExtensions
+#else
 internal static class CommandOptionStyleExtensions
+#endif
 {
     public static StringComparer GetDefaultNameComparer(this CommandOptionStyle optionStyle)
         => optionStyle switch
@@ -50,6 +56,14 @@ internal static class CommandOptionStyleExtensions
             _ => throw new ArgumentOutOfRangeException(),
         };
 
+    public static Regex GetNameValidationPattern(this CommandOptionStyle optionStyle)
+        => optionStyle switch
+        {
+            CommandOptionStyle.Dos => GetOptionNamePatternDos(),
+            CommandOptionStyle.Posix => GetOptionNamePatternPosix(),
+            _ => throw new ArgumentOutOfRangeException(),
+        };
+
     public static string GetNameWithLeader(this CommandOptionStyle optionStyle, string name)
     {
         var leader = optionStyle.GetLeader();
@@ -66,4 +80,22 @@ internal static class CommandOptionStyleExtensions
             CommandOptionStyle.Posix => true,
             _ => false,
         };
+
+    private const string OptionNamePatternDosInput = @"^\/[a-z0-9?][a-z0-9?_-]*$";
+    private const string OptionNamePatternPosixInput = @"^(?:-[a-z0-9?]|--[a-z0-9?][a-z0-9?_-]*)$";
+    private const RegexOptions OptionNamePatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.Singleline;
+
+#if NET8_0_OR_GREATER
+    [GeneratedRegex(OptionNamePatternDosInput, OptionNamePatternRegexOptions)]
+    private static partial Regex GetOptionNamePatternDos();
+
+    [GeneratedRegex(OptionNamePatternPosixInput, OptionNamePatternRegexOptions)]
+    private static partial Regex GetOptionNamePatternPosix();
+#else
+    private static Regex GetOptionNamePatternDos()
+        => new(OptionNamePatternDosInput, OptionNamePatternRegexOptions);
+
+    private static Regex GetOptionNamePatternPosix()
+        => new(OptionNamePatternPosixInput, OptionNamePatternRegexOptions);
+#endif
 }

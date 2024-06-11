@@ -1,0 +1,12 @@
+﻿[
+  {
+    Id: XOCLI121,
+    Title: Duplicate verb will be ignored,
+    Severity: Warning,
+    WarningLevel: 1,
+    Location: : (16,22)-(16,39),
+    MessageFormat: Command '{0}' has the same verb '{1}' as '{2}',
+    Message: Command 'Test.DuplicateCommand1' has the same verb 'command1' as 'Test.Command1',
+    Category: XOCLI
+  }
+]

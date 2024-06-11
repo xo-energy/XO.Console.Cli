@@ -1,23 +1,24 @@
 using System.Collections.Immutable;
+using XO.Console.Cli.Implementation;
+using XO.Console.Cli.Infrastructure;
+using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli.Commands;
 
 internal sealed class HelpCommand : AsyncCommand
 {
     private readonly CommandApp _app;
-    private readonly CommandParametersInspector _inspector;
 
-    public HelpCommand(CommandApp app, CommandParametersInspector inspector)
+    public HelpCommand(CommandApp app)
     {
         _app = app;
-        _inspector = inspector;
     }
 
     public override async Task<int> ExecuteAsync(ICommandContext context, CancellationToken cancellationToken)
     {
         var command = _app.RootCommand;
         var commands = GetVisibleCommands(command);
-        var parametersInfo = _inspector.InspectParameters(command);
+        var parametersInfo = TypeRegistry.DescribeParameters(command.ParametersType);
         var arguments = new List<CommandArgument>(0);
         var argumentsSeen = new HashSet<CommandArgument>();
         var usageParts = new List<string>() { _app.Settings.ApplicationName };
@@ -29,7 +30,7 @@ internal sealed class HelpCommand : AsyncCommand
 
             command = (ConfiguredCommand)token.Context!;
             commands = GetVisibleCommands(command);
-            parametersInfo = _inspector.InspectParameters(command);
+            parametersInfo = TypeRegistry.DescribeParameters(command.ParametersType);
 
             usageParts.Add(command.Verb);
 
@@ -38,12 +39,12 @@ internal sealed class HelpCommand : AsyncCommand
                 if (!argumentsSeen.Add(argument))
                     continue;
 
-                var (bracketL, bracketR) = argument.Attribute.IsOptional
+                var (bracketL, bracketR) = argument.IsOptional
                     ? ('[', ']')
                     : ('<', '>');
 
                 usageParts.Add(
-                    $"{bracketL}{argument.Attribute.Name}{(argument.Attribute.IsGreedy ? " ... " : "")}{bracketR}");
+                    $"{bracketL}{argument.Name}{(argument.IsGreedy ? " ... " : "")}{bracketR}");
 
                 arguments.Add(argument);
             }
@@ -103,7 +104,7 @@ internal sealed class HelpCommand : AsyncCommand
         var optionsLength = GetBuiltinOptions(command).Max(x => x.Name.Length);
         foreach (var option in Enumerable.Concat(options, _app.Settings.GlobalOptions))
         {
-            var length = GetMaxLength(option.GetNames());
+            var length = GetMaxLength(option);
             if (optionsLength < length)
                 optionsLength = length;
         }
@@ -139,7 +140,7 @@ internal sealed class HelpCommand : AsyncCommand
     {
         foreach (var option in _app.BuiltinOptions)
         {
-            if (option.Attribute.IsHidden)
+            if (option.IsHidden)
                 continue;
 
             if (option == _app.BuiltinOptions.Version && command != _app.RootCommand)
@@ -170,7 +171,7 @@ internal sealed class HelpCommand : AsyncCommand
 
         foreach (var option in parametersInfo.Options)
         {
-            if (option.Attribute.IsHidden)
+            if (option.IsHidden)
                 continue;
 
             builder.Add(option);
@@ -179,8 +180,18 @@ internal sealed class HelpCommand : AsyncCommand
         return builder.ToImmutable();
     }
 
-    private static int GetMaxLength(IEnumerable<string> values)
-        => values.Select(x => x.Length).DefaultIfEmpty().Max();
+    private static int GetMaxLength(CommandOption option)
+    {
+        var max = option.Name.Length;
+
+        foreach (var alias in option.Aliases)
+        {
+            if (max < alias.Length)
+                max = alias.Length;
+        }
+
+        return max;
+    }
 
     private async Task WriteOptionsAsync(ICommandContext context, int length, IEnumerable<CommandOption> options)
     {
@@ -188,7 +199,7 @@ internal sealed class HelpCommand : AsyncCommand
         {
             string? shortName = null;
 
-            foreach (var alias in option.Attribute.Aliases)
+            foreach (var alias in option.Aliases)
             {
                 if (alias.Length == 2)
                 {
@@ -210,7 +221,7 @@ internal sealed class HelpCommand : AsyncCommand
                     .ConfigureAwait(false);
             }
 
-            foreach (var alias in option.Attribute.Aliases)
+            foreach (var alias in option.Aliases)
             {
                 if (alias == shortName)
                     continue;

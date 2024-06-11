@@ -1,13 +1,14 @@
+using XO.Console.Cli.Infrastructure;
 using Xunit;
 
-namespace XO.Console.Cli.Tests;
+namespace XO.Console.Cli;
 
 public class CommandBuilderTest
 {
     [Fact]
     public void AddAliasAddsAlias()
     {
-        var builder = new CommandBuilder("verb", typeof(CommandParameters));
+        var builder = CommandBuilder.CreateMissing("verb", typeof(CommandParameters));
 
         builder.AddAlias("alias");
 
@@ -19,7 +20,7 @@ public class CommandBuilderTest
     [Fact]
     public void AddAliasIgnoresDuplicate()
     {
-        var builder = new CommandBuilder("verb", typeof(CommandParameters));
+        var builder = CommandBuilder.CreateMissing("verb", typeof(CommandParameters));
 
         builder.AddAlias("alias");
         builder.AddAlias("alias");
@@ -32,7 +33,7 @@ public class CommandBuilderTest
     [Fact]
     public void AddAliasIgnoresVerb()
     {
-        var builder = new CommandBuilder("verb", typeof(CommandParameters));
+        var builder = CommandBuilder.CreateMissing("verb", typeof(CommandParameters));
 
         builder.AddAlias("verb");
 

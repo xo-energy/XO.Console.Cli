@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>XO.Console.Cli</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\XO.Console.Cli\Implementation\DefaultTypeResolver.cs" Link="Implementation\DefaultTypeResolver.cs" />
+    <Compile Include="..\XO.Console.Cli\Implementation\DefaultTypeResolverScope.cs" Link="Implementation\DefaultTypeResolverScope.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XO.Console.Cli.Analyzers\XO.Console.Cli.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\XO.Console.Cli.Extensions\XO.Console.Cli.Extensions.csproj" />
+    <ProjectReference Include="..\XO.Console.Cli\XO.Console.Cli.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-namespace XO.Console.Cli;
+namespace XO.Console.Cli.Infrastructure;
 
 internal static class TestCommandAppBuilderExtensions
 {

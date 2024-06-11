@@ -18,10 +18,8 @@ public static class CommandAppServiceCollectionExtensions
     /// <returns>The <see cref="IServiceCollection"/>.</returns>
     public static IServiceCollection AddCommandApp(
         this IServiceCollection services,
-        Action<HostBuilderContext, ICommandAppBuilder> configure)
+        Action<HostBuilderContext, ICommandAppBuilder>? configure = null)
     {
-        ArgumentNullException.ThrowIfNull(configure);
-
         return services.AddCommandApp(default, configure);
     }
 

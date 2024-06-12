@@ -269,6 +269,8 @@ public sealed class CommandParametersFactoryGeneratorTest
     {
         var driver = CompilationHelper.RunGeneratorAndAssertEmptyDiagnostics<CommandParametersFactoryGenerator>(source);
 
-        await Verify(driver);
+        await Verify(driver)
+            .ScrubGeneratedCodeAttribute()
+            ;
     }
 }

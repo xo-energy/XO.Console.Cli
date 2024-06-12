@@ -173,6 +173,8 @@ public sealed class AssemblyCommandAppDefaultsGeneratorTest
     {
         var driver = CompilationHelper.RunGeneratorAndAssertEmptyDiagnostics<AssemblyCommandAppDefaultsGenerator>(source);
 
-        await Verify(driver);
+        await Verify(driver)
+            .ScrubGeneratedCodeAttribute()
+            ;
     }
 }

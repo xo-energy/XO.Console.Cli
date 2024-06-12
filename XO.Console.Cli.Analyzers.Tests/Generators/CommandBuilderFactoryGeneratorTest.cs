@@ -550,6 +550,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
     {
         var driver = CompilationHelper.RunGeneratorAndAssertEmptyDiagnostics<CommandBuilderFactoryGenerator>(source);
 
-        await Verify(driver);
+        await Verify(driver)
+            .ScrubGeneratedCodeAttribute()
+            ;
     }
 }

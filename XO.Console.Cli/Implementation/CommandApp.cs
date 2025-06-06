@@ -49,9 +49,9 @@ internal sealed class CommandApp : ICommandApp
         var state = new CommandParserState(args.Count, _rootCommand.Commands, _settings);
 
         foreach (var option in _builtinOptions)
-            state.AddOption(typeof(Builtins.Options), option);
+            state.AddOption(option);
         foreach (var option in _settings.GlobalOptions)
-            state.AddOption(typeof(CommandAppSettings), option);
+            state.AddOption(option);
 
         state.AddParameters(_rootCommand);
 
@@ -232,7 +232,7 @@ internal sealed class CommandApp : ICommandApp
             var context = new CommandContext(scope, commandInstance, parameters, parseResult);
 
             // bind parameters
-            BindParameters(context, parseResult.Tokens);
+            BindParameters(parseResult, command, context);
 
             return context;
         }
@@ -243,15 +243,21 @@ internal sealed class CommandApp : ICommandApp
         }
     }
 
-    public void BindParameters(CommandContext context, IEnumerable<CommandToken> tokens)
+    public void BindParameters(CommandParseResult parseResult, ConfiguredCommand command, CommandContext context)
     {
         // group tokens by their parameter (some may have multiple values)
-        var parameterTokens = GetTokensByParameter(tokens)
+        var parameterTokens = GetTokensByParameter(parseResult.Tokens)
             .GroupBy(x => x.Parameter, x => x.Value);
 
         // assign values by calling each parameter's setter
         foreach (var group in parameterTokens)
-            group.Key.Setter(context, group, _settings.Converters);
+        {
+            var parameter = group.Key;
+
+            // the parsed tokens might contain parameters we can't bind because we substituted a different command (e.g. help)
+            if (parameter.DeclaringType.IsAssignableFrom(command.ParametersType))
+                parameter.Setter(context, group, _settings.Converters);
+        }
 
         // validate
         var validationResult = context.Parameters.Validate();

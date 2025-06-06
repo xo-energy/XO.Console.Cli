@@ -274,7 +274,8 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
             source.AppendLine(
             $$"""
                                 new CommandArgument(
-                                    "{{model.DeclaringType}}.{{model.PropertyName}}",
+                                    typeof({{model.DeclaringType}}),
+                                    "{{model.PropertyName}}",
                                     "{{model.Name}}",
                                     {{GetSetterLambdaExpression(model)}},
                                     typeof({{model.ParameterValueType}}),
@@ -314,7 +315,8 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
             source.AppendLine(
             $$"""
                                 new CommandOption(
-                                    "{{model.DeclaringType}}.{{model.PropertyName}}",
+                                    typeof({{model.DeclaringType}}),
+                                    "{{model.PropertyName}}",
                                     "{{model.Name}}",
                                     {{GetSetterLambdaExpression(model)}},
                                     typeof({{model.ParameterValueType}}),

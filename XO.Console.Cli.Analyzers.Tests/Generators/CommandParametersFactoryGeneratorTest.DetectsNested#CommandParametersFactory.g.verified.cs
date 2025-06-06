@@ -28,7 +28,8 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
             return new CommandParametersInfo(
                 global::System.Collections.Immutable.ImmutableArray.Create<CommandArgument>(
                     new CommandArgument(
-                        "Test.Wrapper.Parameters.Name",
+                        typeof(Test.Wrapper.Parameters),
+                        "Name",
                         "name",
                         static (context, values, converters) => ((Test.Wrapper.Parameters)context.Parameters).Name = ParameterValueConverter.ConvertSingle<System.String>(values, converters, static (value) => value),
                         typeof(System.String),

@@ -28,7 +28,8 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
             return new CommandParametersInfo(
                 global::System.Collections.Immutable.ImmutableArray.Create<CommandArgument>(
                     new CommandArgument(
-                        "Test.Parameters.Name",
+                        typeof(Test.Parameters),
+                        "Name",
                         "name",
                         static (context, values, converters) => ((Test.Parameters)context.Parameters).Name = ParameterValueConverter.ConvertSingle<System.String>(values, converters, static (value) => value),
                         typeof(System.String),
@@ -40,7 +41,8 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                     }),
                 global::System.Collections.Immutable.ImmutableArray.Create<CommandOption>(
                     new CommandOption(
-                        "Test.BaseParameters.Enable",
+                        typeof(Test.BaseParameters),
+                        "Enable",
                         "--option",
                         static (context, values, converters) => ((Test.BaseParameters)context.Parameters).Enable = ParameterValueConverter.ConvertSingle<System.Boolean>(values, converters, static (value) => System.Boolean.Parse(value)),
                         typeof(System.Boolean),

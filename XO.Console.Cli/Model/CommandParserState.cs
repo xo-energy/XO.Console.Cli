@@ -32,17 +32,17 @@ internal sealed class CommandParserState
     public ImmutableList<string>.Builder Errors { get; }
     public bool ExplicitArguments { get; set; }
 
-    public void AddOption(Type parametersType, CommandOption option)
+    public void AddOption(CommandOption option)
     {
         if (!this.ParametersSeen.Add(option))
             return;
 
-        ValidateOptionName(parametersType, option.Name);
+        ValidateOptionName(option.DeclaringType, option.Name);
         this.Options.Add(option.Name, option);
 
         foreach (var alias in option.Aliases)
         {
-            ValidateOptionName(parametersType, alias);
+            ValidateOptionName(option.DeclaringType, alias);
             this.Options.Add(alias, option);
         }
     }
@@ -66,7 +66,7 @@ internal sealed class CommandParserState
         }
 
         foreach (var option in parametersInfo.Options)
-            AddOption(configuredCommand.ParametersType, option);
+            AddOption(option);
     }
 
     public bool TryGetOption(string[] parts, [NotNullWhen(true)] out CommandOption? option, out string? value)

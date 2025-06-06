@@ -19,19 +19,22 @@ public abstract class AbstractCommandParameter : IEquatable<AbstractCommandParam
     /// <summary>
     /// Initializes a new instance of <see cref="AbstractCommandParameter"/>.
     /// </summary>
-    /// <param name="targetPropertyId">A string that uniquely identifies the target property.</param>
+    /// <param name="declaringType">The type that declares the target property.</param>
+    /// <param name="propertyName">The name of the target property.</param>
     /// <param name="name">The parameter name.</param>
     /// <param name="setter">A delegate that parses and assigns the value of the argument.</param>
     /// <param name="valueType">The type of value the parameter accepts. (If the argument accepts multiple values, this is the type of each individually.)</param>
     /// <param name="description">A description of this parameter, which is used in generated help.</param>
     protected AbstractCommandParameter(
-        string targetPropertyId,
+        Type declaringType,
+        string propertyName,
         string name,
         CommandParameterSetter setter,
         Type valueType,
         string? description)
     {
-        this.TargetPropertyId = targetPropertyId;
+        this.DeclaringType = declaringType;
+        this.PropertyName = propertyName;
         this.Name = name;
         this.Setter = setter;
         this.ValueType = valueType;
@@ -39,12 +42,17 @@ public abstract class AbstractCommandParameter : IEquatable<AbstractCommandParam
     }
 
     /// <summary>
-    /// Gets a string that uniquely identifies the target property.
+    /// Gets the type that declares the target property.
     /// </summary>
     /// <remarks>
     /// This value is used to identify equivalent parameters across derived parameters types.
     /// </remarks>
-    public string TargetPropertyId { get; }
+    public Type DeclaringType { get; }
+
+    /// <summary>
+    /// Gets the name of the target property.
+    /// </summary>
+    public string PropertyName { get; }
 
     /// <summary>
     /// Gets the parameter name.
@@ -68,13 +76,14 @@ public abstract class AbstractCommandParameter : IEquatable<AbstractCommandParam
 
     /// <inheritdoc/>
     /// <remarks>
-    /// Two parameters are considered equal if they are of the same type, have the same <see cref="TargetPropertyId"/>,
-    /// and have the same <see cref="Name"/>.
+    /// Two parameters are considered equal if they are of the same type and have equal <see cref="DeclaringType"/>,
+    /// <see cref="PropertyName"/>, and <see cref="Name"/>.
     /// </remarks>
     public bool Equals(AbstractCommandParameter? other)
     {
         return other?.GetType() == this.GetType()
-            && other.TargetPropertyId == this.TargetPropertyId
+            && other.DeclaringType == this.DeclaringType
+            && other.PropertyName == this.PropertyName
             && other.Name == this.Name;
     }
 
@@ -84,7 +93,7 @@ public abstract class AbstractCommandParameter : IEquatable<AbstractCommandParam
 
     /// <inheritdoc/>
     public override int GetHashCode()
-        => this.TargetPropertyId.GetHashCode();
+        => HashCode.Combine(this.DeclaringType, this.PropertyName);
 
     /// <inheritdoc/>
     public override string ToString()

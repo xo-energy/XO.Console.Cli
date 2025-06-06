@@ -41,4 +41,16 @@ public class HelpCommandTest : CommandAppTestBase
 
         Assert.Equal(0, result);
     }
+
+    [Fact]
+    public async Task HelpCommandReturns0_WithParameters()
+    {
+        var app = CreateBuilder()
+            .AddCommand<TestCommandWithParameters>("test")
+            .Build();
+
+        var result = await app.ExecuteAsync(new[] { "test", "foo", "--help" });
+
+        Assert.Equal(0, result);
+    }
 }

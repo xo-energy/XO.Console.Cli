@@ -9,7 +9,8 @@ public class CommandParserStateTest
     private static CommandOption CreateOption(string name, ImmutableArray<string> aliases)
     {
         return new CommandOption(
-            $"{nameof(CommandParserStateTest)}.Option",
+            typeof(CommandParameters),
+            nameof(CreateOption),
             name,
             Builtins.Options.DiscardValue,
             typeof(string),
@@ -109,7 +110,7 @@ public class CommandParserStateTest
         var state = CreateState(optionStyle);
         var option = CreateOption(optionStyle.GetNameWithLeader("apple"), ImmutableArray.Create(alias));
 
-        state.AddOption(typeof(CommandParameters), option);
+        state.AddOption(option);
     }
 
     [Theory]
@@ -119,7 +120,7 @@ public class CommandParserStateTest
         var state = CreateState(optionStyle);
         var option = CreateOption(name, ImmutableArray<string>.Empty);
 
-        state.AddOption(typeof(CommandParameters), option);
+        state.AddOption(option);
     }
 
     [Theory]
@@ -143,7 +144,7 @@ public class CommandParserStateTest
         var state = CreateState(optionStyle);
         var option = CreateOption(optionStyle.GetNameWithLeader("apple"), ImmutableArray.Create(alias));
 
-        Assert.Throws<CommandTypeException>(() => state.AddOption(typeof(CommandParameters), option));
+        Assert.Throws<CommandTypeException>(() => state.AddOption(option));
     }
 
     [Theory]
@@ -153,7 +154,7 @@ public class CommandParserStateTest
         var state = CreateState(optionStyle);
         var option = CreateOption(name, ImmutableArray<string>.Empty);
 
-        Assert.Throws<CommandTypeException>(() => state.AddOption(typeof(CommandParameters), option));
+        Assert.Throws<CommandTypeException>(() => state.AddOption(option));
     }
 
     public static TheoryData<CommandOptionStyle, string> GetOptionInvalidNames()

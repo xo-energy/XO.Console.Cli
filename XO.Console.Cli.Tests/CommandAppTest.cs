@@ -137,6 +137,22 @@ public class CommandAppTest : CommandAppTestBase
     }
 
     [Fact]
+    public void BindReturnsCommandBranch_WhenParentHasArgument()
+    {
+        var app = new CommandAppBuilder()
+            .AddCommand<TestCommandWithParameters>("branch",
+                builder =>
+                {
+                    builder.AddCommand<TestCommandWithParameters>("noop");
+                })
+            .Build();
+
+        var context = app.Bind(new[] { "branch", "foo", "noop" });
+
+        Assert.Equal(["branch", "noop"], context.ParseResult.GetVerbs().Select(x => x.Value));
+    }
+
+    [Fact]
     public void BindReturnsCommandParseResult()
     {
         var app = CommandAppBuilder

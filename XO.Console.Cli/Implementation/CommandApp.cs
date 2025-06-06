@@ -114,8 +114,7 @@ internal sealed class CommandApp : ICommandApp
                 if (!argument.IsGreedy)
                     _ = state.Arguments.Dequeue();
             }
-            else if (!state.ExplicitArguments
-                && state.Commands.FirstOrDefault(x => x.IsMatch(args[i])) is ConfiguredCommand next)
+            else if (!state.ExplicitArguments && state.TryGetCommand(args[i], out var next))
             {
                 state.Tokens[i] = new CommandToken(CommandTokenType.Command, args[i], next);
 

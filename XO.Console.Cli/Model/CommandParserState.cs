@@ -69,6 +69,21 @@ internal sealed class CommandParserState
             AddOption(option);
     }
 
+    public bool TryGetCommand(string verb, [NotNullWhen(true)] out ConfiguredCommand? next)
+    {
+        foreach (var command in Commands)
+        {
+            if (command.IsMatch(verb))
+            {
+                next = command;
+                return true;
+            }
+        }
+
+        next = default;
+        return false;
+    }
+
     public bool TryGetOption(string[] parts, [NotNullWhen(true)] out CommandOption? option, out string? value)
     {
         // look up the option (support '--option[=:]value' style)

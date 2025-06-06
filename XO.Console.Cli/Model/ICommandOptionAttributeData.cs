@@ -27,4 +27,9 @@ public interface ICommandOptionAttributeData
     /// Indicates whether this option should be hidden from generated help.
     /// </summary>
     public bool IsHidden { get; }
+
+    /// <summary>
+    /// Indicates whether this option is required.
+    /// </summary>
+    public bool IsRequired { get; }
 }

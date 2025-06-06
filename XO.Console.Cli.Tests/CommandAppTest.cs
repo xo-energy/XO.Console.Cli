@@ -197,6 +197,21 @@ public class CommandAppTest : CommandAppTestBase
     }
 
     [Fact]
+    public void BindThrowsCommandParsingException_WhenRequiredOptionIsMissing()
+    {
+        // Arrange
+        var app = CommandAppBuilder
+            .WithDefaultCommand<TestParameters.RequiredOption>(Builtins.Delegates.NoOp)
+            .Build();
+
+        // Act & Assert
+        var exception = Assert.Throws<CommandParsingException>(() => app.Bind([]));
+
+        // Verify the exception message contains information about the missing required option
+        Assert.Contains("--required", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void BindThrowsCommandTypeException_WhenTypeResolverReturnsNullCommand()
     {
         var app = CommandAppBuilder

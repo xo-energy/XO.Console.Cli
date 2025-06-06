@@ -151,6 +151,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
         var aliases = Definitions.ConvertTypedConstantToImmutableArray<string>(attr.ConstructorArguments[1]);
         var description = default(string?);
         var hidden = default(bool);
+        var required = default(bool);
 
         foreach (var entry in attr.NamedArguments)
         {
@@ -162,12 +163,16 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
                 case nameof(ICommandOptionAttributeData.IsHidden):
                     hidden = (bool)entry.Value.Value!;
                     break;
+                case nameof(ICommandOptionAttributeData.IsRequired):
+                    required = (bool)entry.Value.Value!;
+                    break;
             }
         }
 
         return new CommandOptionModel(name, property, description, aliases)
         {
             IsHidden = hidden,
+            IsRequired = required,
         };
     }
 
@@ -325,6 +330,7 @@ public sealed class CommandParametersFactoryGenerator : IIncrementalGenerator
                                     Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>({{aliasLiteralParams}}),
                                     IsFlag = {{LiteralExpression(model.IsFlag ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)}},
                                     IsHidden = {{LiteralExpression(model.IsHidden ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)}},
+                                    IsRequired = {{LiteralExpression(model.IsRequired ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)}},
                                 }{{(i + 1 < options.Count ? "," : "));")}}
             """);
         }

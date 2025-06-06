@@ -134,16 +134,9 @@ internal sealed class CommandApp : ICommandApp
             }
         }
 
-        // check for missing arguments
-        foreach (var argument in state.Arguments)
-        {
-            if (argument.IsOptional)
-                continue;
-            if (argument.IsGreedy && state.Tokens.Any(x => argument.Equals(x.Context)))
-                continue;
-
-            state.Errors.Add($"Missing required argument '{argument.Name}'");
-        }
+        // check for missing arguments and options (this modifies the state.Errors collection)
+        state.CheckMissingArguments();
+        state.CheckMissingOptions();
 
         return new CommandParseResult(
             state.Tokens.ToImmutableArray(),

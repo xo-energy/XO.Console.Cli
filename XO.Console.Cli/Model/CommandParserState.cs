@@ -69,6 +69,42 @@ internal sealed class CommandParserState
             AddOption(option);
     }
 
+    public void CheckMissingArguments()
+    {
+        foreach (var argument in Arguments)
+        {
+            if (argument.IsOptional)
+                continue;
+            if (argument.IsGreedy && Tokens.Any(x => argument.Equals(x.Context)))
+                continue;
+
+            Errors.Add($"Missing required argument '{argument.Name}'");
+        }
+    }
+
+    public void CheckMissingOptions()
+    {
+        var requiredOptions = ImmutableHashSet<string>.Empty;
+
+        // detect required options, de-duplicating aliases
+        foreach (var option in Options.Values)
+        {
+            if (option.IsRequired)
+                requiredOptions = requiredOptions.Add(option.Name);
+        }
+
+        // remove all parsed options
+        foreach (var token in Tokens)
+        {
+            if (token.Context is CommandOption { IsRequired: true } option)
+                requiredOptions = requiredOptions.Remove(option.Name);
+        }
+
+        // report errors for missing required options
+        foreach (var optionName in requiredOptions)
+            Errors.Add($"Missing required option '{optionName}'");
+    }
+
     public bool TryGetCommand(string verb, [NotNullWhen(true)] out ConfiguredCommand? next)
     {
         foreach (var command in Commands)

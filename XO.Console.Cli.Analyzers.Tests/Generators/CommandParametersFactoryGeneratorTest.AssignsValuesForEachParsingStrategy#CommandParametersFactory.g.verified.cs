@@ -39,6 +39,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>(),
                         IsFlag = false,
                         IsHidden = false,
+                        IsRequired = false,
                     },
                     new CommandOption(
                         typeof(Test.Parameters),
@@ -51,6 +52,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>(),
                         IsFlag = false,
                         IsHidden = false,
+                        IsRequired = false,
                     },
                     new CommandOption(
                         typeof(Test.Parameters),
@@ -63,6 +65,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>(),
                         IsFlag = false,
                         IsHidden = false,
+                        IsRequired = false,
                     },
                     new CommandOption(
                         typeof(Test.Parameters),
@@ -75,6 +78,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>(),
                         IsFlag = false,
                         IsHidden = false,
+                        IsRequired = false,
                     },
                     new CommandOption(
                         typeof(Test.Parameters),
@@ -87,6 +91,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>(),
                         IsFlag = false,
                         IsHidden = false,
+                        IsRequired = false,
                     },
                     new CommandOption(
                         typeof(Test.Parameters),
@@ -99,6 +104,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>(),
                         IsFlag = false,
                         IsHidden = false,
+                        IsRequired = false,
                     }));
         }
 

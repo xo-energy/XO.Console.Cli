@@ -17,6 +17,7 @@ public sealed record CommandOptionModel : CommandParameterModel, ICommandOptionA
     public ImmutableArray<string> Aliases { get; }
     public bool IsFlag { get; }
     public bool IsHidden { get; init; }
+    public bool IsRequired { get; init; }
 
     public bool Equals(CommandOptionModel? other)
     {

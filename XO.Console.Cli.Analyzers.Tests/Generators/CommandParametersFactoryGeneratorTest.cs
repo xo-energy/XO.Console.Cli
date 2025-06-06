@@ -158,6 +158,23 @@ public sealed class CommandParametersFactoryGeneratorTest
     }
 
     [Fact]
+    public Task DetectsOptionWithIsRequired()
+    {
+        return VerifySource(
+            """
+            using XO.Console.Cli;
+
+            namespace Test;
+
+            public sealed class Parameters : CommandParameters
+            {
+                [CommandOption("--option", IsRequired = true)]
+                public string Value { get; set; }
+            }
+            """);
+    }
+
+    [Fact]
     public Task DetectsInherited()
     {
         return VerifySource(

@@ -39,6 +39,7 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                         Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>(),
                         IsFlag = true,
                         IsHidden = false,
+                        IsRequired = false,
                     }));
         }
 

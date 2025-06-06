@@ -38,4 +38,7 @@ public sealed class CommandOption : AbstractCommandParameter, ICommandOptionAttr
 
     /// <inheritdoc/>
     public bool IsHidden { get; init; }
+
+    /// <inheritdoc/>
+    public bool IsRequired { get; init; }
 }

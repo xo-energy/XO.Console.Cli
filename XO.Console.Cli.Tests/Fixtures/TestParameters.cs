@@ -49,6 +49,12 @@ public static class TestParameters
         public bool ValueD { get; set; }
     }
 
+    public class RequiredOption : CommandParameters
+    {
+        [CommandOption("--required", IsRequired = true)]
+        public string? Value { get; set; }
+    }
+
     public class ValidationFailure : CommandParameters
     {
         public override ValidationResult Validate()

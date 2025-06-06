@@ -31,4 +31,7 @@ public sealed class CommandOptionAttribute : Attribute, ICommandOptionAttributeD
 
     /// <inheritdoc/>
     public bool IsHidden { get; set; }
+
+    /// <inheritdoc/>
+    public bool IsRequired { get; set; }
 }

@@ -30,16 +30,16 @@ internal sealed class CommandParametersFactory : ICommandParametersFactory
                 global::System.Collections.Immutable.ImmutableArray.Create<CommandOption>(
                     new CommandOption(
                         typeof(Test.Parameters),
-                        "Enable",
+                        "Value",
                         "--option",
-                        static (context, values, converters) => ((Test.Parameters)context.Parameters).Enable = ParameterValueConverter.ConvertSingle<System.Boolean>(values, converters, static (value) => System.Boolean.Parse(value)),
-                        typeof(System.Boolean),
-                        "Enables things")
+                        static (context, values, converters) => ((Test.Parameters)context.Parameters).Value = ParameterValueConverter.ConvertSingle<System.String>(values, converters, static (value) => value),
+                        typeof(System.String),
+                        null)
                     {
-                        Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>("-o"),
-                        IsFlag = true,
+                        Aliases = global::System.Collections.Immutable.ImmutableArray.Create<string>(),
+                        IsFlag = false,
                         IsHidden = false,
-                        IsRequired = false,
+                        IsRequired = true,
                     }));
         }
 

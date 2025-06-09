@@ -57,6 +57,29 @@ public sealed class CommandParametersFactoryGeneratorTest
     }
 
     [Fact]
+    public Task AssignsValuesForNullableValueTypes()
+    {
+        return VerifySource(
+            """
+            using XO.Console.Cli;
+
+            namespace Test;
+
+            public sealed class Parameters : CommandParameters
+            {
+                [CommandOption("--count")]
+                public int? Parse { get; set; }
+
+                [CommandOption("--style")]
+                public CommandOptionStyle? Enum { get; set; }
+
+                [CommandOption("--code")]
+                public char? Char { get; set; }
+            }
+            """);
+    }
+
+    [Fact]
     public Task DetectsParameters()
     {
         return VerifySource(

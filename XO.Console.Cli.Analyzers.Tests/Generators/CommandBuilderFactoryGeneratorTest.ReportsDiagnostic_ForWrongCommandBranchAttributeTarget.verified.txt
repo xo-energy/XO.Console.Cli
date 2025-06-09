@@ -1,12 +1,15 @@
 ﻿[
   {
-    Id: XOCLI201,
-    Title: CommandBranchAttribute must be applied to a custom attribute that derives from CommandAttribute,
-    Severity: Error,
-    WarningLevel: 0,
     Location: : (5,22)-(5,29),
-    MessageFormat: CommandBranchAttribute target '{0}' does not derive from CommandAttribute,
     Message: CommandBranchAttribute target 'Test.MyClass' does not derive from CommandAttribute,
-    Category: XOCLI
+    Severity: Error,
+    Descriptor: {
+      Id: XOCLI201,
+      Title: CommandBranchAttribute must be applied to a custom attribute that derives from CommandAttribute,
+      MessageFormat: CommandBranchAttribute target '{0}' does not derive from CommandAttribute,
+      Category: XOCLI,
+      DefaultSeverity: Error,
+      IsEnabledByDefault: true
+    }
   }
 ]

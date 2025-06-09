@@ -1,22 +1,28 @@
 ﻿[
   {
-    Id: XOCLI212,
-    Title: Custom CommandAttribute constructors must have a first parameter 'string verb',
-    Severity: Error,
-    WarningLevel: 0,
     Location: : (7,11)-(7,32),
-    MessageFormat: Custom CommandAttribute constructor '{0}' must have a first parameter 'string verb',
     Message: Custom CommandAttribute constructor 'Test.GroupCommandAttribute.GroupCommandAttribute()' must have a first parameter 'string verb',
-    Category: XOCLI
+    Severity: Error,
+    Descriptor: {
+      Id: XOCLI212,
+      Title: Custom CommandAttribute constructors must have a first parameter 'string verb',
+      MessageFormat: Custom CommandAttribute constructor '{0}' must have a first parameter 'string verb',
+      Category: XOCLI,
+      DefaultSeverity: Error,
+      IsEnabledByDefault: true
+    }
   },
   {
-    Id: XOCLI212,
-    Title: Custom CommandAttribute constructors must have a first parameter 'string verb',
-    Severity: Error,
-    WarningLevel: 0,
     Location: : (13,11)-(13,32),
-    MessageFormat: Custom CommandAttribute constructor '{0}' must have a first parameter 'string verb',
     Message: Custom CommandAttribute constructor 'Test.GroupCommandAttribute.GroupCommandAttribute(int)' must have a first parameter 'string verb',
-    Category: XOCLI
+    Severity: Error,
+    Descriptor: {
+      Id: XOCLI212,
+      Title: Custom CommandAttribute constructors must have a first parameter 'string verb',
+      MessageFormat: Custom CommandAttribute constructor '{0}' must have a first parameter 'string verb',
+      Category: XOCLI,
+      DefaultSeverity: Error,
+      IsEnabledByDefault: true
+    }
   }
 ]

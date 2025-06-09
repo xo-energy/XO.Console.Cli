@@ -1,12 +1,15 @@
 ﻿[
   {
-    Id: XOCLI111,
-    Title: Commands may not have multiple command attributes,
-    Severity: Error,
-    WarningLevel: 0,
     Location: : (22,22)-(22,30),
-    MessageFormat: More than one CommandAttribute (or subclass of CommandAttribute) is applied to command class '{0}',
     Message: More than one CommandAttribute (or subclass of CommandAttribute) is applied to command class 'Test.Command1',
-    Category: XOCLI
+    Severity: Error,
+    Descriptor: {
+      Id: XOCLI111,
+      Title: Commands may not have multiple command attributes,
+      MessageFormat: More than one CommandAttribute (or subclass of CommandAttribute) is applied to command class '{0}',
+      Category: XOCLI,
+      DefaultSeverity: Error,
+      IsEnabledByDefault: true
+    }
   }
 ]

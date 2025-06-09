@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <None
-      Include="..\XO.Console.Cli.Analyzers\bin\$(Configuration)\netstandard2.0\XO.Console.Cli.Analyzers.dll"
+      Include="..\artifacts\bin\XO.Console.Cli.Analyzers\$(Configuration.ToLowerInvariant())\XO.Console.Cli.Analyzers.dll"
       Pack="true"
       PackagePath="analyzers/dotnet/cs"
       Visible="false" />

@@ -1,5 +1,4 @@
-obj/
-bin/
+artifacts/
 packages/
 reports/
 BenchmarkDotNet.Artifacts/

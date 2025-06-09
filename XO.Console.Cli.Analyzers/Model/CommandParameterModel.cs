@@ -36,6 +36,14 @@ public abstract record CommandParameterModel
         if (propertyType.TypeKind == TypeKind.Array)
             return ((IArrayTypeSymbol)propertyType).ElementType;
 
+        // Check for Nullable<T> and return the underlying type
+        if (propertyType is INamedTypeSymbol { IsGenericType: true } namedType &&
+            namedType.ConstructedFrom.SpecialType == SpecialType.System_Nullable_T &&
+            namedType.TypeArguments.Length == 1)
+        {
+            return namedType.TypeArguments[0];
+        }
+
         return propertyType;
     }
 

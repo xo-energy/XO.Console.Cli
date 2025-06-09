@@ -21,32 +21,41 @@ public class Benchmarks
         public Config()
         {
             AddJob([
-                new("net6.0", Job.Default)
-                {
-                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp60 },
-                },
                 new("net8.0", Job.Default)
                 {
                     Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp80 },
+                },
+                new("net9.0", Job.Default)
+                {
+                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp90 },
                 },
                 new("net8.0-aot", Job.Default)
                 {
                     Infrastructure = { Toolchain = NativeAotToolchain.Net80 },
                 },
-                new("dry-net6.0", Job.Dry)
+                new("net9.0-aot", Job.Default)
                 {
-                    Run = { LaunchCount = 20 },
-                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp60 },
+                    Infrastructure = { Toolchain = NativeAotToolchain.Net90 },
                 },
                 new("dry-net8.0", Job.Dry)
                 {
                     Run = { LaunchCount = 20 },
                     Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp80 },
                 },
+                new("dry-net9.0", Job.Dry)
+                {
+                    Run = { LaunchCount = 20 },
+                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp90 },
+                },
                 new("dry-net8.0-aot", Job.Dry)
                 {
                     Run = { LaunchCount = 20 },
                     Infrastructure = { Toolchain = NativeAotToolchain.Net80 },
+                },
+                new("dry-net9.0-aot", Job.Dry)
+                {
+                    Run = { LaunchCount = 20 },
+                    Infrastructure = { Toolchain = NativeAotToolchain.Net90 },
                 },
             ]);
         }

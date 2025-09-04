@@ -28,4 +28,13 @@ public interface IConsole
 
     /// <inheritdoc cref="System.Console.IsErrorRedirected"/>
     bool IsErrorRedirected { get; }
+
+    /// <inheritdoc cref="System.Console.OpenStandardError()"/>
+    Stream OpenStandardError();
+
+    /// <inheritdoc cref="System.Console.OpenStandardInput()"/>
+    Stream OpenStandardInput();
+
+    /// <inheritdoc cref="System.Console.OpenStandardOutput()"/>
+    Stream OpenStandardOutput();
 }

@@ -14,7 +14,7 @@ public class HelpCommandTest : CommandAppTestBase
 
         await app.ExecuteAsync(new[] { "--help" }, TestContext.Current.CancellationToken);
 
-        Assert.Contains("USAGE", this.Console.OutputBuffer.ToString());
+        Assert.Contains("USAGE", this.Console.ReadOutputAsString());
     }
 
     [Fact]

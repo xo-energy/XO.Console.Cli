@@ -93,6 +93,12 @@ public class Benchmarks
 
         public bool IsErrorRedirected => false;
 
+        public Stream OpenStandardError() => Stream.Null;
+
+        public Stream OpenStandardInput() => Stream.Null;
+
+        public Stream OpenStandardOutput() => Stream.Null;
+
         public static readonly NullConsole Instance = new NullConsole();
     }
 

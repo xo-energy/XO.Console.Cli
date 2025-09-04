@@ -22,4 +22,13 @@ internal sealed class SystemConsole : IConsole
 
     /// <inheritdoc/>
     public bool IsErrorRedirected => System.Console.IsErrorRedirected;
+
+    /// <inheritdoc/>
+    public Stream OpenStandardError() => System.Console.OpenStandardError();
+
+    /// <inheritdoc/>
+    public Stream OpenStandardInput() => System.Console.OpenStandardInput();
+
+    /// <inheritdoc/>
+    public Stream OpenStandardOutput() => System.Console.OpenStandardOutput();
 }

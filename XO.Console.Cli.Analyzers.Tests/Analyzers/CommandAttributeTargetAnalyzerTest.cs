@@ -14,7 +14,7 @@ public sealed class CommandAttributeTargetAnalyzerTest
             public enum MyEnum { Default }
             """);
 
-        Assert.Empty(await compilation.GetAllDiagnosticsAsync());
+        Assert.Empty(await compilation.GetAllDiagnosticsAsync(TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public sealed class CommandAttributeTargetAnalyzerTest
             }
             """);
 
-        Assert.Empty(await compilation.GetAllDiagnosticsAsync());
+        Assert.Empty(await compilation.GetAllDiagnosticsAsync(TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public sealed class CommandAttributeTargetAnalyzerTest
             """);
 
         Assert.Collection(
-            await compilation.GetAllDiagnosticsAsync(),
+            await compilation.GetAllDiagnosticsAsync(TestContext.Current.CancellationToken),
             static (diagnostic) =>
             {
                 Assert.Multiple(
@@ -89,7 +89,7 @@ public sealed class CommandAttributeTargetAnalyzerTest
             """);
 
         Assert.Collection(
-            await compilation.GetAllDiagnosticsAsync(),
+            await compilation.GetAllDiagnosticsAsync(TestContext.Current.CancellationToken),
             static (diagnostic) =>
             {
                 Assert.Multiple(
@@ -116,7 +116,7 @@ public sealed class CommandAttributeTargetAnalyzerTest
             """);
 
         Assert.Collection(
-            await compilation.GetAllDiagnosticsAsync(),
+            await compilation.GetAllDiagnosticsAsync(TestContext.Current.CancellationToken),
             static (diagnostic) =>
             {
                 Assert.Multiple(
@@ -141,7 +141,7 @@ public sealed class CommandAttributeTargetAnalyzerTest
             """);
 
         Assert.Collection(
-            await compilation.GetAllDiagnosticsAsync(),
+            await compilation.GetAllDiagnosticsAsync(TestContext.Current.CancellationToken),
             static (diagnostic) =>
             {
                 Assert.Multiple(
@@ -168,7 +168,7 @@ public sealed class CommandAttributeTargetAnalyzerTest
             """);
 
         Assert.Collection(
-            await compilation.GetAllDiagnosticsAsync(),
+            await compilation.GetAllDiagnosticsAsync(TestContext.Current.CancellationToken),
             static (diagnostic) =>
             {
                 Assert.Multiple(

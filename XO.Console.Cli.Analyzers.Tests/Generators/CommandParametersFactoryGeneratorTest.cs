@@ -246,7 +246,8 @@ public sealed class CommandParametersFactoryGeneratorTest
         _ = CompilationHelper.RunGenerator<CommandParametersFactoryGenerator>(
             "",
             out var outputCompilation,
-            out _);
+            out _,
+            TestContext.Current.CancellationToken);
 
         Assert.Single(outputCompilation.SyntaxTrees);
     }
@@ -300,7 +301,8 @@ public sealed class CommandParametersFactoryGeneratorTest
             }
             """,
             out var outputCompilation,
-            out _);
+            out _,
+            TestContext.Current.CancellationToken);
 
         Assert.Single(outputCompilation.SyntaxTrees);
     }

@@ -255,7 +255,7 @@ public class CommandAppTest : CommandAppTestBase
             .AddCommand<TestCommands.NoOp>("noop", builder => builder.AddAlias(alias))
             .Build();
 
-        var result = await app.ExecuteAsync(new[] { alias });
+        var result = await app.ExecuteAsync(new[] { alias }, TestContext.Current.CancellationToken);
 
         Assert.Equal(0, result);
     }
@@ -532,7 +532,7 @@ public class CommandAppTest : CommandAppTestBase
         var app = CreateBuilder()
             .Build();
 
-        var result = await app.ExecuteAsync(Array.Empty<string>());
+        var result = await app.ExecuteAsync(Array.Empty<string>(), TestContext.Current.CancellationToken);
 
         Assert.Equal(1, result);
     }

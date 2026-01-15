@@ -98,10 +98,15 @@ public sealed class AssemblyCommandAppDefaultsGeneratorTest
         var compilation = CompilationHelper.CreateCompilation(source);
 
         // make sure the input source compiles without warnings before involving the generator
-        Assert.Empty(compilation.GetDiagnostics());
+        Assert.Empty(compilation.GetDiagnostics(TestContext.Current.CancellationToken));
 
-        _ = CSharpGeneratorDriver.Create(generator)
-            .RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+        _ = CSharpGeneratorDriver
+            .Create(generator)
+            .RunGeneratorsAndUpdateCompilation(
+                compilation,
+                out var outputCompilation,
+                out var diagnostics,
+                TestContext.Current.CancellationToken);
 
         var outputDirectoryName = Path.GetRandomFileName();
         var outputDirectoryPath = Path.Join(Path.GetTempPath(), outputDirectoryName);
@@ -116,7 +121,7 @@ public sealed class AssemblyCommandAppDefaultsGeneratorTest
 
             // compile the source to an assembly on disk
             using (var stream = File.OpenWrite(assemblyPath))
-                emitResult = outputCompilation.Emit(stream);
+                emitResult = outputCompilation.Emit(stream, cancellationToken: TestContext.Current.CancellationToken);
 
             Assert.True(emitResult.Success);
             Assert.Empty(emitResult.Diagnostics);
@@ -153,9 +158,9 @@ public sealed class AssemblyCommandAppDefaultsGeneratorTest
             using (var proc = Process.Start(procstart))
             {
                 Assert.NotNull(proc);
-                stdout = await proc.StandardOutput.ReadToEndAsync();
-                stderr = await proc.StandardError.ReadToEndAsync();
-                await proc.WaitForExitAsync();
+                stdout = await proc.StandardOutput.ReadToEndAsync(TestContext.Current.CancellationToken);
+                stderr = await proc.StandardError.ReadToEndAsync(TestContext.Current.CancellationToken);
+                await proc.WaitForExitAsync(TestContext.Current.CancellationToken);
                 Assert.Equal(0, proc.ExitCode);
             }
 

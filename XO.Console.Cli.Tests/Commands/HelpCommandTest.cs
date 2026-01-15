@@ -12,7 +12,7 @@ public class HelpCommandTest : CommandAppTestBase
         var app = CreateBuilder()
             .Build();
 
-        await app.ExecuteAsync(new[] { "--help" });
+        await app.ExecuteAsync(new[] { "--help" }, TestContext.Current.CancellationToken);
 
         Assert.Contains("USAGE", this.Console.OutputBuffer.ToString());
     }
@@ -23,7 +23,7 @@ public class HelpCommandTest : CommandAppTestBase
         var app = CreateBuilder()
             .Build();
 
-        var result = await app.ExecuteAsync(new[] { "--help" });
+        var result = await app.ExecuteAsync(new[] { "--help" }, TestContext.Current.CancellationToken);
 
         Assert.Equal(0, result);
     }
@@ -37,7 +37,7 @@ public class HelpCommandTest : CommandAppTestBase
             .AddCommand<TestCommands.NoOp>("noop", builder => builder.AddAlias(alias))
             .Build();
 
-        var result = await app.ExecuteAsync(new[] { alias, "--help" });
+        var result = await app.ExecuteAsync(new[] { alias, "--help" }, TestContext.Current.CancellationToken);
 
         Assert.Equal(0, result);
     }
@@ -49,7 +49,7 @@ public class HelpCommandTest : CommandAppTestBase
             .AddCommand<TestCommandWithParameters>("test")
             .Build();
 
-        var result = await app.ExecuteAsync(new[] { "test", "foo", "--help" });
+        var result = await app.ExecuteAsync(new[] { "test", "foo", "--help" }, TestContext.Current.CancellationToken);
 
         Assert.Equal(0, result);
     }

@@ -18,7 +18,8 @@ public sealed class CommandBuilderFactoryGeneratorTest
             }
             """,
             out var outputCompilation,
-            out _);
+            out _,
+            TestContext.Current.CancellationToken);
 
         Assert.Single(outputCompilation.SyntaxTrees);
     }

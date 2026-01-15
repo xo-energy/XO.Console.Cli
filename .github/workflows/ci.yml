@@ -34,12 +34,12 @@ jobs:
       - name: Run dotnet test
         run: >
           dotnet test --no-build
-          -bl:"reports/dotnet-test.binlog"
           -c Release
           --results-directory "reports"
-          --collect "XPlat Code Coverage"
-          --logger "GitHubActions"
-          --logger "trx;LogFilePrefix=${{ github.job }}"
+          --coverage
+          --coverage-output-format cobertura
+          --report-github
+          --report-trx
 
       - uses: codecov/codecov-action@v4
         with:

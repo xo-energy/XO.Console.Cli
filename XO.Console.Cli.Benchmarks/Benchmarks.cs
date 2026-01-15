@@ -29,6 +29,10 @@ public class Benchmarks
                 {
                     Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp90 },
                 },
+                new("net10.0", Job.Default)
+                {
+                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp10_0 },
+                },
                 new("net8.0-aot", Job.Default)
                 {
                     Infrastructure = { Toolchain = NativeAotToolchain.Net80 },
@@ -36,6 +40,10 @@ public class Benchmarks
                 new("net9.0-aot", Job.Default)
                 {
                     Infrastructure = { Toolchain = NativeAotToolchain.Net90 },
+                },
+                new("net10.0-aot", Job.Default)
+                {
+                    Infrastructure = { Toolchain = NativeAotToolchain.Net10_0 },
                 },
                 new("dry-net8.0", Job.Dry)
                 {
@@ -47,6 +55,11 @@ public class Benchmarks
                     Run = { LaunchCount = 20 },
                     Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp90 },
                 },
+                new("dry-net10.0", Job.Dry)
+                {
+                    Run = { LaunchCount = 20 },
+                    Infrastructure = { Toolchain = CsProjCoreToolchain.NetCoreApp10_0 },
+                },
                 new("dry-net8.0-aot", Job.Dry)
                 {
                     Run = { LaunchCount = 20 },
@@ -56,6 +69,11 @@ public class Benchmarks
                 {
                     Run = { LaunchCount = 20 },
                     Infrastructure = { Toolchain = NativeAotToolchain.Net90 },
+                },
+                new("dry-net10.0-aot", Job.Dry)
+                {
+                    Run = { LaunchCount = 20 },
+                    Infrastructure = { Toolchain = NativeAotToolchain.Net10_0 },
                 },
             ]);
         }

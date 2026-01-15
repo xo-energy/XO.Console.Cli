@@ -3,16 +3,18 @@
   "isRoot": true,
   "tools": {
     "nbgv": {
-      "version": "3.7.115",
+      "version": "3.9.50",
       "commands": [
         "nbgv"
-      ]
+      ],
+      "rollForward": false
     },
     "husky": {
       "version": "0.7.2",
       "commands": [
         "husky"
-      ]
+      ],
+      "rollForward": false
     }
   }
 }

@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using OpenTelemetry.Trace;
 using XO.Console.Cli.Model;
 
 namespace XO.Console.Cli.Instrumentation;
@@ -60,8 +59,8 @@ public sealed class CommandAppInstrumentationMiddleware : ICommandAppMiddleware
         {
             if (activity?.IsAllDataRequested == true)
             {
-                activity.RecordException(ex);
-                activity.SetStatus(Status.Error.WithDescription(ex.Message));
+                activity.AddException(ex);
+                activity.SetStatus(ActivityStatusCode.Error, ex.Message);
             }
             throw;
         }

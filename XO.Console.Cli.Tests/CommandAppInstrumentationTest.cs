@@ -71,6 +71,8 @@ public class CommandAppInstrumentationTest
                     {
                     }));
 
-        Assert.Equal(Status.Error.WithDescription(ex.Message), activity?.GetStatus());
+        Assert.Multiple(
+            () => Assert.Equal(ActivityStatusCode.Error, activity?.Status),
+            () => Assert.Equal(ex.Message, activity?.StatusDescription));
     }
 }

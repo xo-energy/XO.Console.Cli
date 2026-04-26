@@ -2,6 +2,7 @@ artifacts/
 packages/
 reports/
 BenchmarkDotNet.Artifacts/
+.claude/settings.local.json
 .vs/
 *.binlog
 *.suo
